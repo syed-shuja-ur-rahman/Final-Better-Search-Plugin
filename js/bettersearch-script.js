@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const $ = jQuery;
 
     
+    
 
     if (searchInput.value === " ") {
         return;
