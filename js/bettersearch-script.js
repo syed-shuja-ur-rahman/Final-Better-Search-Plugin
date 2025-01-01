@@ -6,7 +6,7 @@
 
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('bettersearch-input');
-    const resultsContainer = document.getElementById('ai-search-suggestions');
+    const resultsContainer = document.getElementById('ai-search-suggestions-bs');
     const nonce = aiSearch.nonce; // Localized nonce for security
     const searchLimit = aiSearch.search_limit; // Limit for each result type
     const searchDelay = aiSearch.search_delay; // Limit for each result type
@@ -67,9 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 $('#ai-search-clear').show();
  
                 if (data.status !== 'success') {
-                    // Display error message if the request fails
-                    alert('Yeh error walay code main ja rha')
-                    $('#ai-search-suggestions').html(`<div class="error">${data.message}</div>`).show();
+                    $('#ai-search-suggestions-bs').html(`<div class="error">${data.message}</div>`).show();
                     return;
                 }
 
@@ -85,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Categorize results based on asset type
                 data.data.forEach(item => {
 
-                    if (item.asset_type === 'Video lesson' || item.asset_type === 'Courses' || item.asset_type === 'Non-Video lesson') {
+                    if (item.asset_type === 'Courses' || item.asset_type === 'Video lesson' || item.asset_type === 'Non-Video lesson') {
                         categorizedResults.lessons.push(item);
                     } else if (item.asset_type === 'Feature') {
                         categorizedResults.features.push(item);
@@ -142,12 +140,20 @@ document.addEventListener('DOMContentLoaded', function () {
                                         <div class="col-sm-4 category-title">Course/Lessons</div>
                                     </div>
                             </div>`;
+                        
+                        // Sort lessons so "Course" items appear first
+                        // const sortedLessons = categorizedResults.lessons.sort((a, b) => {
+                        //     if (a.asset_type === "Courses" || b.asset_type !== "Courses") return -1; // "Courses" comes first
+                        //     if (a.asset_type !== "Courses" || b.asset_type === "Courses") return 1;  // Other types come later
+                        //     return 0; // Maintain relative order for other types
+                        // });
+
                     _.take(categorizedResults.lessons, searchLimit).forEach((lesson) => {
                         const thumbnail = lesson.asset_type === "Video lesson"
-                            ? `${aiSearch.plugin_url}assets/images/Video-lesson.png`
-                            : lesson.asset_type === "Non-Video lesson" || lesson.asset_type === "Courses"
-                                ? `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`
-                                : `${lesson.thumbnail_url}`;
+                                            ? `${aiSearch.plugin_url}assets/images/Video-lesson.png`
+                                            : lesson.asset_type === "Non-Video lesson" || lesson.asset_type === "Courses"
+                                                ? `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`
+                                                : `${lesson.thumbnail_url}`;
                         html += `
                         <div class="container">
                         <div class="ai-search-suggestions row">
@@ -158,8 +164,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                             <div class="col-sm-10 d-flex align-items-center search-title px-0">
                         <a href="${lesson.url}" target="_blank">
+                        <p class="asset-type my-0 mx-1" data-type="${lesson.category}" >${lesson.category}</p>
                                <h5> ${lesson.title}</h5>  
-								
                         </a>
                             </div>
                             </div>
@@ -177,8 +183,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>`;
                     _.take(categorizedResults.articles, searchLimit).forEach((article) => {
                         const thumbnail = article.thumbnail_url === "" || null
-                            ? `${aiSearch.plugin_url}assets/images/Default-Misc.png`
-                            : article.thumbnail_url;
+                                            ? `${aiSearch.plugin_url}assets/images/Default-Misc.png`
+                                            : article.thumbnail_url;
                         html += `
 						<div class="container"> 
                                 <div class="ai-search-suggestions row">
@@ -268,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Clear search box and suggestions
     $('#ai-search-clear').on('click', function () {
         $('#bettersearch-input').val(''); // Clear the input field
-        $('#ai-search-suggestions').empty().hide(); // Clear and hide the suggestions box
+        $('#ai-search-suggestions-bs').empty().hide(); // Clear and hide the suggestions box
     });
     
 });

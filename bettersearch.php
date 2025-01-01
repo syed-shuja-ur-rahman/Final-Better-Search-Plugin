@@ -143,7 +143,7 @@ function ai_search_shortcode_function($atts)
                 </span>
             </div>
         </div>
-        <div id="ai-search-suggestions" class="ai-search-suggestions-box"></div>
+        <div id="ai-search-suggestions-bs" class="ai-search-suggestions-box"></div>
     </div>
 
 <?php

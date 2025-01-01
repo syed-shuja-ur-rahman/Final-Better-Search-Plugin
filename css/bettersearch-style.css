@@ -26,10 +26,10 @@ input[type="text"]:focus {
     color: #000; 
 }
 
-#ai-search-suggestions {
+.ai-search-suggestions-box {
     position: absolute;
     border-top: 0px !important;
-    top: 45px;
+    /* top: 45px; */
     width: 100% !important;
     background: #fff;
     border: 1px solid #ccc !important;
@@ -157,8 +157,8 @@ input[type="text"]:focus {
 .search-container {
     position: relative;
     width:100%;
-    padding-right: 0px !important;
-    padding-left: 0px !important;
+    /* padding-right: 0px !important;
+    padding-left: 0px !important; */
     
   }
 
