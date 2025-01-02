@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const apiUrl = aiSearch.api_url; // API URL from settings
     const apiKey = aiSearch.api_key; // API key from settings
     const search_type = aiSearch.search_type;
+    const filteredData = "license_type!=Private";
 
     const $ = jQuery;
 
@@ -54,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify({
                 Query: query,
                 SearchType: search_type, 
-                Filter: '',
+                Filter: filteredData,
                 Offset: 0,
                 Limit: 20,
                 nonce: nonce,
@@ -154,6 +155,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                             : lesson.asset_type === "Non-Video lesson" || lesson.asset_type === "Courses"
                                                 ? `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`
                                                 : `${lesson.thumbnail_url}`;
+
+                                console.log ('<===Here is the License Type for a course===>' + lesson.license_type);
+
+
+
                         html += `
                         <div class="container">
                         <div class="ai-search-suggestions row">
@@ -261,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     `;
                 } else {
                     // Fallback error message if no specific response is available
-                    resultsContainer.innerHTML = '<div class="error">Unknown error occurred.</div>';
+                    resultsContainer.innerHTML = `<div class="error">Unknown error occurred.</div>`;
                 }
             });
 
