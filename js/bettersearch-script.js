@@ -4,89 +4,200 @@
 // });
 
 
+// document.addEventListener('DOMContentLoaded', function () {
+//     const searchInput = document.getElementById('bettersearch-input');
+//     const resultsContainer = document.getElementById('ai-search-suggestions-bs');
+//     const nonce = aiSearch.nonce; // Localized nonce for security
+//     const searchLimit = aiSearch.search_limit; // Limit for each result type
+//     const searchDelay = aiSearch.search_delay; // Limit for each result type
+//     const apiUrl = aiSearch.api_url; // API URL from settings
+//     const apiKey = aiSearch.api_key; // API key from settings
+//     const search_type = aiSearch.search_type;
+//     const filteredData = "license_type!=Private";
+//     const search_threshold = aiSearch.search_threshold;
+
+//     const $ = jQuery;
+
+    
+    
+
+//     if (searchInput.value === " ") {
+//         return;
+//     };
+    
+//     // Debounced search input handler
+//     const handleSearch = _.debounce(function () {
+
+//         const query = searchInput.value.trim();
+//         // Show spinner and hide cross icon
+//         $('#loading-spinner').show();
+//         $('#ai-search-clear').hide();
+
+
+//         if (query.length < 3) {
+//             // Clear results if the query is too short
+//             resultsContainer.innerHTML = '';
+//             resultsContainer.style.display = 'none';
+//             $('#loading-spinner').hide();
+//             $('#ai-search-clear').show();
+//             return;
+//         }
+
+
+
+//         // Fetch suggestions via AJAX
+//         fetch(apiUrl, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'x-api-key': apiKey, 
+//             },
+
+//             body: JSON.stringify({
+//                 Query: query,
+//                 SearchType: search_type, 
+//                 Filter: filteredData,
+//                 Offset: 0,
+//                 Limit: 20,
+//                 Threshold: search_threshold,
+//                 nonce: nonce,
+//             }),
+//         })
+//             .then((response) => response.json())
+//             .then((data) => {
+//                 // Hide spinner and show cross icon
+//                 $('#loading-spinner').hide();
+//                 $('#ai-search-clear').show();
+ 
+//                 if (data.status !== 'success') {
+//                     $('#ai-search-suggestions-bs').html(`<div class="error">${data.message}</div>`).show();
+//                     return;
+//                 }
+
+
+//                 resultsContainer.style.display = 'block';
+//                 const categorizedResults = {
+//                     lessons: [],
+//                     features: [],
+//                     helpcenter: [],
+//                     articles: []
+//                 };
+
+//                 // Categorize results based on asset type
+//                 data.data.forEach(item => {
+
+//                     if (item.asset_type === 'Courses' || item.asset_type === 'Video lesson' || item.asset_type === 'Non-Video lesson') {
+//                         categorizedResults.lessons.push(item);
+//                     } else if (item.asset_type === 'Feature') {
+//                         categorizedResults.features.push(item);
+//                     } else if (item.asset_type === 'Help Center') {
+//                         categorizedResults.helpcenter.push(item);
+//                     } else {
+//                         categorizedResults.articles.push(item);
+//                     }
+//                 });
+                
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('bettersearch-input');
     const resultsContainer = document.getElementById('ai-search-suggestions-bs');
-    const nonce = aiSearch.nonce; // Localized nonce for security
-    const searchLimit = aiSearch.search_limit; // Limit for each result type
-    const searchDelay = aiSearch.search_delay; // Limit for each result type
-    const apiUrl = aiSearch.api_url; // API URL from settings
-    const apiKey = aiSearch.api_key; // API key from settings
+    const nonce = aiSearch.nonce;
+    const searchLimit = aiSearch.search_limit;
+    const searchDelay = aiSearch.search_delay;
+    const apiUrl = aiSearch.api_url;
+    const apiKey = aiSearch.api_key;
     const search_type = aiSearch.search_type;
-    const filteredData = "license_type!=Private";
+    const search_threshold = aiSearch.search_threshold;
 
     const $ = jQuery;
 
-    
-    
-
     if (searchInput.value === " ") {
         return;
+    }
+
+    const fetchFilteredLessons = (query) => {
+        // New API Call to Fetch Filtered Lessons
+        return fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+            },
+            body: JSON.stringify({
+                Query: query,
+                SearchType: search_type,
+                Filter: "(asset_type='Courses' OR asset_type='Non-Video lesson' OR asset_type='Video lesson') AND  (license_type!=Private)", // Filtering specific asset types
+                Offset: 0,
+                Limit: 20,
+                Threshold: search_threshold,
+                nonce: nonce,
+            }),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.status === 'success') {
+                return data.data; // Return filtered lessons
+            } 
+            
+        })
+        
+            
     };
-    
+
     // Debounced search input handler
     const handleSearch = _.debounce(function () {
-
         const query = searchInput.value.trim();
-        // Show spinner and hide cross icon
         $('#loading-spinner').show();
         $('#ai-search-clear').hide();
 
-
         if (query.length < 3) {
-            // Clear results if the query is too short
             resultsContainer.innerHTML = '';
             resultsContainer.style.display = 'none';
             $('#loading-spinner').hide();
             $('#ai-search-clear').show();
             return;
         }
-
-
-
+       
         // Fetch suggestions via AJAX
         fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-api-key': apiKey, 
+                'x-api-key': apiKey,
             },
-
             body: JSON.stringify({
                 Query: query,
-                SearchType: search_type, 
-                Filter: filteredData,
+                SearchType: search_type,
+                Filter: "asset_type!='Courses' AND asset_type!='Non-Video lesson' AND asset_type!='Video lesson' ",
                 Offset: 0,
                 Limit: 20,
                 nonce: nonce,
             }),
         })
             .then((response) => response.json())
-            .then((data) => {
-                // Hide spinner and show cross icon
+            .then(async (data) => {
                 $('#loading-spinner').hide();
                 $('#ai-search-clear').show();
- 
+
                 if (data.status !== 'success') {
                     $('#ai-search-suggestions-bs').html(`<div class="error">${data.message}</div>`).show();
                     return;
                 }
-
 
                 resultsContainer.style.display = 'block';
                 const categorizedResults = {
                     lessons: [],
                     features: [],
                     helpcenter: [],
-                    articles: []
+                    articles: [],
                 };
 
-                // Categorize results based on asset type
-                data.data.forEach(item => {
+                // Fetch filtered lessons from the new API
+                const filteredLessons = await fetchFilteredLessons(query);
+                categorizedResults.lessons = filteredLessons;
 
-                    if (item.asset_type === 'Courses' || item.asset_type === 'Video lesson' || item.asset_type === 'Non-Video lesson') {
-                        categorizedResults.lessons.push(item);
-                    } else if (item.asset_type === 'Feature') {
+                // Categorize remaining results based on asset type
+                data.data.forEach((item) => {
+                    if (item.asset_type === 'Feature') {
                         categorizedResults.features.push(item);
                     } else if (item.asset_type === 'Help Center') {
                         categorizedResults.helpcenter.push(item);
@@ -94,7 +205,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         categorizedResults.articles.push(item);
                     }
                 });
-                
+
+
                 function getThumbnail(thumbnail_url) {
                     // Check if the thumbnail URL is empty
                     return thumbnail_url === "" || !thumbnail_url
@@ -143,23 +255,18 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>`;
                         
                         // Sort lessons so "Course" items appear first
-                        // const sortedLessons = categorizedResults.lessons.sort((a, b) => {
-                        //     if (a.asset_type === "Courses" || b.asset_type !== "Courses") return -1; // "Courses" comes first
-                        //     if (a.asset_type !== "Courses" || b.asset_type === "Courses") return 1;  // Other types come later
-                        //     return 0; // Maintain relative order for other types
-                        // });
+                        const sortedLessons = categorizedResults.lessons.sort((a, b) => {
+                            if (a.asset_type === "Courses" || b.asset_type !== "Courses") return -1; // "Courses" comes first
+                            if (a.asset_type !== "Courses" || b.asset_type === "Courses") return 1;  // Other types come later
+                            return 0; // Maintain relative order for other types
+                        });
 
-                    _.take(categorizedResults.lessons, searchLimit).forEach((lesson) => {
+                    _.take(sortedLessons, searchLimit).forEach((lesson) => {
                         const thumbnail = lesson.asset_type === "Video lesson"
                                             ? `${aiSearch.plugin_url}assets/images/Video-lesson.png`
                                             : lesson.asset_type === "Non-Video lesson" || lesson.asset_type === "Courses"
                                                 ? `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`
                                                 : `${lesson.thumbnail_url}`;
-
-                                console.log ('<===Here is the License Type for a course===>' + lesson.license_type);
-
-
-
                         html += `
                         <div class="container">
                         <div class="ai-search-suggestions row">

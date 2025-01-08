@@ -100,6 +100,16 @@ function ai_search_register_settings()
         'ai_search_settings',
         'ai_search_main_section'
     );
+
+    // Add a field for Search Threshold
+    add_settings_field(
+        'search_threshold_field',
+        __('Search Threshold', 'aisearch'),
+        'ai_search_threshold_field_callback',
+        'ai_search_settings',
+        'ai_search_main_section'
+    );  
+
 }
 
 // Section description
@@ -160,6 +170,14 @@ function ai_search_precision_field_callback()
     <?php
 }
 
+// Field callback for Search Threshold
+function ai_search_threshold_field_callback()
+{
+    $options = get_option('wp_aisearch_settings');
+    $search_threshold = isset($options['search_threshold']) ? $options['search_threshold'] : 0.6; // Default to 0.6
+    echo '<input type="number" id="search_threshold" name="wp_aisearch_settings[search_threshold]" value="' . esc_attr($search_threshold) . '" class="regular-text" step="0.1" min="0" max="5">';
+    echo '<p class="description">' . __('Set the search threshold (default: 0.6, range: 0 to 5).', 'aisearch') . '</p>';
+}
 
 
 
@@ -186,6 +204,10 @@ function ai_search_sanitize_settings($input)
     // Ensure search_delay is numeric and within range (0-5000ms)
     if (isset($input['search_delay'])) {
         $input['search_delay'] = max(0, min(5000, intval($input['search_delay'])));
+    }
+    // Ensure search_threshold is numeric and within range
+    if (isset($input['search_threshold'])) {
+        $input['search_threshold'] = max(0, min(5, floatval($input['search_threshold'])));
     }
     return $input;
 }

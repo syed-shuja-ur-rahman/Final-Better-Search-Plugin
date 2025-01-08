@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 2.0
+Version: 2.2
 Author: AIHR
 */
 
@@ -67,6 +67,7 @@ function ai_search_enqueue_scripts()
     $api_url = isset($options['api_url']) ? $options['api_url'] : '';
     $api_key = isset($options['api_key']) ? $options['api_key'] : '';
     $search_type = isset($options['precision']) ? intval($options['precision']) : 0;
+    $search_threshold = isset($options['search_threshold']) ? intval($options['search_threshold']) : 0.6;
 
 
 
@@ -92,6 +93,7 @@ function ai_search_enqueue_scripts()
         'api_url' => $api_url,
         'api_key' => $api_key,
         'search_type' => $search_type,
+        'search_threshold' => $search_threshold,
     ));
 }
 add_action('wp_enqueue_scripts', 'ai_search_enqueue_scripts');
