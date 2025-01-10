@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 2.2
+Version: 2.4
 Author: AIHR
 */
 
