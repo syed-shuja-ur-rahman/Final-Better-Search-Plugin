@@ -1,7 +1,3 @@
-// jQuery(document).ready(function ($) {
-//     console.log("Better Search admin script loaded.");
-
-// });
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -87,7 +83,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Categorize remaining results based on asset type
                 suggestionsData.data.forEach((item) => {
-                    if (item.asset_type === 'Video lesson' || item.asset_type === 'Non-Video lesson'){   
+                    if (item.asset_type === 'Video lesson' || item.asset_type === 'Non-Video lesson')
+                    {
                         categorizedResults.lessons.push(item);
                     } else if (item.asset_type === 'Feature') {
                         categorizedResults.features.push(item);
@@ -141,32 +138,35 @@ document.addEventListener('DOMContentLoaded', function () {
                             return 0;
                         });
 
-                    _.take(sortedLessons, 20).forEach((lesson) => {
-
-                        // console.log('Filtered Lessons Data Response:', lesson._rankingScoreDetails);
-
-                        const thumbnail = lesson.asset_type === "Video lesson"
-                                            ? `${aiSearch.plugin_url}assets/images/Video-lesson.png`
-                                            : `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`;
-                        html += `
-                        <div class="container">
-                        <div class="ai-search-suggestions row">
-                        <div class="col-sm-1 text-md-end px-0 my-auto">
-                            <a href="${lesson.url}" target="_blank">
-                                <div class="ai-thumbnail" style="background-image: url('${thumbnail}');"></div>
-                            </a>
-                        </div>
-                            <div class="col-sm-10 d-flex align-items-center search-title px-0">
-                        <a href="${lesson.url}" target="_blank">
-                        <p class="asset-type my-0 mx-1" data-type="${lesson.category}" >${lesson.category}</p>
-                               <h5> ${lesson.title}</h5>  
-                        </a>
-                            </div>
-                            </div>
-                    </div>`;
-                    });
-                    html += `<hr>`;
-                }
+                        _.take(sortedLessons, searchLimit).forEach((lesson) => {
+                                // console.log('Filtered Lessons Data Response:', lesson._rankingScoreDetails);
+                                    const searchThreshold = parseFloat(lesson._rankingScoreDetails.words.score.toFixed(2));
+                                    const thumbnail = lesson.asset_type === "Courses"
+                                                        ? lesson.thumbnail_url // Use lesson.thumbnail_url if asset_type is "courses"
+                                                        : lesson.asset_type === "Video lesson"
+                                                            ? `${aiSearch.plugin_url}assets/images/Video-lesson.png`
+                                                            : `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`;
+                                      
+                                html += `
+                                <div class="container">
+                                <div class="ai-search-suggestions row">
+                                <div class="col-sm-1 text-md-end px-0 my-auto">
+                                    <a href="${lesson.url}" target="_blank">
+                                        <div class="ai-thumbnail" style="background-image: url('${thumbnail}');"></div>
+                                    </a>
+                                </div>
+                                    <div class="col-sm-10 d-flex align-items-center search-title px-0">
+                                <a href="${lesson.url}" target="_blank">
+                                <p class="asset-type my-0 mx-1" data-type="${lesson.category}" >${lesson.category} ${lesson.asset_type === "Courses" ? `<span><b>(${searchThreshold})</b></span>` : ""}</p> 
+                                       <h5> ${lesson.title}</h5>  
+                                </a>
+                                    </div>
+                                    </div>
+                                </div>`;
+                            
+                        });
+                        html += `<hr>`;
+                    }
 
                 // Handle Misc Section
                 if (!_.isEmpty(categorizedResults.articles)) {
@@ -194,6 +194,36 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </a>
                                         </div>
                                 </div>
+							</div>`;
+                    });
+                    html += `<hr>`;
+                }
+                
+                // Handle Help Center Section
+                if (!_.isEmpty(categorizedResults.helpcenter)) {
+                    html += `<div class="container">
+                                    <div class="row">
+                                        <div class="col-sm-4 category-title">Knowledge Base </div>
+                                    </div>
+                            </div>`;
+                    _.take(categorizedResults.helpcenter, searchLimit).forEach((help_center) => {
+
+                        html += `
+						<div class="container"> 
+                        <div class="ai-search-suggestions row">
+                            <div class="col-sm-1 text-md-center px-0 my-auto">
+                                <a href="${help_center.url}" target="_blank">
+									
+                                    <div class="ai-thumbnail-help"><i class="fa-solid fa-question"></i></div>
+                                </a>
+                            </div>
+                                <div class="col-sm-10 d-flex align-items-center search-title px-0">
+                            <a href="${help_center.url}" target="_blank">
+                            <p class="asset-type my-0 mx-1" >FAQ - Knowledge Base</p>
+                                   <h5> ${help_center.title}</h5>                                     
+                            </a>
+                                </div>
+                        </div>
 							</div>`;
                     });
                     html += `<hr>`;
