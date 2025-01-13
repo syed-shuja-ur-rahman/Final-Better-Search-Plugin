@@ -1,3 +1,7 @@
+// jQuery(document).ready(function ($) {
+//     console.log("Better Search admin script loaded.");
+
+// });
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -9,7 +13,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const apiUrl = aiSearch.api_url;
     const apiKey = aiSearch.api_key;
     const search_type = aiSearch.search_type;
-
+    const c_search_limit = aiSearch.c_search_limit;
+ 
     const $ = jQuery;
 
     const fetchFilteredLessons = (query) => {
@@ -25,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 SearchType: search_type,
                 Filter: "(asset_type='Courses') AND  (license_type!=Private)",
                 Offset: 0,
-                Limit: 20,
+                Limit: c_search_limit,
                 nonce: nonce,
             }),
         }).then((response) => response.json());
@@ -132,15 +137,23 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </div>
                             </div>`;
                         
-                        const sortedLessons = categorizedResults.lessons.sort((a, b) => {
-                            if (a.asset_type === "Courses") return -1;
-                            if (b.asset_type === "Courses") return 1;
-                            return 0;
-                        });
+                        // const sortedLessons = categorizedResults.lessons.sort((a, b) => {
+                        //     if (a.asset_type === "Courses") return -1;
+                        //     if (b.asset_type === "Courses") return 1;
+                        //     return 0;
+                        // });
 
-                        _.take(sortedLessons, searchLimit).forEach((lesson) => {
-                                // console.log('Filtered Lessons Data Response:', lesson._rankingScoreDetails);
-                                    const searchThreshold = parseFloat(lesson._rankingScoreDetails.words.score.toFixed(2));
+                        _.take(categorizedResults.lessons, searchLimit).forEach((lesson) => {
+                            
+                            console.log('Filtered Lessons Data Response:', lesson._rankingScoreDetails.vectorSort);
+                                
+                                if (lesson._rankingScoreDetails.vectorSort === undefined) {
+                                    console.log("Similarity is undefined, setting searchThreshold to 0.");
+                                            searchThreshold = 0;
+                                            
+                                        } else {
+                                            searchThreshold = lesson._rankingScoreDetails.vectorSort.similarity;
+                                        }
                                     const thumbnail = lesson.asset_type === "Courses"
                                                         ? lesson.thumbnail_url // Use lesson.thumbnail_url if asset_type is "courses"
                                                         : lesson.asset_type === "Video lesson"
@@ -198,7 +211,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                     html += `<hr>`;
                 }
-                
                 // Handle Help Center Section
                 if (!_.isEmpty(categorizedResults.helpcenter)) {
                     html += `<div class="container">

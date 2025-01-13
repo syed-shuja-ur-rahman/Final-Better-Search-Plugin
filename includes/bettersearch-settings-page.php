@@ -103,9 +103,9 @@ function ai_search_register_settings()
 
     // Add a field for Search Threshold
     add_settings_field(
-        'search_threshold_field',
-        __('Search Threshold', 'aisearch'),
-        'ai_search_threshold_field_callback',
+        'c_search_limit_field',
+        __('Courses Search Limit', 'aisearch'),
+        'ai_c_search_limit_field_callback',
         'ai_search_settings',
         'ai_search_main_section'
     );  
@@ -171,12 +171,12 @@ function ai_search_precision_field_callback()
 }
 
 // Field callback for Search Threshold
-function ai_search_threshold_field_callback()
+function ai_c_search_limit_field_callback()
 {
     $options = get_option('wp_aisearch_settings');
-    $search_threshold = isset($options['search_threshold']) ? $options['search_threshold'] : 0.6; // Default to 0.6
-    echo '<input type="number" id="search_threshold" name="wp_aisearch_settings[search_threshold]" value="' . esc_attr($search_threshold) . '" class="regular-text" step="0.1" min="0" max="5">';
-    echo '<p class="description">' . __('Set the search threshold (default: 0.6, range: 0 to 5).', 'aisearch') . '</p>';
+    $c_search_limit = isset($options['c_search_limit']) ? $options['c_search_limit'] : 0.6; // Default to 0.6
+    echo '<input type="number" id="c_search_limit" name="wp_aisearch_settings[c_search_limit]" value="' . esc_attr($c_search_limit) . '" class="regular-text" min="0" max="5">';
+    echo '<p class="description">' . __('Set the courses search limit (default: 2, range: 0 to 5).', 'aisearch') . '</p>';
 }
 
 
@@ -205,9 +205,9 @@ function ai_search_sanitize_settings($input)
     if (isset($input['search_delay'])) {
         $input['search_delay'] = max(0, min(5000, intval($input['search_delay'])));
     }
-    // Ensure search_threshold is numeric and within range
-    if (isset($input['search_threshold'])) {
-        $input['search_threshold'] = max(0, min(5, floatval($input['search_threshold'])));
+    // Ensure c_search_limit is numeric and within range
+    if (isset($input['c_search_limit'])) {
+        $input['c_search_limit'] = max(0, min(5, intval($input['c_search_limit'])));
     }
     return $input;
 }
