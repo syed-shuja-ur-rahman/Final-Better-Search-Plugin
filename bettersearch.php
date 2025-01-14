@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 3.0
+Version: 3.1
 Author: AIHR
 */
 
@@ -48,7 +48,7 @@ function ai_search_enqueue_scripts()
 {
 
     // Enqueue Bootstrap CSS
-    wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css', [], '5.3.2');
+    //wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css', [], '5.3.2');
 
 
 
@@ -81,7 +81,7 @@ function ai_search_enqueue_scripts()
         true
     );
 
-    wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js', ['jquery'], '5.3.2', true);
+    //wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js', ['jquery'], '5.3.2', true);
 
     // Localize script for AJAX URL
     wp_localize_script('ai-search-script', 'aiSearch', array(
@@ -118,29 +118,28 @@ function ai_search_shortcode_function($atts)
 ?>
 
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
 
 
-    <div class="search-container container">
-        <div class="row align-items-center">
-            <div class="col position-relative">
+    <div class="search-container">
+        <div class="bs-search-box">
+            <div class="">
                 <!-- Search Icon -->
-                <span class="search-icon position-absolute top-50 start-5 translate-middle-y ps-3">
+                <span class="search-icon">
                     <i class="fa fa-search form-control-feedback"></i>
                 </span>
 
                 <!-- Search Input -->
-                <input type="text" class="form-control better-search-box ps-5"  id="bettersearch-input">
+                <input type="text" class="better-search-box "  id="bettersearch-input">
 
                 <!-- Spinner -->
-                <span id="loading-spinner" class="position-absolute end-5 top-50 translate-middle-y pe-4" style="display: none;">
+                <span id="loading-spinner" class="" style="display: none;">
                     <div class="search-spinner" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        <span class="sp-visually-hidden">Loading...</span>
                     </div>
                 </span>
 
                 <!-- Clear Icon -->
-                <span id="ai-search-clear" class="ai-search-clear position-absolute end-5 top-50 translate-middle-y pe-3" role="button">
+                <span id="ai-search-clear" class="ai-search-clear" role="button">
                     <i class="fa fa-times" aria-hidden="true"></i>
                 </span>
             </div>

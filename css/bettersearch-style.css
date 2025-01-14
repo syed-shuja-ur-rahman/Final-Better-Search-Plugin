@@ -6,6 +6,15 @@
 }
 
 
+.bs-search-box{
+    border: 1px solid #ccc !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 20%) !important;
+}
+
+
+
+
+
 input[type="text"]:focus {
     outline: none;
     border: none;
@@ -14,7 +23,7 @@ input[type="text"]:focus {
 
 #ai-search-clear, #loading-spinner {
     position: absolute;
-    top: 13px; 
+    top: 9px; 
     right: 10px; 
     cursor: pointer;
     font-size: 18px;
@@ -30,7 +39,7 @@ input[type="text"]:focus {
     position: absolute;
     border-top: 0px !important;
     /* top: 45px; */
-    width: 100% !important;
+    width: 90% !important;
     background: #fff;
     border: 1px solid #ccc !important;
     border-radius: 2px;
@@ -163,13 +172,14 @@ input[type="text"]:focus {
   }
 
   .better-search-box {
-    width: 100% !important;
-  padding: 10px 15px !important;
+      width: 90% !important;
+      padding: 10px 15px !important;
   padding-left: 40px !important;
-  border: 1px solid #ccc !important;
+  /* border: 1px solid #ccc !important; */
+  border: none !important;
   border-radius: 0px !important;
   outline: none !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 20%) !important;
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 20%) !important; */
   font-size: 16px !important;
   
   }
@@ -190,6 +200,11 @@ input[type="text"]:focus {
 
 
   /* Spiner css */
+  .sp-visually-hidden{
+    display: none !important;
+  }
+
+
 
   .search-spinner {
     border: 4px solid #f3f3f3; /* Light grey */
