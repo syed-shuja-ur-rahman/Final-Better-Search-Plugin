@@ -1,8 +1,3 @@
-// jQuery(document).ready(function ($) {
-//     console.log("Better Search admin script loaded.");
-
-// });
-
 
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('bettersearch-input');
@@ -136,24 +131,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                         <div class="col-sm-4 category-title">Course/Lessons</div>
                                     </div>
                             </div>`;
-                        
-                        // const sortedLessons = categorizedResults.lessons.sort((a, b) => {
-                        //     if (a.asset_type === "Courses") return -1;
-                        //     if (b.asset_type === "Courses") return 1;
-                        //     return 0;
-                        // });
 
                         _.take(categorizedResults.lessons, searchLimit).forEach((lesson) => {
-                            
-                            console.log('Filtered Lessons Data Response:', lesson._rankingScoreDetails.vectorSort);
-                                
-                                if (lesson._rankingScoreDetails.vectorSort === undefined) {
-                                    console.log("Similarity is undefined, setting searchThreshold to 0.");
-                                            searchThreshold = 0;
-                                            
-                                        } else {
-                                            searchThreshold = lesson._rankingScoreDetails.vectorSort.similarity;
-                                        }
                                     const thumbnail = lesson.asset_type === "Courses"
                                                         ? lesson.thumbnail_url // Use lesson.thumbnail_url if asset_type is "courses"
                                                         : lesson.asset_type === "Video lesson"
@@ -170,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </div>
                                     <div class="col-sm-10 d-flex align-items-center search-title px-0">
                                 <a href="${lesson.url}" target="_blank">
-                                <p class="asset-type my-0 mx-1" data-type="${lesson.category}" >${lesson.category} ${lesson.asset_type === "Courses" ? `<span><b>(${searchThreshold})</b></span>` : ""}</p> 
+                                <p class="asset-type my-0 mx-1" data-type="${lesson.category}" >${lesson.category}</p> 
                                        <h5> ${lesson.title}</h5>  
                                 </a>
                                     </div>
