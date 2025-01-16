@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 3.1
+Version: 3.5
 Author: AIHR
 */
 
@@ -47,8 +47,7 @@ add_shortcode('better_search_bar', 'ai_search_shortcode_function');
 function ai_search_enqueue_scripts()
 {
 
-    // Enqueue Bootstrap CSS
-    //wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css', [], '5.3.2');
+    
 
 
 
@@ -58,7 +57,7 @@ function ai_search_enqueue_scripts()
 
 
     // Enqueue custom styles for the search bar
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=2.0');
+    // wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=2.0');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name where your search_limit is stored
@@ -75,13 +74,11 @@ function ai_search_enqueue_scripts()
     // Enqueue script for handling AJAX search
     wp_enqueue_script(
         'ai-search-script',
-        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=2.0', // Adjust the path as needed
+        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=3.5', // Adjust the path as needed
         ['lodash', 'jquery'], // Dependencies: jQuery and Lodash
         '1.0.0',
         true
     );
-
-    //wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js', ['jquery'], '5.3.2', true);
 
     // Localize script for AJAX URL
     wp_localize_script('ai-search-script', 'aiSearch', array(
@@ -117,35 +114,63 @@ function ai_search_shortcode_function($atts)
 
 ?>
 
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+<link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=3.5'; ?>">
 
 
     <div class="search-container">
+    <div class="bs-search-box">
+        <!-- Search Icon -->
+        <span class="search-icon">
+            <i class="fa fa-search form-control-feedback"></i>
+        </span>
+
+        <!-- Search Input -->
+        <input type="text" class="better-search-box" id="bettersearch-input">
+
+        <!-- Spinner -->
+        <span id="loading-spinner" class="spinner-container" style="display: none;">
+            <div class="search-spinner" role="status">
+                <span class="sp-visually-hidden">Loading...</span>
+            </div>
+        </span>
+
+        <!-- Clear Icon -->
+        <span id="ai-search-clear" class="ai-search-clear" role="button">
+            <i class="fa fa-times" aria-hidden="true"></i>
+        </span>
+    </div>
+    <div id="ai-search-suggestions-bs" class="ai-search-suggestions-box" style="display: none;"></div>
+</div>
+
+
+
+
+    <!-- <div class="search-container">
         <div class="bs-search-box">
-            <div class="">
-                <!-- Search Icon -->
+            <!-- Search Icon 
                 <span class="search-icon">
                     <i class="fa fa-search form-control-feedback"></i>
                 </span>
 
-                <!-- Search Input -->
+                <!-- Search Input 
                 <input type="text" class="better-search-box "  id="bettersearch-input">
 
-                <!-- Spinner -->
+                <!-- Spinner 
                 <span id="loading-spinner" class="" style="display: none;">
                     <div class="search-spinner" role="status">
                         <span class="sp-visually-hidden">Loading...</span>
                     </div>
                 </span>
 
-                <!-- Clear Icon -->
+                <!-- Clear Icon 
                 <span id="ai-search-clear" class="ai-search-clear" role="button">
                     <i class="fa fa-times" aria-hidden="true"></i>
                 </span>
-            </div>
+            
         </div>
         <div id="ai-search-suggestions-bs" class="ai-search-suggestions-box"></div>
-    </div>
+    </div> -->
 
 <?php
 

@@ -98,26 +98,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 let html = '';
                 // Handle Features Section
                 if (!_.isEmpty(categorizedResults.features)) {
-                    html += `<div class="container">
-                                    <div class="row">
-                                        <div class="col-sm-4 category-title">Features </div>
+                    html += `<div class="">
+                                    <div class="">
+                                        <div class="category-title">Features </div>
                                     </div>
                             </div>`;
                     _.take(categorizedResults.features, searchLimit).forEach((feature) => {
                         const thumbnail = getThumbnail(feature.thumbnail_url);
                         html += `
-                        <div class="container">
-                        <div class="ai-search-suggestions row">
-                            <div class="col-sm-1 text-md-end px-0 my-auto">
+                        <div class="ai-search-suggestions">
+                            <div>
                                 <a href="${feature.url}" target="_blank">
                                     <div class="ai-thumbnail" style="background-image: url('${thumbnail}');"></div>
                                 </a>
                             </div>
-                                <div class="col-sm-10 d-flex align-items-center search-title px-0">
+                                <div class="search-title">
                             <a href="${feature.url}" target="_blank">
                                    <h5> ${feature.title}</h5>  
                             </a>
-                                </div>
                                 </div>
                         </div>`;
                     });
@@ -140,16 +138,16 @@ document.addEventListener('DOMContentLoaded', function () {
                                                             : `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`;
                                       
                                 html += `
-                                <div class="container">
-                                <div class="ai-search-suggestions row">
-                                <div class="col-sm-1 text-md-end px-0 my-auto">
+                                <div class="">
+                                <div class="ai-search-suggestions">
+                                <div class="">
                                     <a href="${lesson.url}" target="_blank">
                                         <div class="ai-thumbnail" style="background-image: url('${thumbnail}');"></div>
                                     </a>
                                 </div>
-                                    <div class="col-sm-10 d-flex align-items-center search-title px-0">
+                                    <div class="search-title">
                                 <a href="${lesson.url}" target="_blank">
-                                <p class="asset-type my-0 mx-1" data-type="${lesson.category}" >${lesson.category}</p> 
+                                <p class="asset-type" data-type="${lesson.category}" >${lesson.category}</p> 
                                        <h5> ${lesson.title}</h5>  
                                 </a>
                                     </div>
@@ -162,9 +160,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Handle Misc Section
                 if (!_.isEmpty(categorizedResults.articles)) {
-                    html += `<div class="container">
-                                <div class="row">
-                                        <div class="col-sm-4 category-title">Misc</div>
+                    html += `<div class="">
+                                <div class="">
+                                        <div class="category-title">Misc</div>
                                 </div>
                             </div>`;
                     _.take(categorizedResults.articles, searchLimit).forEach((article) => {
@@ -172,16 +170,16 @@ document.addEventListener('DOMContentLoaded', function () {
                                             ? `${aiSearch.plugin_url}assets/images/Default-Misc.png`
                                             : article.thumbnail_url;
                         html += `
-						<div class="container"> 
-                                <div class="ai-search-suggestions row">
-                                    <div class="col-sm-1 text-md-end px-0 my-auto">
+						<div class=""> 
+                                <div class="ai-search-suggestions">
+                                    <div class="">
                                         <a href="${article.url}" target="_blank">
                                             <div class="ai-thumbnail" style="background-image: url('${thumbnail}');"></div>
                                         </a>
                                     </div>
-                                        <div class="col-sm-10 d-flex align-items-center search-title px-0">
+                                        <div class="search-title px-0">
                                     <a href="${article.url}" target="_blank">
-                                    <p class="asset-type my-0 mx-1" data-type="${article.asset_type}" >${article.asset_type}</p>	
+                                    <p class="asset-type" data-type="${article.asset_type}" >${article.asset_type}</p>	
                                         <h5> ${article.title}</h5>  
                                     </a>
                                         </div>
@@ -192,25 +190,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 // Handle Help Center Section
                 if (!_.isEmpty(categorizedResults.helpcenter)) {
-                    html += `<div class="container">
-                                    <div class="row">
-                                        <div class="col-sm-4 category-title">Knowledge Base </div>
+                    html += `<div class="">
+                                    <div class="">
+                                        <div class="category-title">Knowledge Base </div>
                                     </div>
                             </div>`;
                     _.take(categorizedResults.helpcenter, searchLimit).forEach((help_center) => {
 
                         html += `
-						<div class="container"> 
-                        <div class="ai-search-suggestions row">
-                            <div class="col-sm-1 text-md-center px-0 my-auto">
+						<div class=""> 
+                        <div class="ai-search-suggestions">
+                            <div class="">
                                 <a href="${help_center.url}" target="_blank">
 									
                                     <div class="ai-thumbnail-help"><i class="fa-solid fa-question"></i></div>
                                 </a>
                             </div>
-                                <div class="col-sm-10 d-flex align-items-center search-title px-0">
+                                <div class="search-title px-0">
                             <a href="${help_center.url}" target="_blank">
-                            <p class="asset-type my-0 mx-1" >FAQ - Knowledge Base</p>
+                            <p class="asset-type">FAQ - Knowledge Base</p>
                                    <h5> ${help_center.title}</h5>                                     
                             </a>
                                 </div>
