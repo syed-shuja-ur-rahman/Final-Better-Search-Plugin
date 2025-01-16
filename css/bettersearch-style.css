@@ -42,8 +42,8 @@ input[type="text"]:focus {
     border: 4px solid #f3f3f3; /* Light grey */
     border-top: 4px solid #3498db; /* Blue color */
     border-radius: 50%;
-    width: 10px;
-    height: 10px;
+    width: 1.5rem;
+    height: 1.5rem;
     animation: spin 1s linear infinite;
 }
 
@@ -79,7 +79,7 @@ input[type="text"]:focus {
     overflow-x: hidden;
     padding: 10px 15px;
     z-index: 10;
-    width: 95%;
+    width: 100%;
     /* box-sizing: border-box; */
     /* margin-bottom: 5px; */
 }

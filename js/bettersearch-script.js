@@ -98,8 +98,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 let html = '';
                 // Handle Features Section
                 if (!_.isEmpty(categorizedResults.features)) {
-                    html += `<div class="">
-                                    <div class="">
+                    html += `<div >
+                                    <div >
                                         <div class="category-title">Features </div>
                                     </div>
                             </div>`;
@@ -124,9 +124,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Handle Course/Lessons Section
                 if (!_.isEmpty(categorizedResults.lessons)) {
-                    html += ` <div class="container">
-                                    <div class="row">
-                                        <div class="col-sm-4 category-title">Course/Lessons</div>
+                    html += ` <div >
+                                    <div >
+                                        <div class="category-title">Course/Lessons</div>
                                     </div>
                             </div>`;
 
@@ -138,9 +138,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                                             : `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`;
                                       
                                 html += `
-                                <div class="">
+                                <div >
                                 <div class="ai-search-suggestions">
-                                <div class="">
+                                <div >
                                     <a href="${lesson.url}" target="_blank">
                                         <div class="ai-thumbnail" style="background-image: url('${thumbnail}');"></div>
                                     </a>
@@ -160,8 +160,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Handle Misc Section
                 if (!_.isEmpty(categorizedResults.articles)) {
-                    html += `<div class="">
-                                <div class="">
+                    html += `<div >
+                                <div >
                                         <div class="category-title">Misc</div>
                                 </div>
                             </div>`;
@@ -170,9 +170,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                             ? `${aiSearch.plugin_url}assets/images/Default-Misc.png`
                                             : article.thumbnail_url;
                         html += `
-						<div class=""> 
+						<div > 
                                 <div class="ai-search-suggestions">
-                                    <div class="">
+                                    <div >
                                         <a href="${article.url}" target="_blank">
                                             <div class="ai-thumbnail" style="background-image: url('${thumbnail}');"></div>
                                         </a>
@@ -190,17 +190,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 // Handle Help Center Section
                 if (!_.isEmpty(categorizedResults.helpcenter)) {
-                    html += `<div class="">
-                                    <div class="">
+                    html += `<div >
+                                    <div >
                                         <div class="category-title">Knowledge Base </div>
                                     </div>
                             </div>`;
                     _.take(categorizedResults.helpcenter, searchLimit).forEach((help_center) => {
 
                         html += `
-						<div class=""> 
+						<div > 
                         <div class="ai-search-suggestions">
-                            <div class="">
+                            <div >
                                 <a href="${help_center.url}" target="_blank">
 									
                                     <div class="ai-thumbnail-help"><i class="fa-solid fa-question"></i></div>
