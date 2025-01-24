@@ -1,11 +1,4 @@
 
-// Simulate 404 error manually
-// const simulate404Error = () => {
-//     return new Promise((resolve, reject) => {
-//         // Simulate a 404 response
-//         reject(new Error("Server responded with status: 404"));
-//     });
-// };
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -23,11 +16,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Fetch Filtered Lessons API
 const fetchFilteredLessons = (query) => {
-    // const controller = new AbortController();
-    // const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout for 5 seconds
+    
 
     return fetch(apiUrl, {
-        // signal: controller.signal,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -65,32 +56,8 @@ const fetchFilteredLessons = (query) => {
         resultsContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
         resultsContainer.style.display = 'block';  // Ensure the container is visible
     })
-    // .finally(() => {
-    //     clearTimeout(timeoutId); // Cleanup timeout if request completes
-    // });
+    
 };
-
-    // const fetchFilteredLessons = (query) => {
-    //     // API Call for Filtered Lessons
-    //     return fetch(apiUrl, {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //             'x-api-key': apiKey,
-    //         },
-    //         body: JSON.stringify({
-    //             Query: query,
-    //             SearchType: search_type,
-    //             Filter: "(asset_type='Courses') AND  (license_type!=Private)",
-    //             Offset: 0,
-    //             Limit: c_search_limit,
-    //             nonce: nonce,
-    //         }),
-    //     }).then(response => {
-    //         return response.json();
-    //     })
-    // };
-
     // Debounced search input handler
     const handleSearch = _.debounce(function () {
         const query = searchInput.value.trim();

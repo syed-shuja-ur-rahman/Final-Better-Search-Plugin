@@ -143,35 +143,6 @@ function ai_search_shortcode_function($atts)
     <div id="ai-search-suggestions-bs" class="ai-search-suggestions-box" style="display: none;"></div>
 </div>
 
-
-
-
-    <!-- <div class="search-container">
-        <div class="bs-search-box">
-            <!-- Search Icon 
-                <span class="search-icon">
-                    <i class="fa fa-search form-control-feedback"></i>
-                </span>
-
-                <!-- Search Input 
-                <input type="text" class="better-search-box "  id="bettersearch-input">
-
-                <!-- Spinner 
-                <span id="loading-spinner" class="" style="display: none;">
-                    <div class="search-spinner" role="status">
-                        <span class="sp-visually-hidden">Loading...</span>
-                    </div>
-                </span>
-
-                <!-- Clear Icon 
-                <span id="ai-search-clear" class="ai-search-clear" role="button">
-                    <i class="fa fa-times" aria-hidden="true"></i>
-                </span>
-            
-        </div>
-        <div id="ai-search-suggestions-bs" class="ai-search-suggestions-box"></div>
-    </div> -->
-
 <?php
 
     return ob_get_clean();
