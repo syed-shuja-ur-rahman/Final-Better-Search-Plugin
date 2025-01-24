@@ -91,6 +91,11 @@ input[type="text"]:focus {
     max-width: 100%; /* Ensures container does not overflow */
 }
 
+.ai-search-suggestions-box>.error {
+    font-family: inherit !important;
+    font-size: large !important;
+}
+
 .search-title h5 {
     font-size: 14px !important;
     line-height: 24px;

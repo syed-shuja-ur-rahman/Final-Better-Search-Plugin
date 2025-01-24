@@ -1,4 +1,13 @@
 
+// Simulate 404 error manually
+// const simulate404Error = () => {
+//     return new Promise((resolve, reject) => {
+//         // Simulate a 404 response
+//         reject(new Error("Server responded with status: 404"));
+//     });
+// };
+
+
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('bettersearch-input');
     const resultsContainer = document.getElementById('ai-search-suggestions-bs');
@@ -12,24 +21,75 @@ document.addEventListener('DOMContentLoaded', function () {
  
     const $ = jQuery;
 
-    const fetchFilteredLessons = (query) => {
-        // API Call for Filtered Lessons
-        return fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey,
-            },
-            body: JSON.stringify({
-                Query: query,
-                SearchType: search_type,
-                Filter: "(asset_type='Courses') AND  (license_type!=Private)",
-                Offset: 0,
-                Limit: c_search_limit,
-                nonce: nonce,
-            }),
-        }).then((response) => response.json());
-    };
+// Fetch Filtered Lessons API
+const fetchFilteredLessons = (query) => {
+    // const controller = new AbortController();
+    // const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout for 5 seconds
+
+    return fetch(apiUrl, {
+        // signal: controller.signal,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+        },
+        body: JSON.stringify({
+            Query: query,
+            SearchType: search_type,
+            Filter: "(asset_type='Courses') AND (license_type!=Private)",
+            Offset: 0,
+            Limit: c_search_limit,
+            nonce: nonce,
+        }),
+    })
+    .then(response => {
+        return response.json();
+    })
+    .catch((error) => {
+        if (error.message.includes("404")) {
+            error.message = 'Requested resource not found! Please try again!';
+        } else if (error.message.includes("400")) {
+            error.message = 'Bad request. Please check the request parameters.';
+        } else if (error.message.includes("500")) {
+            error.message = 'Internal server error. Please try again later.';
+        } else if (error.message.includes("405")) {
+            error.message = 'Method not allowed. Please check the API endpoint.';
+        }else if (error.name === 'AbortError') {
+            error.message = 'Request timed out. Please try again later.';
+        } else if (error.message.includes('CORS')) {
+            error.message = 'CORS error: The request has been blocked. No "Access-Control-Allow-Origin" header found.';
+        }else if(error.message === 'Failed to fetch') {
+            error.message = 'API Key/ API URL is not Correct';
+        }
+        $('#loading-spinner').hide();
+        resultsContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
+        resultsContainer.style.display = 'block';  // Ensure the container is visible
+    })
+    // .finally(() => {
+    //     clearTimeout(timeoutId); // Cleanup timeout if request completes
+    // });
+};
+
+    // const fetchFilteredLessons = (query) => {
+    //     // API Call for Filtered Lessons
+    //     return fetch(apiUrl, {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'x-api-key': apiKey,
+    //         },
+    //         body: JSON.stringify({
+    //             Query: query,
+    //             SearchType: search_type,
+    //             Filter: "(asset_type='Courses') AND  (license_type!=Private)",
+    //             Offset: 0,
+    //             Limit: c_search_limit,
+    //             nonce: nonce,
+    //         }),
+    //     }).then(response => {
+    //         return response.json();
+    //     })
+    // };
 
     // Debounced search input handler
     const handleSearch = _.debounce(function () {
@@ -61,9 +121,32 @@ document.addEventListener('DOMContentLoaded', function () {
                     Limit: 20,
                     nonce: nonce,
                 }),
-            }).then((response) => response.json()),
+            }).then(response => {
+                return response.json();
+            }),
+            
             fetchFilteredLessons(query),
         ])
+        .catch((error) => {
+            if (error.message.includes("404")) {
+                error.message = 'Requested resource not found! Please try again!';
+            } else if (error.message.includes("400")) {
+                error.message = 'Bad request. Please check the request parameters.';
+            } else if (error.message.includes("500")) {
+                error.message = 'Internal server error. Please try again later.';
+            } else if (error.message.includes("405")) {
+                error.message = 'Method not allowed. Please check the API endpoint.';
+            }else if (error.name === 'AbortError') {
+                error.message = 'Request timed out. Please try again later.';
+            } else if (error.message.includes('CORS')) {
+                error.message = 'CORS error: The request has been blocked. No "Access-Control-Allow-Origin" header found.';
+            }else if(error.message === 'Failed to fetch') {
+                error.message = 'API Key/ API URL is not Correct';
+            }
+            $('#loading-spinner').hide();
+            resultsContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
+            resultsContainer.style.display = 'block';  // Ensure the container is visible
+        })
             .then(([suggestionsData, filteredLessonsData]) => {
                 $('#loading-spinner').hide();
                 $('#ai-search-clear').show();
@@ -225,10 +308,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 resultsContainer.innerHTML = html;
             })
-            .catch((error) => {
-                $('#loading-spinner').hide();
-                resultsContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
-            });
+            // .catch((error) => {
+            //     $('#loading-spinner').hide();
+            //     resultsContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
+            // });
     }, searchDelay);
 
     // Attach event listener to the input
