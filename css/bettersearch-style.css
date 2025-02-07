@@ -157,6 +157,7 @@ input[type="text"]:focus {
     border: 2px solid #E2E5F3;
     border-radius: 50%;
     margin: 0 auto;
+    color: #323856;
 }
 
 .bs-thumbnail-lesson {
