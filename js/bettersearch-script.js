@@ -271,7 +271,7 @@ const fetchFilteredLessons = (query) => {
                             <div >
                                 <a href="${help_center.url}" target="_blank">
 									
-                                    <div class="bs-thumbnail-help"><i class="fa-regular fa-question"></i></i></div>
+                                    <div class="bs-thumbnail-help"><i class="fa-solid fa-question"></i></i></div>
                                 </a>
                             </div>
                                 <div class="search-title px-0">
