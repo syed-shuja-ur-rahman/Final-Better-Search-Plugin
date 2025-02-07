@@ -1,3 +1,7 @@
+.container
+{
+    position: relative;
+}
 .bs-search-box {
     display: flex;
     align-items: center; /* Vertically align items */
@@ -69,7 +73,7 @@ input[type="text"]:focus {
 /* Search Results CSS */
 .ai-search-suggestions-box {
     font-family: inherit;
-    position: relative;
+    position: absolute;
     background: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -138,14 +142,13 @@ input[type="text"]:focus {
     width: 40px;
     height: 40px;
     border-radius: 5px;
-    /* margin-right: 10px; */
     display: inline-block;
-    vertical-align: middle;
+    /* vertical-align: middle; */
     background-size: cover;
     background-repeat: no-repeat;
 }
 
-.ai-thumbnail-help {
+.bs-thumbnail-help {
     width: 40px;
     height: 40px;
     display: flex;
@@ -155,6 +158,20 @@ input[type="text"]:focus {
     border-radius: 50%;
     margin: 0 auto;
 }
+
+.bs-thumbnail-lesson {
+    color: #1EBBF0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #E2E5F3;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+
 
 .ai-thumbnail i {
     font-size: 20px;
@@ -227,4 +244,25 @@ input[type="text"]:focus {
         width: 30px; /* Adjust thumbnail size */
         height: 30px;
     }
+}
+
+
+/* Video Text and Icon */
+
+.video-icon {
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1EBBF0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 10px;
+}
+
+.video-icon i {
+    width: 12px;
+    height: 14px;
+    font-size: 18px;
+    color: #1EBBF0;
 }

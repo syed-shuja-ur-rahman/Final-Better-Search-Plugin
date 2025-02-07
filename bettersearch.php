@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 4.0
+Version: 4.3
 Author: AIHR
 */
 
@@ -118,7 +118,7 @@ function ai_search_shortcode_function($atts)
 <link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=3.5'; ?>">
 
 
-    <div class="search-container">
+    <div class="container">
     <div class="bs-search-box">
         <!-- Search Icon -->
         <span class="search-icon">
