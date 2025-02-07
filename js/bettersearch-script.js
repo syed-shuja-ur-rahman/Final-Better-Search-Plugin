@@ -150,8 +150,6 @@ const fetchFilteredLessons = (query) => {
                 let html = '';
                 // Handle Features Section
                 if (!_.isEmpty(categorizedResults.features)) {
-
-                    console.log ("Features main aya");
                     html += `<div >
                                     <div >
                                         <div class="category-title">Features </div>
