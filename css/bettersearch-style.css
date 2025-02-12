@@ -191,7 +191,7 @@ input[type="text"]:focus {
 }
 
 /* Anchor adjustments */
-.ai-search-suggestions a {
+.ai-search-suggestions-box a {
     text-decoration: none !important;
     color: #333;
 }

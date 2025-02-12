@@ -1,4 +1,13 @@
 
+// Simulate 404 error manually
+// const simulate404Error = () => {
+//     return new Promise((resolve, reject) => {
+//         // Simulate a 404 response
+//         reject(new Error("Server responded with status: 404"));
+//     });
+// };
+
+
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('bettersearch-input');
     const resultsContainer = document.getElementById('ai-search-suggestions-bs');
@@ -14,8 +23,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Fetch Filtered Lessons API
 const fetchFilteredLessons = (query) => {
+    // const controller = new AbortController();
+    // const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout for 5 seconds
 
     return fetch(apiUrl, {
+        // signal: controller.signal,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -53,9 +65,32 @@ const fetchFilteredLessons = (query) => {
         resultsContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
         resultsContainer.style.display = 'block';  // Ensure the container is visible
     })
+    // .finally(() => {
+    //     clearTimeout(timeoutId); // Cleanup timeout if request completes
+    // });
 };
 
-    
+    // const fetchFilteredLessons = (query) => {
+    //     // API Call for Filtered Lessons
+    //     return fetch(apiUrl, {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'x-api-key': apiKey,
+    //         },
+    //         body: JSON.stringify({
+    //             Query: query,
+    //             SearchType: search_type,
+    //             Filter: "(asset_type='Courses') AND  (license_type!=Private)",
+    //             Offset: 0,
+    //             Limit: c_search_limit,
+    //             nonce: nonce,
+    //         }),
+    //     }).then(response => {
+    //         return response.json();
+    //     })
+    // };
+
     // Debounced search input handler
     const handleSearch = _.debounce(function () {
         const query = searchInput.value.trim();
@@ -130,6 +165,8 @@ const fetchFilteredLessons = (query) => {
                 };
                 // Categorize remaining results based on asset type
                 suggestionsData.data.forEach((item) => {
+                    // console.log ("Items Are there: ", item.asset_type);
+                    // console.log ("Items Are there: ", item.title);
                     if (item.asset_type === 'Video lesson' || item.asset_type === 'Non-Video lesson')
                     {
                         categorizedResults.lessons.push(item);
@@ -181,48 +218,86 @@ const fetchFilteredLessons = (query) => {
                                                     const thumbnail = lesson.asset_type === "Courses"
                                                                         ? `<div class="ai-thumbnail" style="background-image: url('${lesson.thumbnail_url}');"></div>` // Use lesson.thumbnail_url if asset_type is "courses"
                                                                         : lesson.asset_type === "Video lesson"
+                                                                        // ? `${aiSearch.plugin_url}assets/images/Video-lesson.png`
+                                                                        // : `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`;
                                                                         ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-play"></i></div>`
                                                                         : `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></i></div>`;
                 
-                                                    // Determine if the asset_type is "Video lesson"
-                                                    const isVideoLesson = lesson.asset_type === "Video lesson";
-                                                    const videoMarkup = isVideoLesson
-                                                        ? `<div class="video-icon">
-                                                                <i class="fa-light fa-play"></i> Play Video
-                                                        </div>`
-                                                        : "";
-                                                        
-                                                        const videoUrl = isVideoLesson ? lesson.external_url : ""; 
-                                                        const urlMatch = isVideoLesson ? videoUrl.match(/vimeo\.com\/(\d+)/) : null;
-                                                        const vimeoId = urlMatch ? urlMatch[1] : "";
-
+                                                                        // Determine if the asset_type is "Video lesson"
+                                                                        const isVideoLesson = lesson.asset_type === "Video lesson";
+                                                                        
+                                                                        const videoUrl = isVideoLesson ? lesson.external_url : ""; 
+                                                                        const urlMatch = isVideoLesson ? videoUrl.match(/vimeo\.com\/(\d+)/) : null;
+                                                                        const vimeoId = urlMatch ? urlMatch[1] : "";
+                                                                        
+                                                                        
+                                                                        const videoMarkup = isVideoLesson
+                                                                            ? `<div class="video-icon">
+                                                                                    <i class="fa-light fa-play"></i> Play Video
+                                                                            </div>`
+                                                                            : "";
                 
                         html += `
+                        <a href="${lesson.asset_type === 'Video lesson' ? 'javascript:void(0);' : lesson.url}" 
+                                    ${lesson.asset_type !== 'Video lesson' ? 'target="_blank"' : ''}
+                                    ${lesson.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${lesson.title}','${lesson.url}')"` : ''}>
                             <div> 
                                 <div class="ai-search-suggestions">
                                     <div>
-                                        <a onClick="openLessonPreviewModal('${vimeoId}','${lesson.title}','${lesson.url}')">
-                                            ${thumbnail}
-                                        </a>
+                                     ${thumbnail}
                                     </div>
                                     <div class="search-title px-0">
-                                        <a onClick="openLessonPreviewModal('${vimeoId}','${lesson.title}','${lesson.url}')">
                                             <p class="asset-type" data-type="${lesson.asset_type}">${lesson.asset_type}</p>    
-                                            <h5>${lesson.title}</h5>  
-                                        </a>
-                                        <a class="popup-video" onClick="openLessonPreviewModal('${vimeoId}','${lesson.title}','${lesson.url}')" >${videoMarkup} </a>
+                                            <h5>${lesson.title}</h5> 
+                                        ${videoMarkup}
                                     </div>
                                 </div>
-                            </div>`;
+                            </div>
+                            </a>`;
+                            // console.log("Vimeo ID: " + lesson.external_url);
                     });
                     html += `<hr>`;
                 }
-                
+                // if (!_.isEmpty(categorizedResults.lessons)) {
+                //     html += ` <div >
+                //                     <div >
+                //                         <div class="category-title">Course/Lessons</div>
+                //                     </div>
+                //             </div>`;
+
+                //         _.take(categorizedResults.lessons, searchLimit).forEach((lesson) => {
+                //                     const thumbnail = lesson.asset_type === "Courses"
+                //                                         ? lesson.thumbnail_url // Use lesson.thumbnail_url if asset_type is "courses"
+                //                                         : lesson.asset_type === "Video lesson"
+                //                                             ? `${aiSearch.plugin_url}assets/images/Video-lesson.png`
+                //                                             : `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`;
+                                      
+                //                 html += `
+                //                 <div >
+                //                 <div class="ai-search-suggestions">
+                //                 <div >
+                //                     <a href="${lesson.url}" target="_blank">
+                //                         <div class="ai-thumbnail" style="background-image: url('${thumbnail}');"></div>
+                //                     </a>
+                //                 </div>
+                //                     <div class="search-title">
+                //                 <a href="${lesson.url}" target="_blank">
+                //                 <p class="asset-type" data-type="${lesson.category}" >${lesson.category}</p> 
+                //                        <h5> ${lesson.title}</h5>  
+                //                 </a>
+                //                     </div>
+                //                     </div>
+                //                 </div>`;
+                            
+                //         });
+                //         html += `<hr>`;
+                //     }
+
                 // Handle Misc Section
                 if (!_.isEmpty(categorizedResults.articles)) {
                     html += `<div >
                                 <div >
-                                        <div class="category-title">Content</div>
+                                        <div class="category-title">Misc</div>
                                 </div>
                             </div>`;
                     _.take(categorizedResults.articles, searchLimit).forEach((article) => {
@@ -285,6 +360,10 @@ const fetchFilteredLessons = (query) => {
 
                 resultsContainer.innerHTML = html;
             })
+            // .catch((error) => {
+            //     $('#loading-spinner').hide();
+            //     resultsContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
+            // });
     }, searchDelay);
 
     // Attach event listener to the input
