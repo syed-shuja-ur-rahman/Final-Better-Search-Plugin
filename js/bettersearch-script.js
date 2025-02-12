@@ -1,6 +1,4 @@
 
-
-
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('bettersearch-input');
     const resultsContainer = document.getElementById('ai-search-suggestions-bs');
@@ -16,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Fetch Filtered Lessons API
 const fetchFilteredLessons = (query) => {
-    
 
     return fetch(apiUrl, {
         method: 'POST',
@@ -56,7 +53,6 @@ const fetchFilteredLessons = (query) => {
         resultsContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
         resultsContainer.style.display = 'block';  // Ensure the container is visible
     })
-    
 };
 
     
@@ -199,19 +195,18 @@ const fetchFilteredLessons = (query) => {
                                                         const videoUrl = isVideoLesson ? lesson.external_url : ""; 
                                                         const urlMatch = isVideoLesson ? videoUrl.match(/vimeo\.com\/(\d+)/) : null;
                                                         const vimeoId = urlMatch ? urlMatch[1] : "";
-                                                        
 
                 
                         html += `
                             <div> 
                                 <div class="ai-search-suggestions">
                                     <div>
-                                        <a href="${lesson.url}" target="_blank">
+                                        <a onClick="openLessonPreviewModal('${vimeoId}','${lesson.title}','${lesson.url}')">
                                             ${thumbnail}
                                         </a>
                                     </div>
                                     <div class="search-title px-0">
-                                        <a href="${lesson.url}" target="_blank">
+                                        <a onClick="openLessonPreviewModal('${vimeoId}','${lesson.title}','${lesson.url}')">
                                             <p class="asset-type" data-type="${lesson.asset_type}">${lesson.asset_type}</p>    
                                             <h5>${lesson.title}</h5>  
                                         </a>
@@ -219,7 +214,6 @@ const fetchFilteredLessons = (query) => {
                                     </div>
                                 </div>
                             </div>`;
-                            
                     });
                     html += `<hr>`;
                 }
@@ -228,7 +222,7 @@ const fetchFilteredLessons = (query) => {
                 if (!_.isEmpty(categorizedResults.articles)) {
                     html += `<div >
                                 <div >
-                                        <div class="category-title">Misc</div>
+                                        <div class="category-title">Content</div>
                                 </div>
                             </div>`;
                     _.take(categorizedResults.articles, searchLimit).forEach((article) => {
@@ -269,7 +263,7 @@ const fetchFilteredLessons = (query) => {
                             <div >
                                 <a href="${help_center.url}" target="_blank">
 									
-                                    <div class="bs-thumbnail-help"><i class="fa-solid fa-question"></i></i></div>
+                                    <div class="bs-thumbnail-help"><i class="fa-regular fa-question"></i></div>
                                 </a>
                             </div>
                                 <div class="search-title px-0">
@@ -291,10 +285,6 @@ const fetchFilteredLessons = (query) => {
 
                 resultsContainer.innerHTML = html;
             })
-            // .catch((error) => {
-            //     $('#loading-spinner').hide();
-            //     resultsContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
-            // });
     }, searchDelay);
 
     // Attach event listener to the input
