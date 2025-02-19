@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 5.55
+Version: 5.6
 Author: AIHR
 */
 
@@ -40,12 +40,43 @@ register_deactivation_hook(__FILE__, 'ai_search_deactivate');
 
 // Register shortcode for AI Search
 add_shortcode('better_search_bar', 'ai_search_shortcode_function');
+add_shortcode('better_search_results', 'ai_search_results_function'); // Full-page search results shortcode
+
+
+function ai_search_load_lodash() {
+    echo '<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>';
+}
+add_action('wp_head', 'ai_search_load_lodash'); // ✅ Ensures Lodash is loaded in the <head>
+
+function remove_bettersearch_script() {
+    $search_results_page_url = get_option('search_results_page_url'); 
+
+    if ($search_results_page_url) {
+        $current_url = home_url($_SERVER['REQUEST_URI']);
+        
+        if (strpos($current_url, $search_results_page_url) !== false) {
+            wp_dequeue_script('bettersearch-script');
+            wp_deregister_script('bettersearch-script');
+        }
+    }
+}
+add_action('wp_enqueue_scripts', 'remove_bettersearch_script', 999);
+
+
 
 
 
 // Enqueue necessary scripts and styles for the frontend
 function ai_search_enqueue_scripts()
 {
+
+    // wp_enqueue_script(
+    //     'lodash', 
+    //     'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js', 
+    //     [], 
+    //     '4.17.21', 
+    //     false
+    // );
 
     
 
@@ -56,8 +87,8 @@ function ai_search_enqueue_scripts()
     wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 
-    // Enqueue custom styles for the search bar
-    // wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=2.0');
+   // Enqueue custom styles for the search bar
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=2.0');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name where your search_limit is stored
@@ -67,8 +98,9 @@ function ai_search_enqueue_scripts()
     $api_key = isset($options['api_key']) ? $options['api_key'] : '';
     $search_type = isset($options['precision']) ? intval($options['precision']) : 0;
     $c_search_limit = isset($options['c_search_limit']) ? intval($options['c_search_limit']) : 2;
+    $search_results_page_url = isset($options['search_results_page_url']) ? $options['search_results_page_url'] : '#';
 
-
+  
 
 
     // Enqueue script for handling AJAX search
@@ -79,6 +111,9 @@ function ai_search_enqueue_scripts()
         '1.0.0',
         true
     );
+    // Enqueue full-page search script
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['jquery'], '1.0.0', true);
+
 
     // Localize script for AJAX URL
     wp_localize_script('ai-search-script', 'aiSearch', array(
@@ -91,9 +126,11 @@ function ai_search_enqueue_scripts()
         'api_key' => $api_key,
         'search_type' => $search_type,
         'c_search_limit' => $c_search_limit,
+        'search_results_page_url' => $search_results_page_url,
     ));
 }
 add_action('wp_enqueue_scripts', 'ai_search_enqueue_scripts');
+
 
 
 // Shortcode callback function
@@ -112,10 +149,10 @@ function ai_search_shortcode_function($atts)
         return ob_get_clean();
     }
 
+    // <link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=3.5'; ">
 ?>
 
-<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-<link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=3.5'; ?>">
+<!-- <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script> -->
 
 
     <div class="container">
@@ -148,4 +185,11 @@ function ai_search_shortcode_function($atts)
     return ob_get_clean();
 }
 
+function ai_search_results_function()
+{
+    ob_start();
+    echo '<div id="better-search-results"></div>
+    <div id="pagination"></div>';
+    return ob_get_clean();
+}
 

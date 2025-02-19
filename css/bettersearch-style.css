@@ -191,7 +191,7 @@ input[type="text"]:focus {
 }
 
 /* Anchor adjustments */
-.ai-search-suggestions-box a {
+.ai-search-suggestions-box a, #better-search-results a {
     text-decoration: none !important;
     color: #333;
 }
@@ -273,3 +273,38 @@ input[type="text"]:focus {
     font-size: 18px;
     color: #1EBBF0;
 }
+
+
+.full-search-page {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 24px;
+    color: #1EBBF0 !important;
+    outline: none !important;
+}
+
+/* Full Page CSS  */
+
+#better-search-results{
+    width: 100% !important;
+    margin: 10px !important;
+}
+
+#pageInput {
+    border: #CACFE6 solid;
+    border-radius: 4px;
+    width: 47px;
+    height: 42px;
+    font-weight: 400;
+    font-size: 16px;
+    text-align: center;
+}
+
+.pageInputText{
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 28px;
+    
+}
+
+

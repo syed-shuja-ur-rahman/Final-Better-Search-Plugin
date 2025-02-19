@@ -110,6 +110,15 @@ function ai_search_register_settings()
         'ai_search_main_section'
     );
 
+// Add a field for Search Results Page URL
+add_settings_field(
+    'search_results_page_url',
+    __('Full Page Search Results Page URL', 'aisearch'),
+    'ai_search_results_page_url_field_callback',
+    'ai_search_settings',
+    'ai_search_main_section'
+);
+
 
 }
 
@@ -180,6 +189,15 @@ function ai_search_precision_field_callback()
     <?php
 }
 
+// Field callback for Search Results Page URL
+function ai_search_results_page_url_field_callback()
+{
+    $options = get_option('wp_aisearch_settings');
+    $search_results_page_url = isset($options['search_results_page_url']) ? $options['search_results_page_url'] : '';
+    echo '<input type="url" id="search_results_page_url" name="wp_aisearch_settings[search_results_page_url]" value="' . esc_attr($search_results_page_url) . '" class="regular-text">';
+    echo '<p class="description">' . __('Enter the URL where full search results should be displayed.', 'aisearch') . '</p>';
+}
+
 
 
 
@@ -210,6 +228,10 @@ function ai_search_sanitize_settings($input)
     // Ensure search_delay is numeric and within range (0-5000ms)
     if (isset($input['search_delay'])) {
         $input['search_delay'] = max(0, min(5000, intval($input['search_delay'])));
+    }
+    // Ensure search_results_page_url is a valid URL
+    if (isset($input['search_results_page_url'])) {
+        $input['search_results_page_url'] = esc_url_raw($input['search_results_page_url']);
     }
     return $input;
 }
