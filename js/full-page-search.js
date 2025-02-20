@@ -1,5 +1,5 @@
 const resultContainer = document.getElementById("better-search-results");
-const paginationContainer = document.getElementById("pagination"); // Add a container for pagination in your HTML
+const paginationContainer = document.getElementById("pagination");     
 const nonce = aiSearch.nonce;
 const apiUrl = aiSearch.api_url;
 const apiKey = aiSearch.api_key;
@@ -7,13 +7,23 @@ const search_type = aiSearch.search_type;
 
 // Get search query from URL
 const queryString = new URLSearchParams(window.location.search);
-const query = queryString.get("s") || queryString.get("q"); // Handle different query params
+const query = queryString.get("s") || queryString.get("q"); // Get the raw query parameter
+const decodedQuery = decodeURIComponent(query || '');// Handle different query params
+
+const pageheader = document.getElementById("full-page-search-header").innerHTML = `<div class="breadcrumb">
+<?php 
+if (function_exists('woocommerce_breadcrumb')) { 
+    woocommerce_breadcrumb(); 
+} 
+?>
+</div>
+<h3>Search result for "${decodedQuery}"</h3>`;
 
 let currentPage = 1; // Track the current page
 const limit = 20; // Number of results per page
 let totalPages = 1; // Track the total number of pages (initially 1)
 
-console.log("Query URL se mili? --->>>", query);
+console.log("Query URL se mili? --->>>", decodedQuery);
 
 // Function to fetch results for a specific page
 function fetchResults(page) {
@@ -26,7 +36,7 @@ function fetchResults(page) {
             "x-api-key": apiKey,
         },
         body: JSON.stringify({
-            Query: query,
+            Query: decodedQuery,
             SearchType: search_type,
             Filter: "",
             Offset: offset,
@@ -44,20 +54,50 @@ function fetchResults(page) {
         // Clear previous results
         resultContainer.innerHTML = '';
 
+        // Sort results to bring courses to the top
+        const sortedResults = _.orderBy(data.data, item => item.asset_type === "Courses" ? 0 : 1);
+        // const [courses, others] = _.partition(data.data, item => item.asset_type === "Courses");
+        // const sortedResults = [...courses, ...others];
         // Display new results
         let html = '';
-        if (!_.isEmpty(data.data)) {
-            _.forEach(data.data, (searchResult) => {
-                const thumbnail = getThumbnail(searchResult.thumbnail_url);
+        if (!_.isEmpty(sortedResults)) {
+            _.forEach(sortedResults, (searchResult) => {
+                // const thumbnail = getThumbnail(searchResult.thumbnail_url);
+                const thumbnail = searchResult.asset_type === "Courses"
+                                    ? `<div class="ai-thumbnail-course" style="background-image: url('${searchResult.thumbnail_url}');"></div>` // Use lesson.thumbnail_url if asset_type is "courses"
+                                    : searchResult.asset_type === "Video lesson"
+                                    ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-play"></i></div>`
+                                    : searchResult.asset_type === "Non-Video lesson" ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></i></div>` 
+                                    : getThumbnail(searchResult.thumbnail_url);
+                
+                                    // Determine if the asset_type is "Video lesson"
+                                    const isVideoLesson = searchResult.asset_type === "Video lesson";
+                                    
+                                    const videoUrl = isVideoLesson ? searchResult.external_url : ""; 
+                                    const urlMatch = isVideoLesson ? videoUrl.match(/vimeo\.com\/(\d+)/) : null;
+                                    const vimeoId = urlMatch ? urlMatch[1] : "";
+                                    
+                                    
+                                    const videoMarkup = isVideoLesson
+                                        ? `<div class="video-icon">
+                                                <i class="fa-light fa-play"></i> Play Video
+                                        </div>`
+                                        : "";
+
+                        const category = searchResult.asset_type === "Courses" ? searchResult.category : searchResult.asset_type;
+
                 html += `
-                <a href="${searchResult.url}" target="_blank">
+                <a href="${searchResult.asset_type === 'Video lesson' ? 'javascript:void(0);' : searchResult.url}" 
+                ${searchResult.asset_type !== 'Video lesson' ? 'target="_blank"' : ''}
+                ${searchResult.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${searchResult.title}','${searchResult.url}')"` : ''}">
                 <div class="ai-search-suggestions">
                     <div>
-                            <div class="ai-thumbnail" style="background-image: url('${thumbnail}');"></div>
+                            ${thumbnail}
                     </div>
                         <div class="search-title">
-                        <p class="asset-type" data-type="${searchResult.asset_type}">${searchResult.asset_type}</p>
+                        <p class="asset-type" data-type="${searchResult.asset_type}">${category}</p>
                            <h5> ${searchResult.title}</h5>  
+                           ${videoMarkup}
                            </div>
                            </div>
                            </a>
@@ -104,7 +144,9 @@ function fetchResults(page) {
 function updatePaginationUI() {
     paginationContainer.innerHTML = `
         <button class="pagination-button" onclick="goToPage(currentPage - 1)" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
+        <div class="pagination-container">
         <span class="pageInputText">Page</span><input type="number" id="pageInput" value="${currentPage}" min="1" onkeypress="handlePageInput(event)" />
+        </div>
         <button class="pagination-button" onclick="goToPage(currentPage + 1)">Next</button>
     `;
 }
@@ -130,8 +172,8 @@ function goToPage(page) {
 // Function to get thumbnail URL
 function getThumbnail(thumbnail_url) {
     return thumbnail_url === "" || !thumbnail_url
-        ? `${aiSearch.plugin_url}assets/images/default-thumbnail.png`
-        : thumbnail_url;
+        ? `<div class="ai-thumbnail" style="background-image: url('${aiSearch.plugin_url}assets/images/default-thumbnail.png');"></div>`
+        : `<div class="ai-thumbnail" style="background-image: url('${thumbnail_url}');"></div>`;
 }
 
 // Initial fetch for the first page

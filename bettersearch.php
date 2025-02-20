@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 5.6
+Version: 5.8
 Author: AIHR
 */
 
@@ -188,7 +188,12 @@ function ai_search_shortcode_function($atts)
 function ai_search_results_function()
 {
     ob_start();
-    echo '<div id="better-search-results"></div>
+    echo '
+        <div class="full-page-search-header" id="full-page-search-header">
+            
+        </div>
+        
+    <div id="better-search-results"></div>
     <div id="pagination"></div>';
     return ob_get_clean();
 }

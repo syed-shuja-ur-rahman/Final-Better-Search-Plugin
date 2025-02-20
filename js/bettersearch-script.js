@@ -217,7 +217,7 @@ const fetchFilteredLessons = (query) => {
                             </div>`;
                             _.take(categorizedResults.lessons, searchLimit).forEach((lesson) => {
                                                     const thumbnail = lesson.asset_type === "Courses"
-                                                                        ? `<div class="ai-thumbnail" style="background-image: url('${lesson.thumbnail_url}');"></div>` // Use lesson.thumbnail_url if asset_type is "courses"
+                                                                        ? `<div class="ai-thumbnail-course" style="background-image: url('${lesson.thumbnail_url}');"></div>` // Use lesson.thumbnail_url if asset_type is "courses"
                                                                         : lesson.asset_type === "Video lesson"
                                                                         // ? `${aiSearch.plugin_url}assets/images/Video-lesson.png`
                                                                         // : `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`;
@@ -237,6 +237,8 @@ const fetchFilteredLessons = (query) => {
                                                                                     <i class="fa-light fa-play"></i> Play Video
                                                                             </div>`
                                                                             : "";
+
+                                const category = lesson.asset_type === "Courses" ? lesson.category : lesson.asset_type;
                 
                         html += `
                         <a href="${lesson.asset_type === 'Video lesson' ? 'javascript:void(0);' : lesson.url}" 
@@ -248,7 +250,7 @@ const fetchFilteredLessons = (query) => {
                                      ${thumbnail}
                                     </div>
                                     <div class="search-title px-0">
-                                            <p class="asset-type" data-type="${lesson.asset_type}">${lesson.asset_type}</p>    
+                                            <p class="asset-type" data-type="${lesson.asset_type}">${category}</p>    
                                             <h5>${lesson.title}</h5> 
                                         ${videoMarkup}
                                     </div>
@@ -356,10 +358,13 @@ const fetchFilteredLessons = (query) => {
                     html += `<hr>`;
                 }
                
-                
-                html+= `
-                <a href="${fPageUrl}?q=${query}" class="full-search-page" > <i class="fa-light fa-arrow-up-right"></i>Open Search Page</a>
-                `;
+                const encodedQuery = encodeURIComponent(query);
+                    const linkHTML = `
+                        <a href="${fPageUrl}?q=${encodedQuery}" class="full-search-page">
+                            <i class="fa-light fa-arrow-up-right"></i>Open Search Page
+                        </a>
+                    `;
+                    html += linkHTML;
 
                 if (_.isEmpty(html)) {
                     html = '<div class="ai-search-suggestions">No results found.</div>';
