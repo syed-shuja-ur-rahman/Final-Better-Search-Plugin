@@ -354,7 +354,138 @@ input[type="text"]:focus {
     left: -59px;
 }
 
+/* Filters CSS */
+.filters-container {
+    display: inline-block;
+    position: relative;
+    margin-right: 10px;
+}
 
+.filter-button {
+    width: 200px; /* Set a fixed width */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+}
+
+.filter-text {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.filter-content {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    width: 200px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    padding: 10px;
+}
+
+
+
+/* .clear-filters-btn {
+    padding: 8px 12px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    cursor: pointer;
+} */
+
+
+
+
+
+
+
+
+
+
+
+
+.tick-icon {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+    font-weight: bold;
+    color: #1EBBF0; 
+    margin-right: 5px;
+}
+.date-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+.date-option:hover {
+    background-color: #f0f0f0;
+}
+
+
+/* .filter-content {
+    display: none; 
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    padding: 10px;
+    border-radius: 4px;
+} */
+
+.filter-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+/* .filter-button {
+    background-color: #f1f1f1;
+    color: #333;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+} */
+
+.filter-button:hover {
+    background-color: #ddd;
+}
+
+
+/* .filter-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px;
+} */
+
+/* .filter-button {
+    background-color: #f1f1f1;
+    color: #333;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+} */
+
+
+
+.filter-content label {
+    display: block;
+    margin: 5px 0;
+}
 
 
 
