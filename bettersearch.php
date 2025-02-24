@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 5.10
+Version: 5.11
 Author: AIHR
 */
 
@@ -69,19 +69,6 @@ add_action('wp_enqueue_scripts', 'remove_bettersearch_script', 999);
 // Enqueue necessary scripts and styles for the frontend
 function ai_search_enqueue_scripts()
 {
-
-    // wp_enqueue_script(
-    //     'lodash', 
-    //     'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js', 
-    //     [], 
-    //     '4.17.21', 
-    //     false
-    // );
-
-    
-
-
-
     // Enqueue Font Awesome CDN for icons
     wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
     wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
@@ -149,11 +136,8 @@ function ai_search_shortcode_function($atts)
         return ob_get_clean();
     }
 
-    // <link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=3.5'; ">
+    
 ?>
-
-<!-- <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script> -->
-
 
     <div class="container">
     <div class="bs-search-box">
