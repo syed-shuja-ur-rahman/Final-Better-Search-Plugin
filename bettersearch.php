@@ -69,13 +69,15 @@ add_action('wp_enqueue_scripts', 'remove_bettersearch_script', 999);
 // Enqueue necessary scripts and styles for the frontend
 function ai_search_enqueue_scripts()
 {
+
+
     // Enqueue Font Awesome CDN for icons
     wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
     wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 
    // Enqueue custom styles for the search bar
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=2.0');
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=3.0');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name where your search_limit is stored
@@ -88,18 +90,24 @@ function ai_search_enqueue_scripts()
     $search_results_page_url = isset($options['search_results_page_url']) ? $options['search_results_page_url'] : '#';
 
   
-
+    wp_enqueue_script(
+        'moment-js', 
+        'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js', 
+        array(), 
+        '2.29.1', 
+        true
+    );
 
     // Enqueue script for handling AJAX search
     wp_enqueue_script(
         'ai-search-script',
-        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=3.5', // Adjust the path as needed
+        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=4.1', // Adjust the path as needed
         ['lodash', 'jquery'], // Dependencies: jQuery and Lodash
         '1.0.0',
         true
     );
     // Enqueue full-page search script
-    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['jquery'], '1.0.0', true);
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js?v=1.1', ['jquery'], '1.0.0', true);
 
 
     // Localize script for AJAX URL
@@ -139,6 +147,7 @@ function ai_search_shortcode_function($atts)
     
 ?>
 
+
     <div class="container">
     <div class="bs-search-box">
         <!-- Search Icon -->
@@ -172,9 +181,10 @@ function ai_search_shortcode_function($atts)
 function ai_search_results_function() {
     ob_start();
     ?>
+    <div class="fs-header-container">
     <div class="full-page-search-header" id="full-page-search-header"></div>
     <div id="filter-container"></div>
-
+    </div>
     <div id="better-search-results"></div>
     <div id="pagination"></div>
     <?php

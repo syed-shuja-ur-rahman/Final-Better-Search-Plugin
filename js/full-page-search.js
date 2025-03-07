@@ -12,6 +12,18 @@ const queryString = new URLSearchParams(window.location.search);
 const query = queryString.get("s") || queryString.get("q"); // Get the raw query parameter
 let decodedQuery = decodeURIComponent(query || ''); // Handle different query params
 
+let currentPage = 1; // Track the current page
+    const limit = 20; // Number of results per page
+    let totalPages = 1; // Track the total number of pages (initially 1)
+    let selectedFilters = {
+        assetType: [], // Array to store selected asset types
+        date: [], // Array to store selected dates
+        hrDomain: [] // Array to store selected HR domains
+    };
+
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("bettersearch-input");
 
@@ -32,66 +44,54 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-
-
 // Check if the query string is empty; if yes, hide all shortcode output
 if (decodedQuery.trim() === '') {
     resultContainer.style.display = 'none';
     paginationContainer.style.display = 'none';
     filterContainer.style.display = 'none';
     document.getElementById("full-page-search-header").style.display = 'none';
-} else {
-    // Set header with breadcrumb and search query
+} else  {
 
-    let currentPage = 1; // Track the current page
-    const limit = 20; // Number of results per page
-    let totalPages = 1; // Track the total number of pages (initially 1)
-    let selectedFilters = {
-        category: [], // Array to store selected categories
-        date: [], // Array to store selected dates
-        hrDomain: [] // Array to store selected HR domains
-    };
+    
 
     updatePageHeader(decodedQuery);
     // Function to construct the filter string for the API
     function constructFilterString() {
         const filterConditions = [];
 
-        // Add category filter
-        if (selectedFilters.category.length > 0) {
-            const categoryConditions = selectedFilters.category.map(cat => `category='${cat}'`).join(" OR ");
-            filterConditions.push(`(${categoryConditions})`);
+        if (selectedFilters.assetType.length > 0) {
+            const assetTypeConditions = selectedFilters.assetType.map(type => `asset_type='${type}'`).join(" OR ");
+            filterConditions.push(`(${assetTypeConditions})`);
         }
 
-        // Add date filter (assuming `created_at` is the field for date)
-        if (selectedFilters.date.length > 0) {
-            const date = selectedFilters.date[0]; // Only one date can be selected
-            const currentDate = new Date(); // Current date and time
-            let startDate, endDate;
+        // Date Filter
+    if (selectedFilters.date.length > 0) {
+        const date = selectedFilters.date[0]; // Only one date can be selected
+        let startDate, endDate;
 
-            switch (date) {
-                case "Last Week":
-                    startDate = new Date(currentDate.setDate(currentDate.getDate() - 7)).getTime() / 1000; // 7 days ago in seconds
-                    endDate = Math.floor(Date.now() / 1000); // Current time in seconds
-                    break;
-                case "Last Month":
-                    startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1)).getTime() / 1000; // 1 month ago in seconds
-                    endDate = Math.floor(Date.now() / 1000); // Current time in seconds
-                    break;
-                case "This Year":
-                    startDate = new Date(currentDate.getFullYear(), 0, 1).getTime() / 1000; // Start of the year in seconds
-                    endDate = Math.floor(Date.now() / 1000); // Current time in seconds
-                    break;
-                case "Last Year":
-                    startDate = new Date(currentDate.getFullYear() - 1, 0, 1).getTime() / 1000; // Start of last year in seconds
-                    endDate = new Date(currentDate.getFullYear() - 1, 11, 31).getTime() / 1000; // End of last year in seconds
-                    break;
-                default:
-                    return "";
-            }
-
-            filterConditions.push(`(created_at>=${startDate} AND created_at<=${endDate})`);
+        switch (date) {
+            case "Last Week":
+                startDate = moment().subtract(7, 'days').startOf('day').unix(); // 7 days ago at start of day
+                endDate = moment().endOf('day').unix(); // Current date at end of day
+                break;
+            case "Last Month":
+                startDate = moment().subtract(1, 'month').startOf('month').unix(); // Start of last month
+                endDate = moment().subtract(1, 'month').endOf('month').unix(); // End of last month
+                break;
+            case "This Year":
+                startDate = moment().startOf('year').unix(); // Start of the current year
+                endDate = moment().endOf('year').unix(); // End of the current year
+                break;
+            case "Last Year":
+                startDate = moment().subtract(1, 'year').startOf('year').unix(); // Start of last year
+                endDate = moment().subtract(1, 'year').endOf('year').unix(); // End of last year
+                break;
+            default:
+                return ""; // No date filter applied
         }
+
+        filterConditions.push(`(created_at>=${startDate} AND created_at<=${endDate})`);
+    }
 
         // Add HR domain filter
         if (selectedFilters.hrDomain.length > 0) {
@@ -237,7 +237,6 @@ if (decodedQuery.trim() === '') {
             }
         }
     }
-
     // Function to navigate to a specific page
     function goToPage(page) {
         if (page < 1) return; // Prevent invalid pages
@@ -252,23 +251,24 @@ if (decodedQuery.trim() === '') {
             : `<div class="ai-thumbnail" style="background-image: url('${thumbnail_url}');"></div>`;
     }
 
-    // Function to render filters
     function renderFilters() {
         const formatSelectedValues = (filterType, defaultLabel) => {
             const values = selectedFilters[filterType];
             if (values.length === 0) return defaultLabel;
             return `${defaultLabel}: ${values.join(", ")}`;
         };
-
+    
         const filtersHTML = `
+        <span class="filter-by-text">Filter by:</span>
             <div class="filters-container">
                 <button class="filter-button" onclick="toggleDropdown(this)">
-                    <span class="filter-text" title="${selectedFilters.category.join(", ")}">${formatSelectedValues('category', 'Category')}</span>
+                    <span class="filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </button>
                 <div class="filter-content">
-                    ${['Resources', 'Live Events', 'Blog Articles', 'Youtube Videos', 'Non-video lesson', 'Help Center', 'Glossary'].map(item => `
+                    ${['Courses', 'Video lesson', 'Non-Video lesson', 'Blog Articles', 'Youtube Videos', 'Help Center'].map(item => `
                         <label>
-                            <input type="checkbox" value="${item}" ${selectedFilters.category.includes(item) ? 'checked' : ''} onchange="handleFilterChange('category', '${item}', this.checked)"> 
+                            <input type="checkbox" value="${item}" ${selectedFilters.assetType.includes(item) ? 'checked' : ''} onchange="handleFilterChange('assetType', '${item}', this.checked)"> 
                             ${item}
                         </label>
                     `).join('')}
@@ -277,12 +277,13 @@ if (decodedQuery.trim() === '') {
             <div class="filters-container">
                 <button class="filter-button" onclick="toggleDropdown(this)">
                     <span class="filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </button>
-                <div class="filter-content">
-                    ${['All Time', 'Last Week', 'Last Month', 'This Year', 'Last Year'].map(item => `
+                <div class="filter-content-date">
+                    ${['Last Week', 'Last Month', 'This Year', 'Last Year','All Time'].map(item => `
                         <div class="date-option" onclick="handleDateFilterChange('${item}')">
-                            <span class="tick-icon">${selectedFilters.date.includes(item) ? '✔' : ''}</span>
-                            <span>${item}</span>
+                        <span class="tick-icon" style="display: ${selectedFilters.date.includes(item) ? 'inline' : 'none'};">✔</span>
+                            <span class="date-ftext">${item}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -290,8 +291,9 @@ if (decodedQuery.trim() === '') {
             <div class="filters-container">
                 <button class="filter-button" onclick="toggleDropdown(this)">
                     <span class="filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </button>
-                <div class="filter-content">
+                <div class="filter-content-domain">
                     ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management'].map(item => `
                         <label>
                             <input type="checkbox" value="${item}" ${selectedFilters.hrDomain.includes(item) ? 'checked' : ''} onchange="handleFilterChange('hrDomain', '${item}', this.checked)"> 
@@ -304,6 +306,7 @@ if (decodedQuery.trim() === '') {
         `;
         filterContainer.innerHTML = filtersHTML;
     }
+
 
     // Function to handle checkbox filter changes
     function handleFilterChange(filterType, value, isChecked) {
@@ -318,14 +321,18 @@ if (decodedQuery.trim() === '') {
 
     // Function to handle date filter changes
     function handleDateFilterChange(value) {
-        selectedFilters.date = [value];
+        if (selectedFilters.date.includes(value)) {
+            selectedFilters.date = []; // Deselect if already selected
+        } else {
+            selectedFilters.date = [value]; // Select the new date
+        }
         renderFilters();
         fetchResults(currentPage);
     }
 
     // Function to clear all filters
     function clearFilters() {
-        selectedFilters = { category: [], date: [], hrDomain: [] };
+        selectedFilters = { assetType: [], date: [], hrDomain: [] };
         renderFilters();
         fetchResults(currentPage);
     }
@@ -333,15 +340,29 @@ if (decodedQuery.trim() === '') {
     // Function to toggle dropdown visibility
     function toggleDropdown(button) {
         const dropdownContent = button.nextElementSibling;
-        const isVisible = dropdownContent.style.display === "block";
+        const isVisible = dropdownContent.style.display === "flex";
+        const arrowIcon = button.querySelector(".dropdown-arrow");
 
-        document.querySelectorAll(".filter-content").forEach(content => {
-            if (content !== dropdownContent) {
-                content.style.display = "none";
-            }
+        
+        document.querySelectorAll(".filter-content, .filter-content-date, .filter-content-domain").forEach(content => {
+            content.style.display = "none";
         });
-
-        dropdownContent.style.display = isVisible ? "none" : "block";
+        document.querySelectorAll(".dropdown-arrow").forEach(arrow => {
+            arrow.classList.remove("fa-chevron-up");
+            arrow.classList.add("fa-chevron-down");
+        });
+    
+        // Toggle the clicked dropdown
+        if (!isVisible) {
+            dropdownContent.style.display = "flex";
+            arrowIcon.classList.remove("fa-chevron-down");
+            arrowIcon.classList.add("fa-chevron-up");
+        } else {
+            dropdownContent.style.display = "none";
+            arrowIcon.classList.remove("fa-chevron-up");
+            arrowIcon.classList.add("fa-chevron-down");
+        }
+        
     }
 
     // Close dropdowns when clicking outside

@@ -95,8 +95,6 @@ input[type="text"]:focus {
     padding: 10px 15px;
     z-index: 10;
     width: 100%;
-    /* box-sizing: border-box; */
-    /* margin-bottom: 5px; */
 }
 
 /* Container adjustments for responsiveness */
@@ -126,7 +124,6 @@ input[type="text"]:focus {
     cursor: pointer;
     display: flex; 
     align-items: center;
-    /*gap: 10px; */
     margin-bottom: 8px;
 }
 
@@ -155,7 +152,6 @@ input[type="text"]:focus {
     height: 40px;
     border-radius: 4px;
     display: inline-block;
-    /* vertical-align: middle; */
     background-size: cover;
     background-repeat: no-repeat;
 }
@@ -165,7 +161,6 @@ input[type="text"]:focus {
     height: 80px;
     border-radius: 4px;
     display: inline-block;
-    /* vertical-align: middle; */
     background-size: cover;
     background-repeat: no-repeat;
     background-position-x: center;
@@ -310,16 +305,6 @@ input[type="text"]:focus {
 
 /* Full Page CSS  */
 
-/* .full-page-search-header {
-    background-color: #31216B;
-    background-size: cover;
-    background-repeat: no-repeat;
-    color: white;
-    width: 100%;
-    height: 100px;
-    border-radius: 12px;
-    padding: 20px;
-} */
 
 .full-page-search-header {
     background-color: #31216B;
@@ -355,25 +340,63 @@ input[type="text"]:focus {
 }
 
 /* Filters CSS */
+
+#filter-container{
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: baseline;
+    padding-bottom: 10px;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+
+.filter-by-text{
+    color: #59607D;
+    font-size: 14px;
+    font-weight: 400;
+    text-wrap: nowrap;
+}
+
 .filters-container {
     display: inline-block;
     position: relative;
-    margin-right: 10px;
+    margin-right: 8px;
+    top: 0.5vh;
+    margin-left: 8px;
 }
 
 .filter-button {
-    width: 200px; /* Set a fixed width */
+    width: 150px; 
+    height: 32px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-block;
     padding: 8px 12px;
-    border: 1px solid #ccc;
-    background-color: white;
+    border: 1px solid #B1B9D3;
+    background-color: #FFFFFF;
+    border-radius: 100px;
     cursor: pointer;
+    outline: none !important;
 }
 
+
+.dropdown-arrow {
+    float: right !important;
+    transition: transform 0.2s ease; 
+}
+
+
+
+
+
+
+
 .filter-text {
+    color: #323856;
     display: inline-block;
     max-width: 100%;
     overflow: hidden;
@@ -386,36 +409,71 @@ input[type="text"]:focus {
     position: absolute;
     background: white;
     border: 1px solid #ccc;
-    width: 200px;
-    max-height: 200px;
+    width: 240px;
+    max-height: 416px;
     overflow-y: auto;
     z-index: 100;
-    padding: 10px;
+    flex-direction: column;
+}
+
+.filter-content-date {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    width: 240px;
+    max-height: 416px;
+    overflow-y: auto;
+    z-index: 100;
+    flex-direction: column;
+}
+
+.filter-content-domain {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    width: 240px;
+    max-height: 416px;
+    overflow-y: auto;
+    z-index: 100;
+    flex-direction: column;
+}
+
+.filter-content label, .filter-content-date .date-option, .filter-content-domain label{
+    color: #323856;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 28px;
+    border-bottom: 1px solid #CACFE6;
+    padding: 12px 16px;
+    cursor: pointer;
+}
+.filter-content label:last-child,
+.filter-content-date .date-option:last-child,
+.filter-content-domain label:last-child {
+    border-bottom: none; /* Remove border from the last item */
+}
+
+.filter-content label:hover, .filter-content-date .date-option:hover, .filter-content-domain label:hover{
+    background-color: #F4F6FA;
 }
 
 
 
-/* .clear-filters-btn {
+.clear-filters-btn {
+    background-color: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 24px;
     padding: 8px 12px;
-    background-color: #ff4d4d;
-    color: white;
+    color: #1EBBF0;
     border: none;
     cursor: pointer;
-} */
-
-
-
-
-
-
-
-
-
-
-
+    text-wrap: nowrap;
+}
 
 .tick-icon {
-    display: inline-block;
     width: 20px;
     text-align: center;
     font-weight: bold;
@@ -433,70 +491,23 @@ input[type="text"]:focus {
 }
 
 
-/* .filter-content {
-    display: none; 
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    padding: 10px;
-    border-radius: 4px;
-} */
-
 .filter-dropdown {
     position: relative;
     display: inline-block;
     margin-right: 10px;
 }
 
-/* .filter-button {
-    background-color: #f1f1f1;
-    color: #333;
-    padding: 10px;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-} */
+
 
 .filter-button:hover {
-    background-color: #ddd;
+    background-color: #F4F6FA;
 }
-
-
-/* .filter-dropdown {
-    position: relative;
-    display: inline-block;
-    margin-right: 10px;
-} */
-
-/* .filter-button {
-    background-color: #f1f1f1;
-    color: #333;
-    padding: 10px;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-} */
-
-
-
-.filter-content label {
-    display: block;
-    margin: 5px 0;
-}
-
-
-
-
-
-
 
 
 #better-search-results{
     width: 100% !important;
     margin: 10px !important;
+    border-radius: 8px;   
 }
 
 #pageInput {
@@ -521,6 +532,7 @@ input[type="text"]:focus {
     border: none;
     color: #1EBBF0;
     outline: none;
+    cursor: pointer;
 }
 
 .pageInputText{

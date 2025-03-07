@@ -23,13 +23,14 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#loading-spinner').hide();
         $('#ai-search-clear').hide();
         
-    } else {    
+    } else {
+
+    
 
 // Fetch Filtered Lessons API
 const fetchFilteredLessons = (query) => {
 
     return fetch(apiUrl, {
-        // signal: controller.signal,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -67,10 +68,10 @@ const fetchFilteredLessons = (query) => {
         resultsContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
         resultsContainer.style.display = 'block';  // Ensure the container is visible
     })
+    
 };
 
     
-
     // Debounced search input handler
     const handleSearch = _.debounce(function () {
         const query = searchInput.value.trim();
@@ -235,7 +236,7 @@ const fetchFilteredLessons = (query) => {
                     });
                     html += `<hr>`;
                 }
-
+                
                 // Handle Misc Section
                 if (!_.isEmpty(categorizedResults.articles)) {
                     html += `<div >
