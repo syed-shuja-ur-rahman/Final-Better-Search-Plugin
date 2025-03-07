@@ -321,6 +321,7 @@ function ai_search_render_settings_page()
             <p>To display the Search Bar provided by this plugin, simply add the following shortcode to any post, page, or widget:</p>
             <pre><code>[better_search_bar]</code></pre>
             <p>Just paste the shortcode into the editor where you'd like it to appear, and the Search Bar will be rendered on the frontend.</p>
+            <p>For a full-page search bar, please use the following shortcode: <code>[better_search_results]</code></p>
         </div>
 
 
