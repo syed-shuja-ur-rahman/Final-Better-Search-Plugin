@@ -6,30 +6,75 @@ const nonce = aiSearch.nonce;
 const apiUrl = aiSearch.api_url;
 const apiKey = aiSearch.api_key;
 const search_type = aiSearch.search_type;
+const fPageUrl = aiSearch.search_results_page_url;
+const isFullPage = window.location.href.includes(fPageUrl);
 
 // Get search query from URL
 const queryString = new URLSearchParams(window.location.search);
 const query = queryString.get("s") || queryString.get("q"); // Get the raw query parameter
 let decodedQuery = decodeURIComponent(query || ''); // Handle different query params
 
-let currentPage = 1; // Track the current page
-    const limit = 20; // Number of results per page
-    let totalPages = 1; // Track the total number of pages (initially 1)
-    let selectedFilters = {
-        assetType: [], // Array to store selected asset types
-        date: [], // Array to store selected dates
-        hrDomain: [] // Array to store selected HR domains
-    };
 
 
 
 
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("bettersearch-input");
+    
+    
+    // Check if the query string is empty; if yes, hide all shortcode output
+    if (isFullPage && decodedQuery.trim() === "") {
+        resultContainer.style.display = 'none';
+        paginationContainer.style.display = 'none';
+        filterContainer.style.display = 'none';
+        document.getElementById("full-page-search-header").style.display = 'none';
+    } 
+    
+    // Create tooltip element
+    const tooltip = document.createElement("div");
+    tooltip.innerText = "Press Enter to Search";
+    tooltip.style.position = "absolute";
+    tooltip.style.background = "#333";
+    tooltip.style.color = "#fff";
+    tooltip.style.padding = "5px 10px";
+    tooltip.style.borderRadius = "5px";
+    tooltip.style.fontSize = "12px";
+    tooltip.style.visibility = "hidden"; 
+    tooltip.style.transition = "opacity 0.3s";
+    tooltip.style.opacity = "0";
+    document.body.appendChild(tooltip);
+
+    // Function to show tooltip
+    function showTooltip() {
+        const rect = searchInput.getBoundingClientRect();
+        tooltip.style.top = `${rect.top + window.scrollY - 40}px`; // Above input field
+        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 100 - tooltip.clientWidth / 100}px`;
+        tooltip.style.visibility = "visible";
+        tooltip.style.opacity = "1";
+    }
+
+    // Function to hide tooltip on blur
+    function hideTooltip() {
+        tooltip.style.opacity = "0";
+        setTimeout(() => {
+            tooltip.style.visibility = "hidden";
+        }, 600);
+    }
+
+    // Show tooltip on input
+    searchInput.addEventListener("input", function () {
+        if (decodedQuery.trim() !== ''){
+        showTooltip();}
+        setTimeout(hideTooltip, 2000);
+    });
+
+    
+
 
     // Enter key press event
     searchInput.addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
+            currentPage = 1;
              event.preventDefault(); 
 
             decodedQuery = searchInput.value.trim();
@@ -44,21 +89,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-// Check if the query string is empty; if yes, hide all shortcode output
-if (decodedQuery.trim() === '') {
-    resultContainer.style.display = 'none';
-    paginationContainer.style.display = 'none';
-    filterContainer.style.display = 'none';
-    document.getElementById("full-page-search-header").style.display = 'none';
-} else  {
 
+
+
+
+    // Set header with breadcrumb and search query
+    
+    let currentPage = 1; // Track the current page
+    const limit = 20; // Number of results per page
+    let totalPages = 1; // Track the total number of pages (initially 1)
+    let selectedFilters = {
+        assetType: [], // Array to store selected asset types
+        date: [], // Array to store selected dates
+        hrDomain: [] // Array to store selected HR domains
+    };
     
 
     updatePageHeader(decodedQuery);
     // Function to construct the filter string for the API
     function constructFilterString() {
         const filterConditions = [];
-
+        
         if (selectedFilters.assetType.length > 0) {
             const assetTypeConditions = selectedFilters.assetType.map(type => `asset_type='${type}'`).join(" OR ");
             filterConditions.push(`(${assetTypeConditions})`);
@@ -220,11 +271,11 @@ if (decodedQuery.trim() === '') {
     // Function to update the pagination UI (with input box)
     function updatePaginationUI(page) {
         paginationContainer.innerHTML = `
-            <button class="pagination-button" onclick="goToPage(currentPage - 1)" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
+            <button class="pagination-button" onclick="goToPage(currentPage - 1)" ${currentPage === 1 ? 'disabled' : ''}> <i class="fa-solid fa-arrow-left"></i>Previous</button>
             <div class="pagination-container">
             <span class="pageInputText">Page</span><input type="number" id="pageInput" value="${page}" min="1" onkeypress="handlePageInput(event)" />
             </div>
-            <button class="pagination-button" onclick="goToPage(currentPage + 1)">Next</button>
+            <button class="pagination-button" onclick="goToPage(currentPage + 1)">Next<i class="fa-solid fa-arrow-right"></i></button>
         `;
     }
 
@@ -252,6 +303,7 @@ if (decodedQuery.trim() === '') {
     }
 
     function renderFilters() {
+        currentPage = 1;
         const formatSelectedValues = (filterType, defaultLabel) => {
             const values = selectedFilters[filterType];
             if (values.length === 0) return defaultLabel;
@@ -261,9 +313,9 @@ if (decodedQuery.trim() === '') {
         const filtersHTML = `
         <span class="filter-by-text">Filter by:</span>
             <div class="filters-container">
-                <button class="filter-button" onclick="toggleDropdown(this)">
-                    <span class="filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
-                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                <button class="fs-filter-button" onclick="toggleDropdown(this)">
+                    <span class="fs-filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
+                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
                 </button>
                 <div class="filter-content">
                     ${['Courses', 'Video lesson', 'Non-Video lesson', 'Blog Articles', 'Youtube Videos', 'Help Center'].map(item => `
@@ -275,9 +327,9 @@ if (decodedQuery.trim() === '') {
                 </div>
             </div>
             <div class="filters-container">
-                <button class="filter-button" onclick="toggleDropdown(this)">
-                    <span class="filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
-                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                <button class="fs-filter-button" onclick="toggleDropdown(this)">
+                    <span class="fs-filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
+                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
                 </button>
                 <div class="filter-content-date">
                     ${['Last Week', 'Last Month', 'This Year', 'Last Year','All Time'].map(item => `
@@ -289,9 +341,9 @@ if (decodedQuery.trim() === '') {
                 </div>
             </div>
             <div class="filters-container">
-                <button class="filter-button" onclick="toggleDropdown(this)">
-                    <span class="filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
-                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                <button class="fs-filter-button" onclick="toggleDropdown(this)">
+                    <span class="fs-filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
+                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
                 </button>
                 <div class="filter-content-domain">
                     ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management'].map(item => `
@@ -302,11 +354,10 @@ if (decodedQuery.trim() === '') {
                     `).join('')}
                 </div>
             </div>
-            <button onclick="clearFilters()" class="clear-filters-btn">Clear Filters</button>
+            <button onclick="clearFilters()" class="fs-clear-filters-btn">Clear Filters</button>
         `;
         filterContainer.innerHTML = filtersHTML;
     }
-
 
     // Function to handle checkbox filter changes
     function handleFilterChange(filterType, value, isChecked) {
@@ -341,13 +392,13 @@ if (decodedQuery.trim() === '') {
     function toggleDropdown(button) {
         const dropdownContent = button.nextElementSibling;
         const isVisible = dropdownContent.style.display === "flex";
-        const arrowIcon = button.querySelector(".dropdown-arrow");
+        const arrowIcon = button.querySelector(".fs-dropdown-arrow");
 
         
         document.querySelectorAll(".filter-content, .filter-content-date, .filter-content-domain").forEach(content => {
             content.style.display = "none";
         });
-        document.querySelectorAll(".dropdown-arrow").forEach(arrow => {
+        document.querySelectorAll(".fs-dropdown-arrow").forEach(arrow => {
             arrow.classList.remove("fa-chevron-up");
             arrow.classList.add("fa-chevron-down");
         });
@@ -388,4 +439,4 @@ if (decodedQuery.trim() === '') {
     // Initial render
     fetchResults(currentPage);
     renderFilters();
-}
+

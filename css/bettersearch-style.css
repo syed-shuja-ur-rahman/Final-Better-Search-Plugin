@@ -33,7 +33,7 @@
 }
 
 .better-search-box {
-    flex: 1; /* Input field takes up the remaining space */
+    flex: 1; 
     border: none !important;
     outline: none !important;
     font-size: 16px !important;
@@ -95,6 +95,8 @@ input[type="text"]:focus {
     padding: 10px 15px;
     z-index: 10;
     width: 100%;
+    /* box-sizing: border-box; */
+    /* margin-bottom: 5px; */
 }
 
 /* Container adjustments for responsiveness */
@@ -124,6 +126,7 @@ input[type="text"]:focus {
     cursor: pointer;
     display: flex; 
     align-items: center;
+    /*gap: 10px; */
     margin-bottom: 8px;
 }
 
@@ -152,6 +155,7 @@ input[type="text"]:focus {
     height: 40px;
     border-radius: 4px;
     display: inline-block;
+    /* vertical-align: middle; */
     background-size: cover;
     background-repeat: no-repeat;
 }
@@ -161,6 +165,7 @@ input[type="text"]:focus {
     height: 80px;
     border-radius: 4px;
     display: inline-block;
+    /* vertical-align: middle; */
     background-size: cover;
     background-repeat: no-repeat;
     background-position-x: center;
@@ -303,6 +308,15 @@ input[type="text"]:focus {
     outline: none !important;
 }
 
+.full-search-page i {
+    width: 20px;
+    height: 20px;
+    color: #1EBBF0;
+
+}
+
+
+
 /* Full Page CSS  */
 
 
@@ -368,7 +382,7 @@ input[type="text"]:focus {
     margin-left: 8px;
 }
 
-.filter-button {
+.fs-filter-button {
     width: 150px; 
     height: 32px;
     white-space: nowrap;
@@ -384,7 +398,7 @@ input[type="text"]:focus {
 }
 
 
-.dropdown-arrow {
+.fs-dropdown-arrow {
     float: right !important;
     transition: transform 0.2s ease; 
 }
@@ -395,7 +409,7 @@ input[type="text"]:focus {
 
 
 
-.filter-text {
+.fs-filter-text {
     color: #323856;
     display: inline-block;
     max-width: 100%;
@@ -461,16 +475,17 @@ input[type="text"]:focus {
 
 
 
-.clear-filters-btn {
-    background-color: transparent;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 24px;
-    padding: 8px 12px;
-    color: #1EBBF0;
-    border: none;
-    cursor: pointer;
-    text-wrap: nowrap;
+.fs-clear-filters-btn {
+    background-color: transparent !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 24px !important;
+    padding: 8px 12px !important;
+    color: #1EBBF0 !important;
+    border: none !important;
+    cursor: pointer !important;
+    text-wrap: nowrap !important;
+    outline: none !important;
 }
 
 .tick-icon {
@@ -491,6 +506,8 @@ input[type="text"]:focus {
 }
 
 
+
+
 .filter-dropdown {
     position: relative;
     display: inline-block;
@@ -498,10 +515,14 @@ input[type="text"]:focus {
 }
 
 
-
-.filter-button:hover {
+.fs-filter-button:hover {
     background-color: #F4F6FA;
 }
+
+
+
+
+
 
 
 #better-search-results{
@@ -535,10 +556,17 @@ input[type="text"]:focus {
     cursor: pointer;
 }
 
+
+.pagination-button i{
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
 .pageInputText{
     font-weight: 600;
     font-size: 16px;
     line-height: 28px;
+    margin-right: 8px;
     
 }
 

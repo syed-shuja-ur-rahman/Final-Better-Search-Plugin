@@ -1,6 +1,3 @@
-
-
-
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('bettersearch-input');
     const resultsContainer = document.getElementById('ai-search-suggestions-bs');
@@ -16,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const $ = jQuery;
 
 
-     const isFullPage = window.location.href.includes(fPageUrl) && query !== '';
+     const isFullPage = window.location.href.includes(fPageUrl);
 
      if (isFullPage && decodedQuery.trim() !== '') {
         resultsContainer.style.display = 'none';
@@ -29,8 +26,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Fetch Filtered Lessons API
 const fetchFilteredLessons = (query) => {
+    // const controller = new AbortController();
+    // const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout for 5 seconds
 
     return fetch(apiUrl, {
+        // signal: controller.signal,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -197,6 +197,8 @@ const fetchFilteredLessons = (query) => {
                                                     const thumbnail = lesson.asset_type === "Courses"
                                                                         ? `<div class="ai-thumbnail-course" style="background-image: url('${lesson.thumbnail_url}');"></div>` // Use lesson.thumbnail_url if asset_type is "courses"
                                                                         : lesson.asset_type === "Video lesson"
+                                                                        // ? `${aiSearch.plugin_url}assets/images/Video-lesson.png`
+                                                                        // : `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`;
                                                                         ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-play"></i></div>`
                                                                         : `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></i></div>`;
                 
@@ -237,6 +239,7 @@ const fetchFilteredLessons = (query) => {
                     html += `<hr>`;
                 }
                 
+
                 // Handle Misc Section
                 if (!_.isEmpty(categorizedResults.articles)) {
                     html += `<div >
@@ -302,7 +305,7 @@ const fetchFilteredLessons = (query) => {
                 const encodedQuery = encodeURIComponent(query);
                     const linkHTML = `
                         <a href="${fPageUrl}?q=${encodedQuery}" class="full-search-page">
-                            <i class="fa-light fa-arrow-up-right"></i>Open Search Page
+                        <i class="fa-solid fa-square-arrow-up-right"></i> Open Search Page
                         </a>
                     `;
                     html += linkHTML;
