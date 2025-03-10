@@ -198,7 +198,10 @@ document.addEventListener("DOMContentLoaded", function () {
                                         ? `<div class="ai-thumbnail-course" style="background-image: url('${searchResult.thumbnail_url}');"></div>`
                                         : searchResult.asset_type === "Video lesson"
                                         ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-play"></i></div>`
-                                        : searchResult.asset_type === "Non-Video lesson" ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></div>` 
+                                        : searchResult.asset_type === "Non-Video lesson" 
+                                        ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></div>` 
+                                        : searchResult.asset_type === "Help Center" 
+                                        ? `<div class="bs-thumbnail-help"><i class="fa-regular fa-question"></i></div>` 
                                         : getThumbnail(searchResult.thumbnail_url);
                     
                     const isVideoLesson = searchResult.asset_type === "Video lesson";

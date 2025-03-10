@@ -155,7 +155,6 @@ input[type="text"]:focus {
     height: 40px;
     border-radius: 4px;
     display: inline-block;
-    /* vertical-align: middle; */
     background-size: cover;
     background-repeat: no-repeat;
 }
@@ -165,7 +164,6 @@ input[type="text"]:focus {
     height: 80px;
     border-radius: 4px;
     display: inline-block;
-    /* vertical-align: middle; */
     background-size: cover;
     background-repeat: no-repeat;
     background-position-x: center;
