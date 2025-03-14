@@ -21,7 +21,9 @@ let decodedQuery = decodeURIComponent(query || ''); // Handle different query pa
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("bettersearch-input");
     
-    
+    searchInput.value = decodedQuery;
+
+
     // Check if the query string is empty; if yes, hide all shortcode output
     if (isFullPage && decodedQuery.trim() === "") {
         resultContainer.style.display = 'none';
@@ -323,7 +325,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
                 </button>
                 <div class="filter-content">
-                    ${['Courses', 'Video lesson', 'Non-Video lesson', 'Blog Articles', 'Youtube Videos', 'Help Center'].map(item => `
+                    ${['Resource', 'Courses', 'Events', 'Feature', 'Help Center', 'Video lesson', 'YouTube video', 'Non-Video lesson'].map(item => `
                         <label>
                             <input type="checkbox" value="${item}" ${selectedFilters.assetType.includes(item) ? 'checked' : ''} onchange="handleFilterChange('assetType', '${item}', this.checked)"> 
                             ${item}
@@ -351,8 +353,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
                 </button>
                 <div class="filter-content-domain">
-                    ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management'].map(item => `
-                        <label>
+                    ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Leadership', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management', 'Soft Skills'].map(item => `
+                        
+                    <label>
                             <input type="checkbox" value="${item}" ${selectedFilters.hrDomain.includes(item) ? 'checked' : ''} onchange="handleFilterChange('hrDomain', '${item}', this.checked)"> 
                             ${item}
                         </label>
