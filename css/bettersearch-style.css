@@ -1,5 +1,5 @@
-
-/* .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
+/* 
+.is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
     max-width: none !important;
     margin-left: 0px !important;
     margin-right: 0px !important;
@@ -8,11 +8,14 @@
 
 
 
-
 .container
 {
     position: relative;
 }
+
+
+
+
 .bs-search-box {
     display: flex;
     align-items: center; /* Vertically align items */
@@ -299,6 +302,7 @@ input[type="text"]:focus {
 
 
 .full-search-page {
+    font-family: inherit;
     font-weight: 600;
     font-size: 14px;
     line-height: 24px;
@@ -316,6 +320,13 @@ input[type="text"]:focus {
 
 
 /* Full Page CSS  */
+
+
+.fs-header-container{
+    background-color: #FFFFFF;
+    padding: 20px;
+    font-family: inherit;
+}
 
 
 .full-page-search-header {
@@ -464,7 +475,7 @@ input[type="text"]:focus {
 .filter-content label:last-child,
 .filter-content-date .date-option:last-child,
 .filter-content-domain label:last-child {
-    border-bottom: none; /* Remove border from the last item */
+    border-bottom: none; 
 }
 
 .filter-content label:hover, .filter-content-date .date-option:hover, .filter-content-domain label:hover{
@@ -532,6 +543,9 @@ input[type="text"]:focus {
     width: 100% !important;
     margin: 10px !important;
     border-radius: 8px;   
+    background-color: #FFFFFF;
+    padding: 20px;
+    font-family: inherit;
 }
 
 #pageInput {
@@ -542,6 +556,7 @@ input[type="text"]:focus {
     font-weight: 400;
     font-size: 16px;
     text-align: center;
+    font-family: inherit;
 }
 
 #pagination {
@@ -549,6 +564,7 @@ input[type="text"]:focus {
     flex-wrap: wrap;
     justify-content: space-between;
     margin: 10px !important;
+    font-family: inherit;
 }
 
 .pagination-button{
@@ -570,7 +586,7 @@ input[type="text"]:focus {
     font-size: 16px;
     line-height: 28px;
     margin-right: 8px;
-    
+    font-family: inherit;
 }
 
 

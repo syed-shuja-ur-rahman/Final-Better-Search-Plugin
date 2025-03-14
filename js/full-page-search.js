@@ -42,13 +42,15 @@ document.addEventListener("DOMContentLoaded", function () {
     tooltip.style.visibility = "hidden"; 
     tooltip.style.transition = "opacity 0.3s";
     tooltip.style.opacity = "0";
+    tooltip.style.zIndex = "99999";
+
     document.body.appendChild(tooltip);
 
     // Function to show tooltip
     function showTooltip() {
         const rect = searchInput.getBoundingClientRect();
-        tooltip.style.top = `${rect.top + window.scrollY - 40}px`; // Above input field
-        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 100 - tooltip.clientWidth / 100}px`;
+        tooltip.style.top = `${rect.top + window.scrollY + 40}px`; // Above input field
+        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 150 - tooltip.clientWidth / 150}px`;
         tooltip.style.visibility = "visible";
         tooltip.style.opacity = "1";
     }

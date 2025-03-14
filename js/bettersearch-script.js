@@ -305,7 +305,7 @@ const fetchFilteredLessons = (query) => {
                 const encodedQuery = encodeURIComponent(query);
                     const linkHTML = `
                         <a href="${fPageUrl}?q=${encodedQuery}" class="full-search-page">
-                        <i class="fa-solid fa-square-arrow-up-right"></i> Open Search Page
+                        <i class="fa-solid fa-arrow-up-right"></i> Open Search Page
                         </a>
                     `;
                     html += linkHTML;
