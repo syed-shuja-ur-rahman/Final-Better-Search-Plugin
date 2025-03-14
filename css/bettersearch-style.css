@@ -1,4 +1,10 @@
 
+/* .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
+    max-width: none !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+} */
+
 
 
 
@@ -281,7 +287,7 @@ input[type="text"]:focus {
     gap: 4px;
     margin-left: 15px;
     justify-content: space-between;
-    width: 90px;
+    width: fit-content;
 }
 
 .video-icon i {
@@ -404,7 +410,7 @@ input[type="text"]:focus {
 .fs-filter-text {
     color: #323856;
     display: inline-block;
-    max-width: 100%;
+    max-width: 80%;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -483,7 +489,6 @@ input[type="text"]:focus {
 .fs-clear-filters-btn:active {
 	outline: none;
 }
-
 
 
 .tick-icon {

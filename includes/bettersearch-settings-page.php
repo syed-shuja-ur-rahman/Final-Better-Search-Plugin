@@ -159,7 +159,7 @@ function ai_search_limit_field_callback()
 function ai_c_search_limit_field_callback()
 {
     $options = get_option('wp_aisearch_settings');
-    $c_search_limit = isset($options['c_search_limit']) ? $options['c_search_limit'] : 0.6; // Default to 0.6
+    $c_search_limit = isset($options['c_search_limit']) ? $options['c_search_limit'] : 2; // Default to 2
     echo '<input type="number" id="c_search_limit" name="wp_aisearch_settings[c_search_limit]" value="' . esc_attr($c_search_limit) . '" class="regular-text">';
     echo '<p class="description">' . __('Set the courses search results limit.', 'aisearch') . '</p>';
 }
