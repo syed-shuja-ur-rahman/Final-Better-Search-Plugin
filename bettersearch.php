@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 8.7
+Version: 8.8
 Author: AIHR
 */
 
@@ -84,7 +84,7 @@ function ai_search_enqueue_scripts()
     $search_delay = isset($options['search_delay']) ? intval($options['search_delay']) : 500;
     $api_url = isset($options['api_url']) ? $options['api_url'] : '';
     $api_key = isset($options['api_key']) ? $options['api_key'] : '';
-    $search_type = isset($options['precision']) ? intval($options['precision']) : 0;
+    $search_type = isset($options['precision']) ? $options['precision'] : 0;
     $c_search_limit = isset($options['c_search_limit']) ? intval($options['c_search_limit']) : 2;
     $search_results_page_url = isset($options['search_results_page_url']) ? $options['search_results_page_url'] : '#';
 

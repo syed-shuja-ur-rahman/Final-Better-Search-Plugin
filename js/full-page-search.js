@@ -91,12 +91,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-
-
-
-
-
-
     // Set header with breadcrumb and search query
     
     let currentPage = 1; // Track the current page

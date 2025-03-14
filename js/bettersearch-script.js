@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
  
     const $ = jQuery;
 
-
      const isFullPage = window.location.href.includes(fPageUrl);
 
      if (isFullPage && decodedQuery.trim() !== '') {
