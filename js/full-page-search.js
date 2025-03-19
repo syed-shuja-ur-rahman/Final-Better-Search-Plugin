@@ -20,10 +20,17 @@ let decodedQuery = decodeURIComponent(query || ''); // Handle different query pa
 
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("bettersearch-input");
-    
+   
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "/" && document.activeElement !== searchInput) {
+            event.preventDefault(); // Prevent typing "/" in the input
+            searchInput.focus();
+        }
+    });
+
+
     searchInput.value = decodedQuery;
-
-
+   
     // Check if the query string is empty; if yes, hide all shortcode output
     if (isFullPage && decodedQuery.trim() === "") {
         resultContainer.style.display = 'none';
@@ -72,15 +79,14 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(hideTooltip, 2000);
     });
 
+   
     
-
-
     // Enter key press event
     searchInput.addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
             currentPage = 1;
-             event.preventDefault(); 
-
+            event.preventDefault(); 
+            
             decodedQuery = searchInput.value.trim();
             if (decodedQuery) {
                 fetchResults(1); // API call
@@ -159,7 +165,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // Construct the filter string
         const filterString = constructFilterString();
 
-
         fetch(apiUrl, {
             method: "POST",
             headers: {
@@ -188,10 +193,14 @@ document.addEventListener("DOMContentLoaded", function () {
             // Sort results to bring courses to the top
             const sortedResults = _.orderBy(data.data, item => item.asset_type === "Courses" ? 0 : 1);
 
+
+            const uniqueResults = _.uniqBy(sortedResults, (item) => 
+                item.asset_type === "Video lesson" ? item.external_url : item.id
+            );
             // Display new results
             let html = '';
-            if (!_.isEmpty(sortedResults)) {
-                _.forEach(sortedResults, (searchResult) => {
+            if (!_.isEmpty(uniqueResults)) {
+                _.forEach(uniqueResults, (searchResult) => {
                     const thumbnail = searchResult.asset_type === "Courses"
                                         ? `<div class="ai-thumbnail-course" style="background-image: url('${searchResult.thumbnail_url}');"></div>`
                                         : searchResult.asset_type === "Video lesson"
@@ -201,7 +210,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                         : searchResult.asset_type === "Help Center" 
                                         ? `<div class="bs-thumbnail-help"><i class="fa-regular fa-question"></i></div>` 
                                         : getThumbnail(searchResult.thumbnail_url);
-                    
+    
+
                     const isVideoLesson = searchResult.asset_type === "Video lesson";
                     const videoUrl = isVideoLesson ? searchResult.external_url : ""; 
                     const urlMatch = isVideoLesson ? videoUrl.match(/vimeo\.com\/(\d+)/) : null;
@@ -437,8 +447,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
+    
 
+    if (isFullPage) {
     // Initial render
     fetchResults(currentPage);
     renderFilters();
-
+}
+    

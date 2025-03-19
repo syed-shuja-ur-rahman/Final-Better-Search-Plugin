@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('bettersearch-input');
     const resultsContainer = document.getElementById('ai-search-suggestions-bs');
@@ -12,24 +13,67 @@ document.addEventListener('DOMContentLoaded', function () {
  
     const $ = jQuery;
 
-     const isFullPage = window.location.href.includes(fPageUrl);
-
-     if (isFullPage && decodedQuery.trim() !== '') {
+        
+    
+    
+    const isFullPage = window.location.href.includes(fPageUrl);
+    
+    if (isFullPage && decodedQuery.trim() !== '') {
         resultsContainer.style.display = 'none';
         $('#loading-spinner').hide();
         $('#ai-search-clear').hide();
         
     } else {
+        
+        // Create tooltip element
+    const tooltip = document.createElement("div");
+    tooltip.innerText = 'Press "Enter" to navigate to the Full Page Search Results page.';
+    tooltip.style.position = "absolute";
+    tooltip.style.background = "#333";
+    tooltip.style.color = "#fff";
+    tooltip.style.padding = "5px 10px";
+    tooltip.style.borderRadius = "5px";
+    tooltip.style.fontSize = "12px";
+    tooltip.style.visibility = "hidden"; 
+    tooltip.style.transition = "opacity 0.3s";
+    tooltip.style.opacity = "0";
+    tooltip.style.zIndex = "99999";
 
-    
+    document.body.appendChild(tooltip);
 
+    // Function to show tooltip
+    function showTooltip() {
+        const rect = searchInput.getBoundingClientRect();
+        tooltip.style.top = `${rect.top + window.scrollY - 40}px`; // Above input field
+        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 150 - tooltip.clientWidth / 150}px`;
+        tooltip.style.visibility = "visible";
+        tooltip.style.opacity = "1";
+    }
+
+    // Function to hide tooltip on blur
+    function hideTooltip() {
+        tooltip.style.opacity = "0";
+        setTimeout(() => {
+            tooltip.style.visibility = "hidden";
+        }, 600);
+    }
+
+  
+
+
+        $("#bettersearch-input").keypress(function(event) {
+            if (event.key === "Enter") { // Check if Enter key is pressed
+                event.preventDefault();
+                let query = encodeURIComponent($(this).val().trim());
+                window.location.href = `${fPageUrl}?q=${query}`;
+            }
+            showTooltip();
+            setTimeout(hideTooltip, 5000);
+        });
 // Fetch Filtered Lessons API
 const fetchFilteredLessons = (query) => {
-    // const controller = new AbortController();
-    // const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout for 5 seconds
-
+    
     return fetch(apiUrl, {
-        // signal: controller.signal,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -192,18 +236,23 @@ const fetchFilteredLessons = (query) => {
                                     <div class="category-title">Course/Lessons</div>
                                 </div>
                             </div>`;
-                            _.take(categorizedResults.lessons, searchLimit).forEach((lesson) => {
+                            const uniqueLessons = _.uniqBy(categorizedResults.lessons, (lesson) => {
+                                if (lesson.asset_type === "Video lesson") {
+                                    const videoUrl = lesson.external_url || "";
+                                    const urlMatch = videoUrl.match(/vimeo\.com\/(\d+)/);
+                                    return urlMatch ? urlMatch[1] : lesson.url; // Use Vimeo ID if available, otherwise use URL
+                                }
+                                return lesson.url; 
+                            });
+                            _.take(uniqueLessons, searchLimit).forEach((lesson) => {
                                                     const thumbnail = lesson.asset_type === "Courses"
                                                                         ? `<div class="ai-thumbnail-course" style="background-image: url('${lesson.thumbnail_url}');"></div>` // Use lesson.thumbnail_url if asset_type is "courses"
                                                                         : lesson.asset_type === "Video lesson"
-                                                                        // ? `${aiSearch.plugin_url}assets/images/Video-lesson.png`
-                                                                        // : `${aiSearch.plugin_url}assets/images/Non-Video-Lesson.png`;
                                                                         ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-play"></i></div>`
                                                                         : `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></i></div>`;
                 
                                                                         // Determine if the asset_type is "Video lesson"
                                                                         const isVideoLesson = lesson.asset_type === "Video lesson";
-                                                                        
                                                                         const videoUrl = isVideoLesson ? lesson.external_url : ""; 
                                                                         const urlMatch = isVideoLesson ? videoUrl.match(/vimeo\.com\/(\d+)/) : null;
                                                                         const vimeoId = urlMatch ? urlMatch[1] : "";
@@ -304,7 +353,7 @@ const fetchFilteredLessons = (query) => {
                 const encodedQuery = encodeURIComponent(query);
                     const linkHTML = `
                         <a href="${fPageUrl}?q=${encodedQuery}" class="full-search-page">
-                        <i class="fa-solid fa-arrow-up-right"></i> Open Search Page
+                        <i class="fa-light fa-arrow-up-right"></i> Open Search Page
                         </a>
                     `;
                     html += linkHTML;
@@ -320,7 +369,12 @@ const fetchFilteredLessons = (query) => {
     // Attach event listener to the input
     searchInput.addEventListener('input', handleSearch);
     
-
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "/" && document.activeElement !== searchInput) {
+            event.preventDefault(); // Prevent typing "/" in the input
+            searchInput.focus();
+        }
+    });
     // Clear search box and suggestions
     $('#ai-search-clear').on('click', function () {
         $('#bettersearch-input').val('');
@@ -332,6 +386,6 @@ const fetchFilteredLessons = (query) => {
             ? `${aiSearch.plugin_url}assets/images/default-thumbnail.png`
             : thumbnail_url;
     }
-
+    
 }
 });
