@@ -558,8 +558,9 @@ input[type="text"]:focus {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    margin: 10px !important;
     font-family: inherit;
+    margin: 0px auto !important;
+    width: 100% !important;
 }
 
 .pagination-button{
