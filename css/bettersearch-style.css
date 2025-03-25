@@ -1,9 +1,9 @@
 
-.is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
+/* .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
     max-width: none !important;
     margin-left: 0px !important;
     margin-right: 0px !important;
-}
+} */
 
 
 
