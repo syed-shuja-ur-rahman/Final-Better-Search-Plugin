@@ -24,42 +24,6 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#ai-search-clear').hide();
         
     } else {
-        
-        // Create tooltip element
-    const tooltip = document.createElement("div");
-    tooltip.innerText = 'Press "Enter" to navigate to the Full Page Search Results page.';
-    tooltip.style.position = "absolute";
-    tooltip.style.background = "#333";
-    tooltip.style.color = "#fff";
-    tooltip.style.padding = "5px 10px";
-    tooltip.style.borderRadius = "5px";
-    tooltip.style.fontSize = "12px";
-    tooltip.style.visibility = "hidden"; 
-    tooltip.style.transition = "opacity 0.3s";
-    tooltip.style.opacity = "0";
-    tooltip.style.zIndex = "99999";
-
-    document.body.appendChild(tooltip);
-
-    // Function to show tooltip
-    function showTooltip() {
-        const rect = searchInput.getBoundingClientRect();
-        tooltip.style.top = `${rect.top + window.scrollY - 40}px`; // Above input field
-        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 150 - tooltip.clientWidth / 150}px`;
-        tooltip.style.visibility = "visible";
-        tooltip.style.opacity = "1";
-    }
-
-    // Function to hide tooltip on blur
-    function hideTooltip() {
-        tooltip.style.opacity = "0";
-        setTimeout(() => {
-            tooltip.style.visibility = "hidden";
-        }, 600);
-    }
-
-  
-
 
         $("#bettersearch-input").keypress(function(event) {
             if (event.key === "Enter") { // Check if Enter key is pressed
@@ -67,13 +31,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 let query = encodeURIComponent($(this).val().trim());
                 window.location.href = `${fPageUrl}?q=${query}`;
             }
-            showTooltip();
-            setTimeout(hideTooltip, 5000);
+            
         });
 // Fetch Filtered Lessons API
 const fetchFilteredLessons = (query) => {
     
+
     return fetch(apiUrl, {
+        // signal: controller.signal,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -253,6 +218,7 @@ const fetchFilteredLessons = (query) => {
                 
                                                                         // Determine if the asset_type is "Video lesson"
                                                                         const isVideoLesson = lesson.asset_type === "Video lesson";
+                                                                        
                                                                         const videoUrl = isVideoLesson ? lesson.external_url : ""; 
                                                                         const urlMatch = isVideoLesson ? videoUrl.match(/vimeo\.com\/(\d+)/) : null;
                                                                         const vimeoId = urlMatch ? urlMatch[1] : "";
@@ -386,6 +352,10 @@ const fetchFilteredLessons = (query) => {
             ? `${aiSearch.plugin_url}assets/images/default-thumbnail.png`
             : thumbnail_url;
     }
+
+
+    
+    
     
 }
 });

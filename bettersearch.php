@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 9.0
+Version: 9.5
 Author: AIHR
 */
 
@@ -76,7 +76,7 @@ function ai_search_enqueue_scripts()
 
 
    // Enqueue custom styles for the search bar
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=4.3');
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=4.5');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name where your search_limit is stored
@@ -100,7 +100,7 @@ function ai_search_enqueue_scripts()
     // Enqueue script for handling AJAX search
     wp_enqueue_script(
         'ai-search-script',
-        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=5.3', // Adjust the path as needed
+        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=5.5', // Adjust the path as needed
         ['lodash', 'jquery'], // Dependencies: jQuery and Lodash
         '1.0.0',
         true
@@ -108,7 +108,7 @@ function ai_search_enqueue_scripts()
 
     
     // Enqueue full-page search script
-    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['jquery'], '2.3.0', true);
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['jquery'], '2.5.0', true);
 
         
     // Localize script for AJAX URL
@@ -183,12 +183,15 @@ function ai_search_shortcode_function($atts)
 function ai_search_results_function() {
     ob_start();
     ?>
+    
     <div class="fs-header-container">
-    <div class="full-page-search-header" id="full-page-search-header"></div>
-    <div id="filter-container"></div>
+        <div class="full-page-search-header" id="full-page-search-header"></div>
+        <div id="filter-container"></div>
     </div>
     <div id="better-search-results"></div>
     <div id="pagination"></div>
+    
+    
     <?php
     return ob_get_clean();
 }

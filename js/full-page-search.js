@@ -37,6 +37,9 @@ document.addEventListener("DOMContentLoaded", function () {
         paginationContainer.style.display = 'none';
         filterContainer.style.display = 'none';
         document.getElementById("full-page-search-header").style.display = 'none';
+        // resultsContainer.style.display = 'none';
+        // $('#loading-spinner').hide();
+        // $('#ai-search-clear').hide();
     } 
     
     // Create tooltip element
@@ -80,6 +83,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
    
+
+    
+    
     
     // Enter key press event
     searchInput.addEventListener("keypress", function (event) {
