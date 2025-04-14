@@ -98,9 +98,19 @@ input[type="text"]:focus {
     padding: 10px 15px;
     z-index: 10;
     width: 100%;
+    display: flex;
+    flex-direction: column;
     /* box-sizing: border-box; */
     /* margin-bottom: 5px; */
 }
+
+/* .ai-search-suggestions-box > :not(.full-page-link) {
+    overflow-y: auto;
+    padding: 10px 15px;
+    flex: 1;
+} */
+
+
 
 /* Container adjustments for responsiveness */
 #ai-search-suggestions {
@@ -300,6 +310,15 @@ input[type="text"]:focus {
     color: #1EBBF0;
 }
 
+.full-page-link {
+    padding: 10px 15px;
+    /* border-top: 1px solid #eee; */
+    background: #fff;
+    position: sticky;
+    bottom: -13px;
+    z-index: 2;
+}
+
 
 .full-search-page {
     font-family: inherit;
@@ -320,6 +339,39 @@ input[type="text"]:focus {
 
 
 /* Full Page CSS  */
+
+.breadcrumb-spage {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+
 
 
 .fs-header-container{
@@ -484,7 +536,7 @@ input[type="text"]:focus {
 
 
 
-.fs-clear-filters-btn {
+.fs-clear-filters-btn { 
     background-color: transparent !important;
     font-size: 14px !important;
     font-weight: 600 !important;
@@ -499,6 +551,12 @@ input[type="text"]:focus {
 
 .fs-clear-filters-btn:active {
 	outline: none;
+}
+
+/* Blue text for active filter buttons */
+.fs-filter-button.active-filter .fs-filter-text {
+    color: #1EBBF0 !important;
+    font-weight: 600;
 }
 
 

@@ -14,9 +14,15 @@ const queryString = new URLSearchParams(window.location.search);
 const query = queryString.get("s") || queryString.get("q"); // Get the raw query parameter
 let decodedQuery = decodeURIComponent(query || ''); // Handle different query params
 
-
-
-
+// Function to show loading spinner
+function showLoadingSpinner() {
+    resultContainer.innerHTML = `
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading results...</p>
+        </div>
+    `;
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("bettersearch-input");
@@ -28,7 +34,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-
     searchInput.value = decodedQuery;
    
     // Check if the query string is empty; if yes, hide all shortcode output
@@ -37,9 +42,6 @@ document.addEventListener("DOMContentLoaded", function () {
         paginationContainer.style.display = 'none';
         filterContainer.style.display = 'none';
         document.getElementById("full-page-search-header").style.display = 'none';
-        // resultsContainer.style.display = 'none';
-        // $('#loading-spinner').hide();
-        // $('#ai-search-clear').hide();
     } 
     
     // Create tooltip element
@@ -81,11 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
         showTooltip();}
         setTimeout(hideTooltip, 2000);
     });
-
-   
-
-    
-    
     
     // Enter key press event
     searchInput.addEventListener("keypress", function (event) {
@@ -95,6 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
             
             decodedQuery = searchInput.value.trim();
             if (decodedQuery) {
+                showLoadingSpinner(); // Show spinner before API call
                 fetchResults(1); // API call
                 updatePageHeader(decodedQuery);
             }
@@ -103,49 +101,47 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-    // Set header with breadcrumb and search query
-    
-    let currentPage = 1; // Track the current page
-    const limit = 20; // Number of results per page
-    let totalPages = 1; // Track the total number of pages (initially 1)
-    let selectedFilters = {
-        assetType: [], // Array to store selected asset types
-        date: [], // Array to store selected dates
-        hrDomain: [] // Array to store selected HR domains
-    };
-    
+let currentPage = 1; // Track the current page
+const limit = 20; // Number of results per page
+let totalPages = 1; // Track the total number of pages (initially 1)
+let selectedFilters = {
+    assetType: [], // Array to store selected asset types
+    date: [], // Array to store selected dates
+    hrDomain: [] // Array to store selected HR domains
+};
 
-    updatePageHeader(decodedQuery);
-    // Function to construct the filter string for the API
-    function constructFilterString() {
-        const filterConditions = [];
-        
-        if (selectedFilters.assetType.length > 0) {
-            const assetTypeConditions = selectedFilters.assetType.map(type => `asset_type='${type}'`).join(" OR ");
-            filterConditions.push(`(${assetTypeConditions})`);
-        }
+updatePageHeader(decodedQuery);
 
-        // Date Filter
+// Function to construct the filter string for the API
+function constructFilterString() {
+    const filterConditions = [];
+    
+    if (selectedFilters.assetType.length > 0) {
+        const assetTypeConditions = selectedFilters.assetType.map(type => `asset_type='${type}'`).join(" OR ");
+        filterConditions.push(`(${assetTypeConditions})`);
+    }
+
+    // Date Filter
     if (selectedFilters.date.length > 0) {
         const date = selectedFilters.date[0]; // Only one date can be selected
         let startDate, endDate;
 
         switch (date) {
             case "Last Week":
-                startDate = moment().subtract(7, 'days').startOf('day').unix(); // 7 days ago at start of day
-                endDate = moment().endOf('day').unix(); // Current date at end of day
+                startDate = moment().subtract(7, 'days').startOf('day').unix();
+                endDate = moment().endOf('day').unix();
                 break;
             case "Last Month":
-                startDate = moment().subtract(1, 'month').startOf('month').unix(); // Start of last month
-                endDate = moment().subtract(1, 'month').endOf('month').unix(); // End of last month
+                startDate = moment().subtract(1, 'month').startOf('month').unix();
+                endDate = moment().subtract(1, 'month').endOf('month').unix();
                 break;
             case "This Year":
-                startDate = moment().startOf('year').unix(); // Start of the current year
-                endDate = moment().endOf('year').unix(); // End of the current year
+                startDate = moment().startOf('year').unix();
+                endDate = moment().endOf('year').unix();
                 break;
             case "Last Year":
-                startDate = moment().subtract(1, 'year').startOf('year').unix(); // Start of last year
-                endDate = moment().subtract(1, 'year').endOf('year').unix(); // End of last year
+                startDate = moment().subtract(1, 'year').startOf('year').unix();
+                endDate = moment().subtract(1, 'year').endOf('year').unix();
                 break;
             default:
                 return ""; // No date filter applied
@@ -154,136 +150,139 @@ document.addEventListener("DOMContentLoaded", function () {
         filterConditions.push(`(created_at>=${startDate} AND created_at<=${endDate})`);
     }
 
-        // Add HR domain filter
-        if (selectedFilters.hrDomain.length > 0) {
-            const hrDomainConditions = selectedFilters.hrDomain.map(domain => `hr_domain='${domain}'`).join(" OR ");
-            filterConditions.push(`(${hrDomainConditions})`);
+    // Add HR domain filter
+    if (selectedFilters.hrDomain.length > 0) {
+        const hrDomainConditions = selectedFilters.hrDomain.map(domain => `hr_domain='${domain}'`).join(" OR ");
+        filterConditions.push(`(${hrDomainConditions})`);
+    }
+
+    // Combine all conditions with AND
+    return filterConditions.join(" AND ");
+}
+
+// Function to fetch results for a specific page
+function fetchResults(page) {
+    const offset = (page - 1) * limit; // Calculate offset based on the page number
+
+    // Construct the filter string
+    const filterString = constructFilterString();
+
+    // Show loading spinner before making the API call
+    showLoadingSpinner();
+
+    fetch(apiUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+        },
+        body: JSON.stringify({
+            Query: decodedQuery,
+            SearchType: search_type,
+            Filter: filterString, // Send the constructed filter string
+            Offset: offset,
+            Limit: limit,
+            nonce: nonce,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status !== 'success') {
+            $('#better-search-results').html(`<div class="error">${data.message}</div>`).show();
+            return;
         }
 
-        // Combine all conditions with AND
-        return filterConditions.join(" AND ");
-    }
+        // Clear previous results
+        resultContainer.innerHTML = '';
 
-    // Function to fetch results for a specific page
-    function fetchResults(page) {
-        const offset = (page - 1) * limit; // Calculate offset based on the page number
+        // Sort results to bring courses to the top
+        const sortedResults = _.orderBy(data.data, item => item.asset_type === "Courses" ? 0 : 1);
 
-        // Construct the filter string
-        const filterString = constructFilterString();
+        const uniqueResults = _.uniqBy(sortedResults, (item) => 
+            item.asset_type === "Video lesson" ? item.external_url : item.id
+        );
+        
+        // Display new results
+        let html = '';
+        if (!_.isEmpty(uniqueResults)) {
+            _.forEach(uniqueResults, (searchResult) => {
+                const thumbnail = searchResult.asset_type === "Courses"
+                                    ? `<div class="ai-thumbnail-course" style="background-image: url('${searchResult.thumbnail_url}');"></div>`
+                                    : searchResult.asset_type === "Video lesson"
+                                    ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-play"></i></div>`
+                                    : searchResult.asset_type === "Non-Video lesson" 
+                                    ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></div>` 
+                                    : searchResult.asset_type === "Help Center" 
+                                    ? `<div class="bs-thumbnail-help"><i class="fa-regular fa-question"></i></div>` 
+                                    : getThumbnail(searchResult.thumbnail_url);
 
-        fetch(apiUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-api-key": apiKey,
-            },
-            body: JSON.stringify({
-                Query: decodedQuery,
-                SearchType: search_type,
-                Filter: filterString, // Send the constructed filter string
-                Offset: offset,
-                Limit: limit,
-                nonce: nonce,
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status !== 'success') {
-                $('#better-search-results').html(`<div class="error">${data.message}</div>`).show();
-                return;
-            }
+                const isVideoLesson = searchResult.asset_type === "Video lesson";
+                const videoUrl = isVideoLesson ? searchResult.external_url : ""; 
+                const urlMatch = isVideoLesson ? videoUrl.match(/vimeo\.com\/(\d+)/) : null;
+                const vimeoId = urlMatch ? urlMatch[1] : "";
+                
+                const videoMarkup = isVideoLesson
+                    ? `<div class="video-icon">
+                            <i class="fa-light fa-play"></i> Play Video
+                        </div>`
+                    : "";
 
-            // Clear previous results
-            resultContainer.innerHTML = '';
+                const category = searchResult.asset_type === "Courses" ? searchResult.category : searchResult.asset_type;
 
-            // Sort results to bring courses to the top
-            const sortedResults = _.orderBy(data.data, item => item.asset_type === "Courses" ? 0 : 1);
+                html += `
+                <a href="${searchResult.asset_type === 'Video lesson' ? 'javascript:void(0);' : searchResult.url}" 
+                ${searchResult.asset_type !== 'Video lesson' ? 'target="_blank"' : ''}
+                ${searchResult.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${searchResult.title}','${searchResult.url}')"` : ''}>
+                <div class="ai-search-suggestions">
+                    <div>
+                            ${thumbnail}
+                    </div>
+                        <div class="search-title">
+                        <p class="asset-type" data-type="${searchResult.asset_type}">${category}</p>
+                           <h5> ${searchResult.title}</h5>  
+                           ${videoMarkup}
+                           </div>
+                           </div>
+                           </a>
+                           `;
+            });
+        } else {
+            html = '<div class="ai-search-suggestions">No results found.</div>';
+        }
 
+        resultContainer.innerHTML = html;
 
-            const uniqueResults = _.uniqBy(sortedResults, (item) => 
-                item.asset_type === "Video lesson" ? item.external_url : item.id
-            );
-            // Display new results
-            let html = '';
-            if (!_.isEmpty(uniqueResults)) {
-                _.forEach(uniqueResults, (searchResult) => {
-                    const thumbnail = searchResult.asset_type === "Courses"
-                                        ? `<div class="ai-thumbnail-course" style="background-image: url('${searchResult.thumbnail_url}');"></div>`
-                                        : searchResult.asset_type === "Video lesson"
-                                        ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-play"></i></div>`
-                                        : searchResult.asset_type === "Non-Video lesson" 
-                                        ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></div>` 
-                                        : searchResult.asset_type === "Help Center" 
-                                        ? `<div class="bs-thumbnail-help"><i class="fa-regular fa-question"></i></div>` 
-                                        : getThumbnail(searchResult.thumbnail_url);
-    
+        // Update total pages based on the number of results
+        if (data.data.length < limit) {
+            totalPages = page; // No more results after this page
+        } else {
+            totalPages = page + 1; // Assume there might be more results
+        }
 
-                    const isVideoLesson = searchResult.asset_type === "Video lesson";
-                    const videoUrl = isVideoLesson ? searchResult.external_url : ""; 
-                    const urlMatch = isVideoLesson ? videoUrl.match(/vimeo\.com\/(\d+)/) : null;
-                    const vimeoId = urlMatch ? urlMatch[1] : "";
-                    
-                    const videoMarkup = isVideoLesson
-                        ? `<div class="video-icon">
-                                <i class="fa-light fa-play"></i> Play Video
-                            </div>`
-                        : "";
+        // Update pagination UI
+        updatePaginationUI(page);
+    })
+    .catch((error) => {
+        if (error.message.includes("404")) {
+            error.message = 'Requested resource not found! Please try again!';
+        } else if (error.message.includes("400")) {
+            error.message = 'Bad request. Please check the request parameters.';
+        } else if (error.message.includes("500")) {
+            error.message = 'Internal server error. Please try again later.';
+        } else if (error.message.includes("405")) {
+            error.message = 'Method not allowed. Please check the API endpoint.';
+        } else if (error.name === 'AbortError') {
+            error.message = 'Request timed out. Please try again later.';
+        } else if (error.message.includes('CORS')) {
+            error.message = 'CORS error: The request has been blocked. No "Access-Control-Allow-Origin" header found.';
+        } else if (error.message === 'Failed to fetch') {
+            error.message = 'API Key/ API URL is not Correct';
+        }
+        resultContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
+        resultContainer.style.display = 'block';  // Ensure the container is visible
+    });
+}
 
-                    const category = searchResult.asset_type === "Courses" ? searchResult.category : searchResult.asset_type;
-
-                    html += `
-                    <a href="${searchResult.asset_type === 'Video lesson' ? 'javascript:void(0);' : searchResult.url}" 
-                    ${searchResult.asset_type !== 'Video lesson' ? 'target="_blank"' : ''}
-                    ${searchResult.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${searchResult.title}','${searchResult.url}')"` : ''}>
-                    <div class="ai-search-suggestions">
-                        <div>
-                                ${thumbnail}
-                        </div>
-                            <div class="search-title">
-                            <p class="asset-type" data-type="${searchResult.asset_type}">${category}</p>
-                               <h5> ${searchResult.title}</h5>  
-                               ${videoMarkup}
-                               </div>
-                               </div>
-                               </a>
-                               `;
-                });
-            } else {
-                html = '<div class="ai-search-suggestions">No results found.</div>';
-            }
-
-            resultContainer.innerHTML = html;
-
-            // Update total pages based on the number of results
-            if (data.data.length < limit) {
-                totalPages = page; // No more results after this page
-            } else {
-                totalPages = page + 1; // Assume there might be more results
-            }
-
-            // Update pagination UI
-            updatePaginationUI(page);
-        })
-        .catch((error) => {
-            if (error.message.includes("404")) {
-                error.message = 'Requested resource not found! Please try again!';
-            } else if (error.message.includes("400")) {
-                error.message = 'Bad request. Please check the request parameters.';
-            } else if (error.message.includes("500")) {
-                error.message = 'Internal server error. Please try again later.';
-            } else if (error.message.includes("405")) {
-                error.message = 'Method not allowed. Please check the API endpoint.';
-            } else if (error.name === 'AbortError') {
-                error.message = 'Request timed out. Please try again later.';
-            } else if (error.message.includes('CORS')) {
-                error.message = 'CORS error: The request has been blocked. No "Access-Control-Allow-Origin" header found.';
-            } else if (error.message === 'Failed to fetch') {
-                error.message = 'API Key/ API URL is not Correct';
-            }
-            resultContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
-            resultContainer.style.display = 'block';  // Ensure the container is visible
-        });
-    }
 
     // Function to update the pagination UI (with input box)
     function updatePaginationUI(page) {
@@ -327,55 +326,61 @@ document.addEventListener("DOMContentLoaded", function () {
             return `${defaultLabel}: ${values.join(", ")}`;
         };
     
-        const filtersHTML = `
-        <span class="filter-by-text">Filter by:</span>
-            <div class="filters-container">
-                <button class="fs-filter-button" onclick="toggleDropdown(this)">
-                    <span class="fs-filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
-                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-                </button>
-                <div class="filter-content">
-                    ${['Resource', 'Courses', 'Events', 'Feature', 'Help Center', 'Video lesson', 'YouTube video', 'Non-Video lesson'].map(item => `
-                        <label>
-                            <input type="checkbox" value="${item}" ${selectedFilters.assetType.includes(item) ? 'checked' : ''} onchange="handleFilterChange('assetType', '${item}', this.checked)"> 
-                            ${item}
-                        </label>
-                    `).join('')}
+            // Check if any filters are applied
+            const hasFilters = selectedFilters.assetType.length > 0 || 
+            selectedFilters.date.length > 0 || 
+            selectedFilters.hrDomain.length > 0;
+
+
+
+            const filtersHTML = `
+            <span class="filter-by-text">Filter by:</span>
+                <div class="filters-container">
+                    <button class="fs-filter-button ${selectedFilters.assetType.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
+                        <span class="fs-filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
+                        <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+                    </button>
+                    <div class="filter-content">
+                        ${['Resource', 'Courses', 'Events', 'Feature', 'Help Center', 'Video lesson', 'YouTube video', 'Non-Video lesson'].map(item => `
+                            <label>
+                                <input type="checkbox" value="${item}" ${selectedFilters.assetType.includes(item) ? 'checked' : ''} onchange="handleFilterChange('assetType', '${item}', this.checked)"> 
+                                <span>${item}</span>
+                            </label>
+                        `).join('')}
+                    </div>
                 </div>
-            </div>
-            <div class="filters-container">
-                <button class="fs-filter-button" onclick="toggleDropdown(this)">
-                    <span class="fs-filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
-                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-                </button>
-                <div class="filter-content-date">
-                    ${['Last Week', 'Last Month', 'This Year', 'Last Year','All Time'].map(item => `
-                        <div class="date-option" onclick="handleDateFilterChange('${item}')">
-                        <span class="tick-icon" style="display: ${selectedFilters.date.includes(item) ? 'inline' : 'none'};">✔</span>
-                            <span class="date-ftext">${item}</span>
-                        </div>
-                    `).join('')}
+                <div class="filters-container">
+                    <button class="fs-filter-button ${selectedFilters.date.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
+                        <span class="fs-filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
+                        <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+                    </button>
+                    <div class="filter-content-date">
+                        ${['Last Week', 'Last Month', 'This Year', 'Last Year','All Time'].map(item => `
+                            <div class="date-option" onclick="handleDateFilterChange('${item}')">
+                            <span class="tick-icon" style="display: ${selectedFilters.date.includes(item) ? 'inline' : 'none'};">✔</span>
+                                <span class="date-ftext">${item}</span>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
-            </div>
-            <div class="filters-container">
-                <button class="fs-filter-button" onclick="toggleDropdown(this)">
-                    <span class="fs-filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
-                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-                </button>
-                <div class="filter-content-domain">
-                    ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Leadership', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management', 'Soft Skills'].map(item => `
-                        
-                    <label>
-                            <input type="checkbox" value="${item}" ${selectedFilters.hrDomain.includes(item) ? 'checked' : ''} onchange="handleFilterChange('hrDomain', '${item}', this.checked)"> 
-                            ${item}
-                        </label>
-                    `).join('')}
+                <div class="filters-container">
+                    <button class="fs-filter-button ${selectedFilters.hrDomain.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
+                        <span class="fs-filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
+                        <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+                    </button>
+                    <div class="filter-content-domain">
+                        ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Leadership', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management', 'Soft Skills'].map(item => `
+                            <label>
+                                <input type="checkbox" value="${item}" ${selectedFilters.hrDomain.includes(item) ? 'checked' : ''} onchange="handleFilterChange('hrDomain', '${item}', this.checked)"> 
+                                <span>${item}</span>
+                            </label>
+                        `).join('')}
+                    </div>
                 </div>
-            </div>
-            <button onclick="clearFilters()" class="fs-clear-filters-btn">Clear Filters</button>
-        `;
-        filterContainer.innerHTML = filtersHTML;
-    }
+                ${hasFilters ? '<button onclick="clearFilters()" class="fs-clear-filters-btn">Clear Filters</button>' : ''}
+            `;
+            filterContainer.innerHTML = filtersHTML;
+        }
 
     // Function to handle checkbox filter changes
     function handleFilterChange(filterType, value, isChecked) {
@@ -447,7 +452,9 @@ document.addEventListener("DOMContentLoaded", function () {
     function updatePageHeader(decodedQuery ) {
         const pageHeader = document.getElementById("full-page-search-header");
         if (pageHeader) {
-            pageHeader.innerHTML = `<h3>Search results for "${decodedQuery}"</h3>`;
+            pageHeader.innerHTML = `
+                <p class="breadcrumb-spage"> HOME / SEARCH </p>
+            <h3>Search results for "${decodedQuery}"</h3>`;
             pageHeader.style.display = "block"; // Make sure it is visible
         }
     }
@@ -456,8 +463,9 @@ document.addEventListener("DOMContentLoaded", function () {
     
 
     if (isFullPage) {
-    // Initial render
-    fetchResults(currentPage);
-    renderFilters();
-}
+        // Initial render
+        showLoadingSpinner(); // Show spinner for initial load
+        fetchResults(currentPage);
+        renderFilters();
+    }
     

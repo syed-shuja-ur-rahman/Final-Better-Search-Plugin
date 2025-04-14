@@ -33,6 +33,34 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             
         });
+
+// Click outside to close functionality
+function handleClickOutside(event) {
+    if (!resultsContainer.contains(event.target) && 
+        event.target !== searchInput && 
+        !searchInput.contains(event.target)) {
+        resultsContainer.style.display = 'none';
+    }
+}
+
+// Show results container when input is focused
+searchInput.addEventListener('focus', function() {
+    if (searchInput.value.trim().length >= 3) {
+        resultsContainer.style.display = 'block';
+    }
+    document.addEventListener('click', handleClickOutside);
+});
+
+// Hide results when clicking the clear button
+$('#ai-search-clear').on('click', function() {
+    resultsContainer.style.display = 'none';
+    document.removeEventListener('click', handleClickOutside);
+});
+
+
+
+
+
 // Fetch Filtered Lessons API
 const fetchFilteredLessons = (query) => {
     
@@ -317,10 +345,12 @@ const fetchFilteredLessons = (query) => {
                 }
                
                 const encodedQuery = encodeURIComponent(query);
-                    const linkHTML = `
+                    const linkHTML = `  
+                    <div class="full-page-link">
                         <a href="${fPageUrl}?q=${encodedQuery}" class="full-search-page">
                         <i class="fa-light fa-arrow-up-right"></i> Open Search Page
                         </a>
+                        </div>
                     `;
                     html += linkHTML;
 
