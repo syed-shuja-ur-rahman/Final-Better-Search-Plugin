@@ -340,6 +340,11 @@ input[type="text"]:focus {
 
 /* Full Page CSS  */
 
+hr {
+    margin: 0px !important;
+}
+
+
 .breadcrumb-spage {
     font-size: 12px;
     font-weight: 400;
@@ -378,6 +383,7 @@ input[type="text"]:focus {
     background-color: #FFFFFF;
     padding: 20px;
     font-family: inherit;
+    border-radius: 4px;
 }
 
 
@@ -452,7 +458,7 @@ input[type="text"]:focus {
     display: inline-block;
     padding: 8px 12px;
     border: 1px solid #B1B9D3;
-    background-color: #FFFFFF;
+    background-color: #F4F6FA;
     border-radius: 100px;
     cursor: pointer;
     outline: none !important;
@@ -483,12 +489,13 @@ input[type="text"]:focus {
     display: none;
     position: absolute;
     background: white;
-    border: 1px solid #ccc;
+    border: 1px solid  #170F3F33;
     width: 240px;
     max-height: 416px;
     overflow-y: auto;
     z-index: 100;
     flex-direction: column;
+    box-shadow: 0 7px 12px #170F3F33;
 }
 
 .filter-content-date {
@@ -501,6 +508,7 @@ input[type="text"]:focus {
     overflow-y: auto;
     z-index: 100;
     flex-direction: column;
+    box-shadow: 0 7px 12px #170F3F33;
 }
 
 .filter-content-domain {
@@ -513,6 +521,7 @@ input[type="text"]:focus {
     overflow-y: auto;
     z-index: 100;
     flex-direction: column;
+    box-shadow: 0 7px 12px #170F3F33;
 }
 
 .filter-content label, .filter-content-date .date-option, .filter-content-domain label{
@@ -524,6 +533,14 @@ input[type="text"]:focus {
     padding: 12px 16px;
     cursor: pointer;
 }
+
+.filter-content label input, .filter-content-date .date-option input, .filter-content-domain label input {
+    margin-right: 16px;
+}
+
+
+
+
 .filter-content label:last-child,
 .filter-content-date .date-option:last-child,
 .filter-content-domain label:last-child {
@@ -565,7 +582,7 @@ input[type="text"]:focus {
     text-align: center;
     font-weight: bold;
     color: #1EBBF0; 
-    margin-right: 5px;
+    margin-right: 16px;
 }
 .date-option {
     display: flex;

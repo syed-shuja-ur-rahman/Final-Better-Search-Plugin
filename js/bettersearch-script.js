@@ -206,7 +206,7 @@ const fetchFilteredLessons = (query) => {
                     _.take(categorizedResults.features, searchLimit).forEach((feature) => {
                         const thumbnail = getThumbnail(feature.thumbnail_url);
                         html += `
-                        <a href="${feature.url}" target="_blank">
+                        <a href="${feature.url}" >
                         <div class="ai-search-suggestions">
                             <div>
                                     <div class="ai-thumbnail" style="background-image: url('${thumbnail}');"></div>
@@ -262,7 +262,7 @@ const fetchFilteredLessons = (query) => {
                 
                         html += `
                         <a href="${lesson.asset_type === 'Video lesson' ? 'javascript:void(0);' : lesson.url}" 
-                                    ${lesson.asset_type !== 'Video lesson' ? 'target="_blank"' : ''}
+                                    ${lesson.asset_type === 'YouTube video' ? 'target="_blank"' : ''}
                                     ${lesson.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${lesson.title}','${lesson.url}')"` : ''}>
                             <div> 
                                 <div class="ai-search-suggestions">
@@ -294,7 +294,7 @@ const fetchFilteredLessons = (query) => {
                                             ? `${aiSearch.plugin_url}assets/images/Default-Misc.png`
                                             : article.thumbnail_url;
                         html += `
-                        <a href="${article.url}" target="_blank">
+                        <a href="${article.url}" ${article.asset_type === 'Article' ? 'target="_blank"' : ''}>
 						<div > 
                                 <div class="ai-search-suggestions">
                                     <div >
@@ -384,8 +384,5 @@ const fetchFilteredLessons = (query) => {
     }
 
 
-    
-    
-    
 }
 });

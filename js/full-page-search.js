@@ -147,9 +147,8 @@ function constructFilterString() {
                 return ""; // No date filter applied
         }
 
-        filterConditions.push(`(created_at>=${startDate} AND created_at<=${endDate})`);
+        filterConditions.push(`(published_date>=${startDate} AND published_date<=${endDate})`);
     }
-
     // Add HR domain filter
     if (selectedFilters.hrDomain.length > 0) {
         const hrDomainConditions = selectedFilters.hrDomain.map(domain => `hr_domain='${domain}'`).join(" OR ");
@@ -227,12 +226,12 @@ function fetchResults(page) {
                         </div>`
                     : "";
 
-                const category = searchResult.asset_type === "Courses" ? searchResult.category : searchResult.asset_type;
+                const category = searchResult.asset_type === "Courses" ? searchResult.category : searchResult.asset_type ;
 
                 html += `
                 <a href="${searchResult.asset_type === 'Video lesson' ? 'javascript:void(0);' : searchResult.url}" 
                 ${searchResult.asset_type !== 'Video lesson' ? 'target="_blank"' : ''}
-                ${searchResult.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${searchResult.title}','${searchResult.url}')"` : ''}>
+                ${searchResult.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${searchResult.title}','${searchResult.url}','${searchResult.specific_metadata.id}')"` : ''}>
                 <div class="ai-search-suggestions">
                     <div>
                             ${thumbnail}
@@ -243,7 +242,8 @@ function fetchResults(page) {
                            ${videoMarkup}
                            </div>
                            </div>
-                           </a>
+                           </a> 
+                           <hr>
                            `;
             });
         } else {
@@ -357,7 +357,7 @@ function fetchResults(page) {
                     <div class="filter-content-date">
                         ${['Last Week', 'Last Month', 'This Year', 'Last Year','All Time'].map(item => `
                             <div class="date-option" onclick="handleDateFilterChange('${item}')">
-                            <span class="tick-icon" style="display: ${selectedFilters.date.includes(item) ? 'inline' : 'none'};">✔</span>
+                            <span class="tick-icon" style="display: ${selectedFilters.date.includes(item) ? 'inline' : 'none'};"><i class="fa-regular fa-check"></i></span>
                                 <span class="date-ftext">${item}</span>
                             </div>
                         `).join('')}
