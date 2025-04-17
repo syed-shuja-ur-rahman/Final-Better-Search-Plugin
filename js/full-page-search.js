@@ -230,7 +230,7 @@ function fetchResults(page) {
 
                 html += `
                 <a href="${searchResult.asset_type === 'Video lesson' ? 'javascript:void(0);' : searchResult.url}" 
-                ${searchResult.asset_type !== 'Video lesson' ? 'target="_blank"' : ''}
+                ${(searchResult.asset_type === 'Article' || searchResult.asset_type === 'Help Center' || searchResult.asset_type === 'YouTube video') ? 'target="_blank"' : ''}
                 ${searchResult.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${searchResult.title}','${searchResult.url}','${searchResult.specific_metadata.id}')"` : ''}>
                 <div class="ai-search-suggestions">
                     <div>

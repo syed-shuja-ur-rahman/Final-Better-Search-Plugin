@@ -263,7 +263,7 @@ const fetchFilteredLessons = (query) => {
                         html += `
                         <a href="${lesson.asset_type === 'Video lesson' ? 'javascript:void(0);' : lesson.url}" 
                                     ${lesson.asset_type === 'YouTube video' ? 'target="_blank"' : ''}
-                                    ${lesson.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${lesson.title}','${lesson.url}')"` : ''}>
+                                    ${lesson.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${lesson.title}','${lesson.url}','${lesson.specific_metadata.id}')"` : ''}>
                             <div> 
                                 <div class="ai-search-suggestions">
                                     <div>
