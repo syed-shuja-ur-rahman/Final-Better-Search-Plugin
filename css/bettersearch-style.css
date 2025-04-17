@@ -27,6 +27,7 @@
     background: #fff;
     width: 100%;
     box-sizing: border-box; /* Include padding and border in width */
+    height: 44px !important;
 }
 
 .search-icon {
