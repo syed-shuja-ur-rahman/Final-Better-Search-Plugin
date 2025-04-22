@@ -160,32 +160,44 @@ function constructFilterString() {
 }
 
 // Function to fetch results for a specific page
-function fetchResults(page) {
+async function fetchResults(page) {
     const offset = (page - 1) * limit; // Calculate offset based on the page number
 
-    // Construct the filter string
-    const filterString = constructFilterString();
+    try {
+        const courseIds = await getAccessibleCoursesJourney(); // WAIT karo
+        console.log("Course Ids", courseIds);  
 
-    // Show loading spinner before making the API call
-    showLoadingSpinner();
+        const courseFilter = courseIds.length > 0 
+            ? `((asset_type != 'Courses') OR (asset_type = 'Courses' AND specific_metadata.id IN [${courseIds.join(',')}]))`
+            : `(license_type != 'Private')`;
 
-    fetch(apiUrl, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "x-api-key": apiKey,
-        },
-        body: JSON.stringify({
-            Query: decodedQuery,
-            SearchType: search_type,
-            Filter: filterString, // Send the constructed filter string
-            Offset: offset,
-            Limit: limit,
-            nonce: nonce,
-        }),
-    })
-    .then(response => response.json())
-    .then(data => {
+        // Combine with other filters
+        const filterString = constructFilterString();
+        const finalFilter = [filterString, courseFilter]
+            .filter(f => f && f !== '')
+            .join(' AND ');
+
+        // Show loading spinner before making the API call
+        showLoadingSpinner();
+
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": apiKey,
+            },
+            body: JSON.stringify({
+                Query: decodedQuery,
+                SearchType: search_type,
+                Filter: finalFilter,
+                Offset: offset,
+                Limit: limit,
+                nonce: nonce,
+            }),
+        });
+
+        const data = await response.json();
+
         if (data.status !== 'success') {
             $('#better-search-results').html(`<div class="error">${data.message}</div>`).show();
             return;
@@ -206,14 +218,14 @@ function fetchResults(page) {
         if (!_.isEmpty(uniqueResults)) {
             _.forEach(uniqueResults, (searchResult) => {
                 const thumbnail = searchResult.asset_type === "Courses"
-                                    ? `<div class="ai-thumbnail-course" style="background-image: url('${searchResult.thumbnail_url}');"></div>`
-                                    : searchResult.asset_type === "Video lesson"
-                                    ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-play"></i></div>`
-                                    : searchResult.asset_type === "Non-Video lesson" 
-                                    ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></div>` 
-                                    : searchResult.asset_type === "Help Center" 
-                                    ? `<div class="bs-thumbnail-help"><i class="fa-regular fa-question"></i></div>` 
-                                    : getThumbnail(searchResult.thumbnail_url);
+                    ? `<div class="ai-thumbnail-course" style="background-image: url('${searchResult.thumbnail_url}');"></div>`
+                    : searchResult.asset_type === "Video lesson"
+                    ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-play"></i></div>`
+                    : searchResult.asset_type === "Non-Video lesson" 
+                    ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></div>` 
+                    : searchResult.asset_type === "Help Center" 
+                    ? `<div class="bs-thumbnail-help"><i class="fa-regular fa-question"></i></div>` 
+                    : getThumbnail(searchResult.thumbnail_url);
 
                 const isVideoLesson = searchResult.asset_type === "Video lesson";
                 const videoUrl = isVideoLesson ? searchResult.external_url : ""; 
@@ -226,7 +238,7 @@ function fetchResults(page) {
                         </div>`
                     : "";
 
-                const category = searchResult.asset_type === "Courses" ? searchResult.category : searchResult.asset_type ;
+                const category = searchResult.asset_type === "Courses" ? searchResult.category : searchResult.asset_type;
 
                 html += `
                 <a href="${searchResult.asset_type === 'Video lesson' ? 'javascript:void(0);' : searchResult.url}" 
@@ -234,17 +246,17 @@ function fetchResults(page) {
                 ${searchResult.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${searchResult.title}','${searchResult.url}','${searchResult.specific_metadata.id}')"` : ''}>
                 <div class="ai-search-suggestions">
                     <div>
-                            ${thumbnail}
+                        ${thumbnail}
                     </div>
-                        <div class="search-title">
+                    <div class="search-title">
                         <p class="asset-type" data-type="${searchResult.asset_type}">${category}</p>
-                           <h5> ${searchResult.title}</h5>  
-                           ${videoMarkup}
-                           </div>
-                           </div>
-                           </a> 
-                           <hr>
-                           `;
+                        <h5>${searchResult.title}</h5>  
+                        ${videoMarkup}
+                    </div>
+                </div>
+                </a>
+                <hr>
+                `;
             });
         } else {
             html = '<div class="ai-search-suggestions">No results found.</div>';
@@ -253,35 +265,69 @@ function fetchResults(page) {
         resultContainer.innerHTML = html;
 
         // Update total pages based on the number of results
-        if (data.data.length < limit) {
-            totalPages = page; // No more results after this page
-        } else {
-            totalPages = page + 1; // Assume there might be more results
-        }
+        totalPages = (data.data.length < limit) ? page : page + 1;
 
         // Update pagination UI
         updatePaginationUI(page);
-    })
-    .catch((error) => {
+
+    } catch (error) {
+        let errorMessage = error.message || 'Unknown error';
+
         if (error.message.includes("404")) {
-            error.message = 'Requested resource not found! Please try again!';
+            errorMessage = 'Requested resource not found! Please try again!';
         } else if (error.message.includes("400")) {
-            error.message = 'Bad request. Please check the request parameters.';
+            errorMessage = 'Bad request. Please check the request parameters.';
         } else if (error.message.includes("500")) {
-            error.message = 'Internal server error. Please try again later.';
+            errorMessage = 'Internal server error. Please try again later.';
         } else if (error.message.includes("405")) {
-            error.message = 'Method not allowed. Please check the API endpoint.';
+            errorMessage = 'Method not allowed. Please check the API endpoint.';
         } else if (error.name === 'AbortError') {
-            error.message = 'Request timed out. Please try again later.';
+            errorMessage = 'Request timed out. Please try again later.';
         } else if (error.message.includes('CORS')) {
-            error.message = 'CORS error: The request has been blocked. No "Access-Control-Allow-Origin" header found.';
+            errorMessage = 'CORS error: The request has been blocked. No "Access-Control-Allow-Origin" header found.';
         } else if (error.message === 'Failed to fetch') {
-            error.message = 'API Key/ API URL is not Correct';
+            errorMessage = 'API Key/ API URL is not Correct';
         }
-        resultContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
-        resultContainer.style.display = 'block';  // Ensure the container is visible
-    });
+
+        resultContainer.innerHTML = `<div class="error">Error occurred: ${errorMessage}</div>`;
+        resultContainer.style.display = 'block';
+    }
 }
+
+// Simplified function to get course IDs
+async function getAccessibleCoursesJourney() {
+    try {
+        const course_id = { courseIds: [123, 17, 466] };
+
+        const itemStr = localStorage.getItem('currentToken');
+        console.log("Token Value ya Token name", itemStr);
+
+        const tokenAsKey = localStorage.getItem(itemStr);
+        console.log("Token as a key ki value", tokenAsKey ? JSON.parse(tokenAsKey) : null);
+
+        if (!tokenAsKey) {
+            // Api call will be placed here against token
+            localStorage.setItem(itemStr, JSON.stringify(course_id));
+            console.log("Array Store hogai", course_id.courseIds);
+            return course_id.courseIds;
+        } else {
+            const item = JSON.parse(tokenAsKey);
+            console.log("Course Ids", item.courseIds.length);
+            return item.courseIds;
+        }
+
+    } catch (e) {
+        console.error("Error getting course IDs:", e);
+        return [];
+    }
+}
+
+
+
+
+
+
+
 
 
     // Function to update the pagination UI (with input box)
