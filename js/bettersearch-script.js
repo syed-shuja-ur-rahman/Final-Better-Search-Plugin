@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const search_type = aiSearch.search_type;
     const c_search_limit = aiSearch.c_search_limit;
     const fPageUrl = aiSearch.search_results_page_url;
+    // const courseAndLessonIds = [];
  
     const $ = jQuery;
 
@@ -51,14 +52,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Modified fetchFilteredLessons to use dynamic course IDs
-        const fetchFilteredLessons = async (query) => {
+        const fetchFilteredLessons = async (query, courseAndLessonIds) => {
+
+            console.log("fetchFilteredLessons Function Called ====> 3");
+
             try {
                 // Get accessible course IDs
-                const courseIds = await getAccessibleCoursesJourney();
+                //const courseIds = await getAccessibleCoursesJourney();
+                //console.log("Combined Array for 0 index===>>> ", courseAndLessonIds);
                 // console.log ("Course ids Length", courseIds);
-                const courseFilter = courseIds.length > 0 
-                    ? `(asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`
-                    : `(asset_type='Courses' AND (license_type!=Private))`;
+                const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseAndLessonIds[0].join(',')}])`;
+                   
                 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
@@ -91,42 +95,93 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         // Simplified function to get course IDs
-        async function getAccessibleCoursesJourney() {
+        async function getAccessibleCoursesJourney(query) {
+            console.log("getAccessibleCoursesJourney Function Called ====> 2");
+
+
             try {
-
-                const course_id= { courseIds: [123, 17, 466] };
-
+                const course_id = { courseIds: [203,222,59,353,300,427,459,123,33,461,215,68,376,160,186,263,291,311,451,464] }; // Temporary courseIds
+        
                 const itemStr = localStorage.getItem('currentToken');
-                console.log("Token Value ya Token name",itemStr);
-                
+                //console.log("Token Value ya Token name:", itemStr);
+        
                 const tokenAsKey = localStorage.getItem(itemStr);
-                console.log("Token as a key ki value",JSON.parse(tokenAsKey));
-
-                 if (!tokenAsKey) {
-
-                    //Api will be called here against token
-                 
+        
+                let accessibleCoursesList = [];
+        
+                if (!tokenAsKey) {
+                     // Api call will be placed here against token to get the list of accessible courses list
                     localStorage.setItem(itemStr, JSON.stringify(course_id));
-                    
-                    console.log("Array Store hogai", course_id);
-                    return course_id.courseIds;
-                
-                }else{
-
+                    //console.log("Array Store hogai:", course_id);
+                    accessibleCoursesList = course_id.courseIds;
+                } else {
                     const item = JSON.parse(tokenAsKey);
-                    console.log ("Course Ids", item.courseIds.length);
-
-                    return item.courseIds;
+                    //console.log("Course Ids:", item.courseIds.length);
+                    accessibleCoursesList = item.courseIds;
+                }
+        
+                const courseIds = accessibleCoursesList;
+                const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
+        
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                    },
+                    body: JSON.stringify({
+                        Query: query,
+                        SearchType: search_type,
+                        Filter: courseFilter,
+                        Offset: 0,
+                        //Limit: c_search_limit,
+                        nonce: nonce,
+                    }),
+                });
+        
+                if (!response.ok) {
+                    throw new Error(`API response not OK: ${response.status}`);
+                }
+        
+                const data = await response.json();
+                //console.log("API ka Response:", data);
+        
+                // ✅ Extract all lesson_ids from each result
+                const allLessonIds = [];
+        
+                data.data.forEach(item => {
+                    if (
+                        item.specific_metadata &&
+                        Array.isArray(item.specific_metadata.lesson_id)
+                    ) {
+                        allLessonIds.push(...item.specific_metadata.lesson_id);
                     }
+                });
+                
+                //console.log("Extracted Course IDs:", courseIds);
 
+                const uniqueLessonIds = _.uniq(allLessonIds);
+                localStorage.setItem("uniqueLessonIds", JSON.stringify(uniqueLessonIds));
+                //console.log("Extracted Lesson IDs:", uniqueLessonIds);
+
+                const combinedArray = [courseIds, uniqueLessonIds];
+                //console.log("Extracted Lesson IDs:", combinedArray);
+
+
+        
+                return combinedArray;
+        
             } catch (e) {
-                console.error("Error getting course IDs:", e);
+                console.error("Error getting course IDs or lessons:", e);
                 return [];
             }
         }
 
         // Debounced search input handler
         const handleSearch = _.debounce(async function () {
+            console.log("HandleSearch Function Called ====> 1");
+            const courseAndLessonIds = await getAccessibleCoursesJourney();
+
             const query = searchInput.value.trim();
             $('#loading-spinner').show();
             $('#ai-search-clear').hide();
@@ -138,6 +193,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 $('#ai-search-clear').show();
                 return;
             }
+            
+
+
+            //console.log("Extracted Lesson IDs in 2nd API:", courseAndLessonIds);
+
+            const lessonFilter = `(asset_type NOT IN ['Courses', 'Video lesson', 'Non-Video lesson']) OR (asset_type IN ['Video lesson', 'Non-Video lesson'] AND specific_metadata.id IN [${courseAndLessonIds[1]}])`;
+
 
             try {
                 // Fetch both suggestions and filtered lessons in parallel
@@ -152,15 +214,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         body: JSON.stringify({
                             Query: query,
                             SearchType: search_type,
-                            Filter: "asset_type!='Courses'",
+                            Filter: lessonFilter,
                             Offset: 0,
-                            Limit: 20,
+                            Limit: searchLimit, 
                             nonce: nonce,
                         }),
                     }).then(response => response.json()),
                     
                     // Filtered courses fetch (now with dynamic course IDs)
-                    fetchFilteredLessons(query)
+                    fetchFilteredLessons(query, courseAndLessonIds)
                 ]);
 
                 $('#loading-spinner').hide();
@@ -265,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </div>
                                     <div class="search-title px-0">
                                             <p class="asset-type" data-type="${lesson.asset_type}">${category}</p>    
-                                            <h5>${lesson.title}</h5> 
+                                            <h5>${lesson.title}(${lesson.specific_metadata.id})</h5> 
                                         ${videoMarkup}
                                     </div>
                                 </div>
