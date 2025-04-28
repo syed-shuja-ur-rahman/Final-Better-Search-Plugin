@@ -164,8 +164,7 @@ async function fetchResults(page) {
     const offset = (page - 1) * limit; // Calculate offset based on the page number
 
     try {
-        const courseAndLessonIds = await getAccessibleCoursesJourney(); // WAIT karo
-        console.log("Course Ids", courseAndLessonIds);  
+        const courseAndLessonIds = await getAccessibleCoursesJourney(); 
 
         const courseFilter =  `(asset_type NOT IN ['Courses', 'Video lesson', 'Non-Video lesson']) OR (asset_type IN ['Video lesson', 'Non-Video lesson'] AND specific_metadata.id IN [${courseAndLessonIds[1]}]) OR (asset_type = 'Courses' AND specific_metadata.id IN [${courseAndLessonIds[0]}])`;
 
@@ -294,14 +293,12 @@ async function fetchResults(page) {
 
 // Simplified function to get course IDs
 async function getAccessibleCoursesJourney(query) {
-    console.log("getAccessibleCoursesJourney Function Called ====> 2");
 
 
     try {
         const course_id = { courseIds: [203,222,59,353,300,427,459,123,33,461,215,68,376,160,186,263,291,311,451,464] }; // Temporary courseIds
 
         const itemStr = localStorage.getItem('currentToken');
-        //console.log("Token Value ya Token name:", itemStr);
 
         const tokenAsKey = localStorage.getItem(itemStr);
 
@@ -310,11 +307,9 @@ async function getAccessibleCoursesJourney(query) {
         if (!tokenAsKey) {
              // Api call will be placed here against token
             localStorage.setItem(itemStr, JSON.stringify(course_id));
-            //console.log("Array Store hogai:", course_id);
             accessibleCoursesList = course_id.courseIds;
         } else {
             const item = JSON.parse(tokenAsKey);
-            //console.log("Course Ids:", item.courseIds.length);
             accessibleCoursesList = item.courseIds;
         }
 
@@ -342,9 +337,8 @@ async function getAccessibleCoursesJourney(query) {
         }
 
         const data = await response.json();
-        //console.log("API ka Response:", data);
 
-        // ✅ Extract all lesson_ids from each result
+        //  Extract all lesson_ids from each result
         const allLessonIds = [];
 
         data.data.forEach(item => {
@@ -356,14 +350,11 @@ async function getAccessibleCoursesJourney(query) {
             }
         });
         
-        //console.log("Extracted Course IDs:", courseIds);
 
         const uniqueLessonIds = _.uniq(allLessonIds);
         localStorage.setItem("uniqueLessonIds", JSON.stringify(uniqueLessonIds));
-        //console.log("Extracted Lesson IDs:", uniqueLessonIds);
 
         const combinedArray = [courseIds, uniqueLessonIds];
-        //console.log("Extracted Lesson IDs:", combinedArray);
 
 
 
