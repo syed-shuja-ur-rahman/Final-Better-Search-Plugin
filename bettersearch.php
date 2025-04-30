@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 14.0
+Version: 15.0
 Author: AIHR
 */
 
@@ -46,7 +46,7 @@ add_shortcode('better_search_results', 'ai_search_results_function'); // Full-pa
 function ai_search_load_lodash() {
     echo '<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>';
 }
-add_action('wp_head', 'ai_search_load_lodash'); // ✅ Ensures Lodash is loaded in the <head>
+add_action('wp_head', 'ai_search_load_lodash'); // Ensures Lodash is loaded in the <head>
 
 function remove_bettersearch_script() {
     $search_results_page_url = get_option('search_results_page_url'); 
@@ -76,10 +76,10 @@ function ai_search_enqueue_scripts()
 
 
    // Enqueue custom styles for the search bar
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=5.2');
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=6.0');
 
 
-    $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name where your search_limit is stored
+    $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name
     $search_limit = isset($options['search_limit']) ? intval($options['search_limit']) : 5;
     $search_delay = isset($options['search_delay']) ? intval($options['search_delay']) : 500;
     $api_url = isset($options['api_url']) ? $options['api_url'] : '';
@@ -100,7 +100,7 @@ function ai_search_enqueue_scripts()
     // Enqueue script for handling AJAX search
     wp_enqueue_script(
         'ai-search-script',
-        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=6.2', // Adjust the path as needed
+        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=7.0', // Adjust the path as needed
         ['lodash', 'jquery'], // Dependencies: jQuery and Lodash
         '1.0.0',
         true
@@ -108,7 +108,7 @@ function ai_search_enqueue_scripts()
 
     
     // Enqueue full-page search script
-    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['jquery'], '3.2.0', true);
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['jquery'], '4.0.0', true);
 
         
     // Localize script for AJAX URL
@@ -147,9 +147,6 @@ function ai_search_shortcode_function($atts)
 
     
 ?>
-
-
-
     <div class="container">
     <div class="bs-search-box">
         <!-- Search Icon -->

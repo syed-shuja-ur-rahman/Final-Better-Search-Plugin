@@ -1,4 +1,3 @@
-
 const resultContainer = document.getElementById("better-search-results");
 const paginationContainer = document.getElementById("pagination");
 const filterContainer = document.getElementById("filter-container");
@@ -164,9 +163,9 @@ async function fetchResults(page) {
     const offset = (page - 1) * limit; // Calculate offset based on the page number
 
     try {
-        const courseAndLessonIds = await getAccessibleCoursesJourney(); 
+        const courseAndLessonIds = await getAccessibleCoursesJourney();        
 
-        const courseFilter =  `(asset_type NOT IN ['Courses', 'Video lesson', 'Non-Video lesson']) OR (asset_type IN ['Video lesson', 'Non-Video lesson'] AND specific_metadata.id IN [${courseAndLessonIds[1]}]) OR (asset_type = 'Courses' AND specific_metadata.id IN [${courseAndLessonIds[0]}])`;
+        const courseFilter =  `((asset_type NOT IN ['Courses', 'Video lesson', 'Non-Video lesson']) OR (asset_type IN ['Video lesson', 'Non-Video lesson'] AND specific_metadata.id IN [${courseAndLessonIds[1]}]) OR (asset_type = 'Courses' AND specific_metadata.id IN [${courseAndLessonIds[0]}]))`;
 
         // Combine with other filters
         const filterString = constructFilterString();
@@ -292,86 +291,107 @@ async function fetchResults(page) {
 }
 
 // Simplified function to get course IDs
-async function getAccessibleCoursesJourney(query) {
+        async function getAccessibleCoursesJourney(query) {
 
 
-    try {
-        const course_id = { courseIds: [203,222,59,353,300,427,459,123,33,461,215,68,376,160,186,263,291,311,451,464] }; // Temporary courseIds
-
-        const itemStr = localStorage.getItem('currentToken');
-
-        const tokenAsKey = localStorage.getItem(itemStr);
-
-        let accessibleCoursesList = [];
-
-        if (!tokenAsKey) {
-             // Api call will be placed here against token
-            localStorage.setItem(itemStr, JSON.stringify(course_id));
-            accessibleCoursesList = course_id.courseIds;
-        } else {
-            const item = JSON.parse(tokenAsKey);
-            accessibleCoursesList = item.courseIds;
-        }
-
-        const courseIds = accessibleCoursesList;
-        const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
-
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey,
-            },
-            body: JSON.stringify({
-                Query: query,
-                SearchType: search_type,
-                Filter: courseFilter,
-                Offset: 0,
-                // Limit: c_search_limit,
-                nonce: nonce,
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`API response not OK: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        //  Extract all lesson_ids from each result
-        const allLessonIds = [];
-
-        data.data.forEach(item => {
-            if (
-                item.specific_metadata &&
-                Array.isArray(item.specific_metadata.lesson_id)
-            ) {
-                allLessonIds.push(...item.specific_metadata.lesson_id);
-            }
-        });
+            try {
         
+                const itemStr = localStorage.getItem('currentToken');
+        
+                const tokenAsKey = localStorage.getItem(itemStr);
+        
+                let accessibleCoursesList = [];
+        
+                if (!tokenAsKey) {
 
-        const uniqueLessonIds = _.uniq(allLessonIds);
-        localStorage.setItem("uniqueLessonIds", JSON.stringify(uniqueLessonIds));
+							try {
+								const res = await fetch(`https://qa.burnwood.aihr.com/platform/api/License/accessible-journeys?api-version=2.0`, {
+                                    method: 'GET',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${itemStr}` 
+                                    }
+                                });
 
-        const combinedArray = [courseIds, uniqueLessonIds];
+								if (!res.ok) {
+									throw new Error('Failed to fetch from proxy');
+								}
+								const data = await res.json();
+								const journeyIds = data.result;
+								localStorage.setItem(itemStr, JSON.stringify(journeyIds));
 
+								accessibleCoursesList = journeyIds.journeys;
+							} catch (err) {
+								document.getElementById("ai-search-suggestions-bs").innerHTML = `
+									<div class="error-msg">Unable to load courses.</div>
+								`;
+								console.error("Error via PHP proxy:", err);
+							}
+						} else {
+							const item = JSON.parse(tokenAsKey);
+							accessibleCoursesList = item.journeys;
+						}
+				
+				const lessonIdsStored = JSON.parse(localStorage.getItem('uniqueLessonIds'));
+				 const courseIds = accessibleCoursesList;
+				
+        if (!lessonIdsStored){
+               
+                const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
+        
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                    },
+                    body: JSON.stringify({
+                        Query: query,
+                        SearchType: search_type,
+                        Filter: courseFilter,
+                        Offset: 0,
+                        //Limit: c_search_limit,
+                        nonce: nonce,
+                    }),
+                });
+        
+                if (!response.ok) {
+                    throw new Error(`API response not OK: ${response.status}`);
+                }
+        
+                const data = await response.json();
+				
+                // Extract all lesson_ids from each result
+                const allLessonIds = [];
+        
+                data.data.forEach(item => {
+                    if (
+                        item.specific_metadata &&
+                        Array.isArray(item.specific_metadata.lesson_id)
+                    ) {
+                        allLessonIds.push(...item.specific_metadata.lesson_id);
+                    }
+                });
+                
 
+                const uniqueLessonIds = _.uniq(allLessonIds);
+                localStorage.setItem("uniqueLessonIds", JSON.stringify(uniqueLessonIds));
+				const combinedArray = [courseIds, uniqueLessonIds];
+			return combinedArray;
+			
+		} else{
+                const combinedArray = [courseIds, lessonIdsStored];
+			return combinedArray;
 
-        return combinedArray;
-
-    } catch (e) {
-        console.error("Error getting course IDs or lessons:", e);
-        return [];
-    }
-}
-
-
-
-
-
-
-
+			}
+        
+                
+        
+            } catch (e) {
+                console.error("Error getting course IDs or lessons:", e);
+                return [];
+            }
+        }
 
 
     // Function to update the pagination UI (with input box)
