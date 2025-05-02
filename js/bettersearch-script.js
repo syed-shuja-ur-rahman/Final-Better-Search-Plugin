@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </div>
                                     <div class="search-title px-0">
                                             <p class="asset-type" data-type="${lesson.asset_type}">${category}</p>    
-                                            <h5>${lesson.title}(${lesson.specific_metadata.id})</h5> 
+                                            <h5>${lesson.title}</h5> 
                                         ${videoMarkup}
                                     </div>
                                 </div>
