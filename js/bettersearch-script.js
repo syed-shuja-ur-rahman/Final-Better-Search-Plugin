@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         };
 
-        // Simplified function to get course IDs
+        // Simplified function to get course IDs and Lesson IDs
         async function getAccessibleCoursesJourney(query) {
 
 
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
                 const itemStr = localStorage.getItem('currentToken');
         
-                const tokenAsKey = localStorage.getItem(itemStr);
+                const tokenAsKey = localStorage.getItem("Journeys."+itemStr);
         
                 let accessibleCoursesList = [];
         
@@ -117,11 +117,11 @@ document.addEventListener('DOMContentLoaded', function () {
 								}
 								const data = await res.json();
 								const journeyIds = data.result;
-								localStorage.setItem(itemStr, JSON.stringify(journeyIds));
+								localStorage.setItem("Journeys."+itemStr, JSON.stringify(journeyIds));
 
 								accessibleCoursesList = journeyIds.journeys;
-							} catch (err) {
-								document.getElementById("ai-search-suggestions-bs").innerHTML = `
+							} catch (err) {	
+                                document.getElementById("ai-search-suggestions-bs").innerHTML = `
 									<div class="error-msg">Unable to load courses.</div>
 								`;
 								console.error("Error via PHP proxy:", err);
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
 							accessibleCoursesList = item.journeys;
 						}
 				
-				const lessonIdsStored = JSON.parse(localStorage.getItem('uniqueLessonIds'));
+				const lessonIdsStored = JSON.parse(localStorage.getItem("Lessons."+itemStr));
 				 const courseIds = accessibleCoursesList;
 				
         if (!lessonIdsStored){
@@ -171,12 +171,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
                 const uniqueLessonIds = _.uniq(allLessonIds);
-                localStorage.setItem("uniqueLessonIds", JSON.stringify(uniqueLessonIds));
+
+                const lessonData = {
+                    lessonIds: uniqueLessonIds
+                  };
+
+                localStorage.setItem("Lessons."+itemStr, JSON.stringify(lessonData));
 				const combinedArray = [courseIds, uniqueLessonIds];
 			return combinedArray;
 			
 		} else{
-                const combinedArray = [courseIds, lessonIdsStored];
+                const combinedArray = [courseIds, lessonIdsStored.lessonIds];
 			return combinedArray;
 
 			}

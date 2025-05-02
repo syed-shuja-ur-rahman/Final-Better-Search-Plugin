@@ -150,9 +150,16 @@ function constructFilterString() {
     }
     // Add HR domain filter
     if (selectedFilters.hrDomain.length > 0) {
-        const hrDomainConditions = selectedFilters.hrDomain.map(domain => `hr_domain='${domain}'`).join(" OR ");
-        filterConditions.push(`(${hrDomainConditions})`);
+        const domainsArray = selectedFilters.hrDomain.map(domain => `'${domain}'`).join(", ");
+        filterConditions.push(`hr_domain IN [${domainsArray}]`);
     }
+
+
+
+    // if (selectedFilters.hrDomain.length > 0) {
+    //     const hrDomainConditions = selectedFilters.hrDomain.map(domain => `hr_domain IN ['${domain}']`).join(" OR ");
+    //     filterConditions.push(`(${hrDomainConditions})`);
+    // }
 
     // Combine all conditions with AND
     return filterConditions.join(" AND ");
@@ -290,109 +297,109 @@ async function fetchResults(page) {
     }
 }
 
-// Simplified function to get course IDs
-        async function getAccessibleCoursesJourney(query) {
+                    // Simplified function to get course IDs and Lesson IDs
+                    async function getAccessibleCoursesJourney(query) {
 
 
-            try {
-        
-                const itemStr = localStorage.getItem('currentToken');
-        
-                const tokenAsKey = localStorage.getItem(itemStr);
-        
-                let accessibleCoursesList = [];
-        
-                if (!tokenAsKey) {
+                        try {
 
-							try {
-								const res = await fetch(`https://qa.burnwood.aihr.com/platform/api/License/accessible-journeys?api-version=2.0`, {
-                                    method: 'GET',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${itemStr}` 
+                            const itemStr = localStorage.getItem('currentToken');
+
+                            const tokenAsKey = localStorage.getItem("Journeys."+itemStr);
+
+                            let accessibleCoursesList = [];
+
+                            if (!tokenAsKey) {
+
+                                        try {
+                                            const res = await fetch(`https://qa.burnwood.aihr.com/platform/api/License/accessible-journeys?api-version=2.0`, {
+                                                method: 'GET',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'Authorization': `Bearer ${itemStr}`  
+                                                }
+                                            });
+                                            if (!res.ok) {
+                                                throw new Error('Failed to fetch from proxy');
+                                            }
+                                            const data = await res.json();
+                                            const journeyIds = data.result;
+                                            localStorage.setItem("Journeys."+itemStr, JSON.stringify(journeyIds));
+
+                                            accessibleCoursesList = journeyIds.journeys;
+                                        } catch (err) {	
+                                            document.getElementById("ai-search-suggestions-bs").innerHTML = `
+                                                <div class="error-msg">Unable to load courses.</div>
+                                            `;
+                                            console.error("Error via PHP proxy:", err);
+                                        }
+                                    } else {
+                                        const item = JSON.parse(tokenAsKey);
+                                        accessibleCoursesList = item.journeys;
                                     }
-                                });
+                            
+                            const lessonIdsStored = JSON.parse(localStorage.getItem("Lessons."+itemStr));
+                            const courseIds = accessibleCoursesList;
+                            
+                    if (!lessonIdsStored){
+                        
+                            const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
 
-								if (!res.ok) {
-									throw new Error('Failed to fetch from proxy');
-								}
-								const data = await res.json();
-								const journeyIds = data.result;
-								localStorage.setItem(itemStr, JSON.stringify(journeyIds));
+                            const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'x-api-key': apiKey,
+                                },
+                                body: JSON.stringify({
+                                    Query: query,
+                                    SearchType: search_type,
+                                    Filter: courseFilter,
+                                    Offset: 0,
+                                    nonce: nonce,
+                                }),
+                            });
 
-								accessibleCoursesList = journeyIds.journeys;
-							} catch (err) {
-								document.getElementById("ai-search-suggestions-bs").innerHTML = `
-									<div class="error-msg">Unable to load courses.</div>
-								`;
-								console.error("Error via PHP proxy:", err);
-							}
-						} else {
-							const item = JSON.parse(tokenAsKey);
-							accessibleCoursesList = item.journeys;
-						}
-				
-				const lessonIdsStored = JSON.parse(localStorage.getItem('uniqueLessonIds'));
-				 const courseIds = accessibleCoursesList;
-				
-        if (!lessonIdsStored){
-               
-                const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
-        
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                    },
-                    body: JSON.stringify({
-                        Query: query,
-                        SearchType: search_type,
-                        Filter: courseFilter,
-                        Offset: 0,
-                        //Limit: c_search_limit,
-                        nonce: nonce,
-                    }),
-                });
-        
-                if (!response.ok) {
-                    throw new Error(`API response not OK: ${response.status}`);
-                }
-        
-                const data = await response.json();
-				
-                // Extract all lesson_ids from each result
-                const allLessonIds = [];
-        
-                data.data.forEach(item => {
-                    if (
-                        item.specific_metadata &&
-                        Array.isArray(item.specific_metadata.lesson_id)
-                    ) {
-                        allLessonIds.push(...item.specific_metadata.lesson_id);
+                            if (!response.ok) {
+                                throw new Error(`API response not OK: ${response.status}`);
+                            }
+
+                            const data = await response.json();
+                            
+                            const allLessonIds = [];
+
+                            data.data.forEach(item => {
+                                if (
+                                    item.specific_metadata &&
+                                    Array.isArray(item.specific_metadata.lesson_id)
+                                ) {
+                                    allLessonIds.push(...item.specific_metadata.lesson_id);
+                                }
+                            });
+
+                            const uniqueLessonIds = _.uniq(allLessonIds);
+
+                            const lessonData = {
+                                lessonIds: uniqueLessonIds
+                            };
+                            
+                            localStorage.setItem("Lessons."+itemStr, JSON.stringify(lessonData));
+                            const combinedArray = [courseIds, uniqueLessonIds];
+                        return combinedArray;
+                        
+                    } else{
+                            const combinedArray = [courseIds, lessonIdsStored.lessonIds];
+                        return combinedArray;
+
+                        }
+
+                            
+
+                        } catch (e) {
+                            console.error("Error getting course IDs or lessons:", e);
+                            return [];
+                        }
                     }
-                });
-                
-
-                const uniqueLessonIds = _.uniq(allLessonIds);
-                localStorage.setItem("uniqueLessonIds", JSON.stringify(uniqueLessonIds));
-				const combinedArray = [courseIds, uniqueLessonIds];
-			return combinedArray;
-			
-		} else{
-                const combinedArray = [courseIds, lessonIdsStored];
-			return combinedArray;
-
-			}
-        
-                
-        
-            } catch (e) {
-                console.error("Error getting course IDs or lessons:", e);
-                return [];
-            }
-        }
-
 
     // Function to update the pagination UI (with input box)
     function updatePaginationUI(page) {
