@@ -172,7 +172,7 @@ async function fetchResults(page) {
     try {
         const courseAndLessonIds = await getAccessibleCoursesJourney();        
 
-        const courseFilter =  `((asset_type NOT IN ['Courses', 'Video lesson', 'Non-Video lesson']) OR (asset_type IN ['Video lesson', 'Non-Video lesson'] AND specific_metadata.id IN [${courseAndLessonIds[1]}]) OR (asset_type = 'Courses' AND specific_metadata.id IN [${courseAndLessonIds[0]}]))`;
+        const courseFilter =  `((asset_type NOT IN ['Courses', 'Video lesson', 'Non-Video lesson']) OR (asset_type IN ['Video lesson', 'Non-Video lesson'] AND specific_metadata.id IN [${courseAndLessonIds[1]}]) OR (asset_type = 'Courses' AND specific_metadata.id IN [${courseAndLessonIds[0]}]) OR (asset_type='Courses' AND license_type = 'Public'))`;
 
         // Combine with other filters
         const filterString = constructFilterString();
@@ -302,15 +302,15 @@ async function fetchResults(page) {
 
 
                         try {
-
+                    
                             const itemStr = localStorage.getItem('currentToken');
-
+                    
                             const tokenAsKey = localStorage.getItem("Journeys."+itemStr);
-
+                    
                             let accessibleCoursesList = [];
-
+                    
                             if (!tokenAsKey) {
-
+            
                                         try {
                                             const res = await fetch(`https://qa.burnwood.aihr.com/platform/api/License/accessible-journeys?api-version=2.0`, {
                                                 method: 'GET',
@@ -320,18 +320,34 @@ async function fetchResults(page) {
                                                 }
                                             });
                                             if (!res.ok) {
-                                                throw new Error('Failed to fetch from proxy');
+                                                // throw new Error('Failed to fetch from proxy');
+                                                jQuery(document).ready(function($) {
+                                                    $('#loading-spinner').hide();
+                                                    $('#ai-search-clear').show();
+                                                }); 
+                                                const errorBox = document.getElementById("ai-search-suggestions-bs");
+                                                    errorBox.innerHTML = `
+                                                        <div class="error-msg">Failed to verify token.</div>
+                                                    `;
+                                                    errorBox.style.display = "block";
+                                                return;
                                             }
                                             const data = await res.json();
                                             const journeyIds = data.result;
                                             localStorage.setItem("Journeys."+itemStr, JSON.stringify(journeyIds));
-
+            
                                             accessibleCoursesList = journeyIds.journeys;
                                         } catch (err) {	
-                                            document.getElementById("ai-search-suggestions-bs").innerHTML = `
-                                                <div class="error-msg">Unable to load courses.</div>
-                                            `;
-                                            console.error("Error via PHP proxy:", err);
+                                            const errorBox = document.getElementById("ai-search-suggestions-bs");
+                                                    errorBox.innerHTML = `
+                                                        <div class="error-msg">Unable to Load Courses</div>
+                                                    `;
+                                                    errorBox.style.display = "block";
+                                                    jQuery(document).ready(function($) {
+                                                        $('#loading-spinner').hide();
+                                                        $('#ai-search-clear').show();
+                                                    });    
+                                                return;
                                         }
                                     } else {
                                         const item = JSON.parse(tokenAsKey);
@@ -339,12 +355,12 @@ async function fetchResults(page) {
                                     }
                             
                             const lessonIdsStored = JSON.parse(localStorage.getItem("Lessons."+itemStr));
-                            const courseIds = accessibleCoursesList;
+                             const courseIds = accessibleCoursesList;
                             
                     if (!lessonIdsStored){
-                        
-                            const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
-
+                           
+                            const courseFilter = `(asset_type='Courses' AND license_type = 'Public') OR (asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
+                    
                             const response = await fetch(apiUrl, {
                                 method: 'POST',
                                 headers: {
@@ -359,15 +375,15 @@ async function fetchResults(page) {
                                     nonce: nonce,
                                 }),
                             });
-
+                    
                             if (!response.ok) {
                                 throw new Error(`API response not OK: ${response.status}`);
                             }
-
+                    
                             const data = await response.json();
                             
                             const allLessonIds = [];
-
+                    
                             data.data.forEach(item => {
                                 if (
                                     item.specific_metadata &&
@@ -376,13 +392,15 @@ async function fetchResults(page) {
                                     allLessonIds.push(...item.specific_metadata.lesson_id);
                                 }
                             });
-
+            
                             const uniqueLessonIds = _.uniq(allLessonIds);
-
+            
                             const lessonData = {
                                 lessonIds: uniqueLessonIds
-                            };
-                            
+                              };
+            
+                              console.log("Accessible Lesson Ids Array", uniqueLessonIds)
+            
                             localStorage.setItem("Lessons."+itemStr, JSON.stringify(lessonData));
                             const combinedArray = [courseIds, uniqueLessonIds];
                         return combinedArray;
@@ -390,17 +408,19 @@ async function fetchResults(page) {
                     } else{
                             const combinedArray = [courseIds, lessonIdsStored.lessonIds];
                         return combinedArray;
-
+            
                         }
-
+                    
                             
-
+                    
                         } catch (e) {
                             console.error("Error getting course IDs or lessons:", e);
+                            document.getElementById("ai-search-suggestions-bs").innerHTML = `
+                                        <div class="error-msg">Unable to load courses.</div>
+                                    `;
                             return [];
                         }
                     }
-
     // Function to update the pagination UI (with input box)
     function updatePaginationUI(page) {
         paginationContainer.innerHTML = `

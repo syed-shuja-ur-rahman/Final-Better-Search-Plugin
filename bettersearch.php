@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 15.5
+Version: 16.0
 Author: AIHR
 */
 
@@ -76,7 +76,7 @@ function ai_search_enqueue_scripts()
 
 
    // Enqueue custom styles for the search bar
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=6.5');
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=7.0');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name
@@ -108,7 +108,7 @@ function ai_search_enqueue_scripts()
 
     
     // Enqueue full-page search script
-    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['jquery'], '4.5.0', true);
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['jquery'], '5.0.0', true);
 
         
     // Localize script for AJAX URL
@@ -155,7 +155,7 @@ function ai_search_shortcode_function($atts)
         </span>
 
         <!-- Search Input -->
-        <input type="text" class="better-search-box" id="bettersearch-input">
+        <input type="text" class="better-search-box" id="bettersearch-input" autocomplete="off">
 
         <!-- Spinner -->
         <span id="loading-spinner" class="spinner-container" style="display: none;">

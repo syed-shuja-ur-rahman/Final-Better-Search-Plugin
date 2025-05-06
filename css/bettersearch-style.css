@@ -18,15 +18,15 @@
 
 .bs-search-box {
     display: flex;
-    align-items: center; /* Vertically align items */
-    justify-content: space-between; /* Spread items horizontally */
+    align-items: center; 
+    justify-content: space-between; 
     border: 1px solid #ccc;
     padding: 10px 15px;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background: #fff;
     width: 100%;
-    box-sizing: border-box; /* Include padding and border in width */
+    box-sizing: border-box; 
     height: 44px !important;
 }
 
@@ -58,8 +58,8 @@ input[type="text"]:focus {
 }
 
 .search-spinner {
-    border: 4px solid #f3f3f3; /* Light grey */
-    border-top: 4px solid #3498db; /* Blue color */
+    border: 4px solid #f3f3f3; 
+    border-top: 4px solid #3498db; 
     border-radius: 50%;
     width: 1.5rem;
     height: 1.5rem;
@@ -87,7 +87,7 @@ input[type="text"]:focus {
 
 /* Search Results CSS */
 .ai-search-suggestions-box {
-    font-family: inherit;
+    font-family: 'Open Sans';
     position: absolute;
     background: #fff;
     border: 1px solid #ccc;
@@ -101,15 +101,8 @@ input[type="text"]:focus {
     width: 100%;
     display: flex;
     flex-direction: column;
-    /* box-sizing: border-box; */
-    /* margin-bottom: 5px; */
 }
 
-/* .ai-search-suggestions-box > :not(.full-page-link) {
-    overflow-y: auto;
-    padding: 10px 15px;
-    flex: 1;
-} */
 
 
 
@@ -117,7 +110,7 @@ input[type="text"]:focus {
 #ai-search-suggestions {
     margin: 0 !important;
     padding: 0 !important;
-    max-width: 100%; /* Ensures container does not overflow */
+    max-width: 100%; 
 }
 
 .ai-search-suggestions-box>.error {
@@ -140,7 +133,6 @@ input[type="text"]:focus {
     cursor: pointer;
     display: flex; 
     align-items: center;
-    /*gap: 10px; */
     margin-bottom: 8px;
 }
 
@@ -270,21 +262,24 @@ input[type="text"]:focus {
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .ai-search-suggestions-box {
-        padding: 10px; /* Reduce padding for smaller screens */
+        padding: 10px; 
     }
 
     .search-title h5 {
-        font-size: 12px !important; /* Adjust font size */
+        font-size: 12px !important; 
     }
 
     .ai-search-suggestions {
-        flex-direction: row; /* Stack items vertically */
+        flex-direction: row; 
         align-items: flex-start;
     }
 
     .ai-thumbnail {
-        width: 30px; /* Adjust thumbnail size */
+        width: 30px; 
         height: 30px;
+    }
+    #filter-container{
+        overflow-x: auto;
     }
 }
 
@@ -313,7 +308,6 @@ input[type="text"]:focus {
 
 .full-page-link {
     padding: 10px 15px;
-    /* border-top: 1px solid #eee; */
     background: #fff;
     position: sticky;
     bottom: -13px;
@@ -322,7 +316,7 @@ input[type="text"]:focus {
 
 
 .full-search-page {
-    font-family: inherit;
+    font-family: 'Open Sans';
     font-weight: 600;
     font-size: 14px;
     line-height: 24px;
@@ -383,7 +377,7 @@ hr {
 .fs-header-container{
     background-color: #FFFFFF;
     padding: 20px;
-    font-family: inherit;
+    font-family: 'Open Sans';
     border-radius: 4px;
 }
 
@@ -395,7 +389,8 @@ hr {
     border-radius: 10px;
     text-align: left;
     position: relative;
-    overflow: hidden; 
+    overflow: hidden;
+    height: 100px; 
 }
 
 .full-page-search-header::before {
@@ -473,10 +468,6 @@ hr {
 
 
 
-
-
-
-
 .fs-filter-text {
     color: #323856;
     display: inline-block;
@@ -540,8 +531,6 @@ hr {
 }
 
 
-
-
 .filter-content label:last-child,
 .filter-content-date .date-option:last-child,
 .filter-content-domain label:last-child {
@@ -551,7 +540,6 @@ hr {
 .filter-content label:hover, .filter-content-date .date-option:hover, .filter-content-domain label:hover{
     background-color: #F4F6FA;
 }
-
 
 
 .fs-clear-filters-btn { 
@@ -572,9 +560,9 @@ hr {
 }
 
 /* Blue text for active filter buttons */
-.fs-filter-button.active-filter .fs-filter-text {
-    color: #1EBBF0 !important;
-    font-weight: 600;
+.fs-filter-button.active-filter {
+    background-color: #D9F7FF !important;
+    /* font-weight: 600; */
 }
 
 
@@ -594,8 +582,6 @@ hr {
 .date-option:hover {
     background-color: #f0f0f0;
 }
-
-
 
 
 .filter-dropdown {
@@ -627,16 +613,17 @@ hr {
     font-weight: 400;
     font-size: 16px;
     text-align: center;
-    font-family: inherit;
+    font-family: 'Open Sans';
 }
 
 #pagination {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    font-family: inherit;
+    font-family: 'Open Sans';
     margin: 0px auto !important;
     width: 100% !important;
+    padding-top: 10px;
 }
 
 .pagination-button{

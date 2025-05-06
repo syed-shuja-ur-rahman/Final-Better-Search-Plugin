@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             try {
                 
-                const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseAndLessonIds[0].join(',')}])`;
+                const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseAndLessonIds[0].join(',')}]) OR (asset_type='Courses' AND license_type = 'Public')`;
                    
                 
                 const response = await fetch(apiUrl, {
@@ -113,7 +113,17 @@ document.addEventListener('DOMContentLoaded', function () {
                                     }
                                 });
 								if (!res.ok) {
-									throw new Error('Failed to fetch from proxy');
+									// throw new Error('Failed to fetch from proxy');
+                                    jQuery(document).ready(function($) {
+                                        $('#loading-spinner').hide();
+                                        $('#ai-search-clear').show();
+                                    }); 
+                                    const errorBox = document.getElementById("ai-search-suggestions-bs");
+                                        errorBox.innerHTML = `
+                                            <div class="error-msg">Failed to verify token.</div>
+                                        `;
+                                        errorBox.style.display = "block";
+                                    return;
 								}
 								const data = await res.json();
 								const journeyIds = data.result;
@@ -121,10 +131,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 								accessibleCoursesList = journeyIds.journeys;
 							} catch (err) {	
-                                document.getElementById("ai-search-suggestions-bs").innerHTML = `
-									<div class="error-msg">Unable to load courses.</div>
-								`;
-								console.error("Error via PHP proxy:", err);
+                                const errorBox = document.getElementById("ai-search-suggestions-bs");
+                                        errorBox.innerHTML = `
+                                            <div class="error-msg">Unable to Load Courses</div>
+                                        `;
+                                        errorBox.style.display = "block";
+                                        jQuery(document).ready(function($) {
+                                            $('#loading-spinner').hide();
+                                            $('#ai-search-clear').show();
+                                        });    
+                                    return;
 							}
 						} else {
 							const item = JSON.parse(tokenAsKey);
@@ -136,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				
         if (!lessonIdsStored){
                
-                const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
+                const courseFilter = `(asset_type='Courses' AND license_type = 'Public') OR (asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
         
                 const response = await fetch(apiUrl, {
                     method: 'POST',
@@ -176,6 +192,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     lessonIds: uniqueLessonIds
                   };
 
+                  console.log("Accessible Lesson Ids Array", uniqueLessonIds)
+
                 localStorage.setItem("Lessons."+itemStr, JSON.stringify(lessonData));
 				const combinedArray = [courseIds, uniqueLessonIds];
 			return combinedArray;
@@ -190,6 +208,9 @@ document.addEventListener('DOMContentLoaded', function () {
         
             } catch (e) {
                 console.error("Error getting course IDs or lessons:", e);
+                document.getElementById("ai-search-suggestions-bs").innerHTML = `
+                            <div class="error-msg">Unable to load courses.</div>
+                        `;
                 return [];
             }
         }
