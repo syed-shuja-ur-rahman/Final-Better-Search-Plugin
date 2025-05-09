@@ -172,7 +172,7 @@ async function fetchResults(page) {
     try {
         const courseAndLessonIds = await getAccessibleCoursesJourney();        
 
-        const courseFilter =  `((asset_type NOT IN ['Courses', 'Video lesson', 'Non-Video lesson']) OR (asset_type IN ['Video lesson', 'Non-Video lesson'] AND specific_metadata.id IN [${courseAndLessonIds[1]}]) OR (asset_type = 'Courses' AND specific_metadata.id IN [${courseAndLessonIds[0]}]) OR (asset_type='Courses' AND license_type != 'Private'))`;
+        const courseFilter =  `((asset_type NOT IN ['Courses', 'Video lesson', 'Non-Video lesson']) OR (asset_type IN ['Video lesson', 'Non-Video lesson'] AND specific_metadata.id IN [${courseAndLessonIds[1]}]) OR (asset_type = 'Courses' AND specific_metadata.id IN [${courseAndLessonIds[0]}]) OR (asset_type='Courses' AND license_type = 'Public'))`;
 
         // Combine with other filters
         const filterString = constructFilterString();

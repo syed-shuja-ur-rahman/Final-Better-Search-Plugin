@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             try {
                 
-                const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseAndLessonIds[0].join(',')}]) OR (asset_type='Courses' AND license_type != 'Private')`;
+                const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseAndLessonIds[0].join(',')}]) OR (asset_type='Courses' AND license_type = 'Public')`;
                    
                 
                 const response = await fetch(apiUrl, {
