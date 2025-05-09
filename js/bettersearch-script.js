@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             try {
                 
-                const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseAndLessonIds[0].join(',')}]) OR (asset_type='Courses' AND license_type = 'Public')`;
+                const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseAndLessonIds[0].join(',')}]) OR (asset_type='Courses' AND license_type != 'Private')`;
                    
                 
                 const response = await fetch(apiUrl, {
@@ -191,8 +191,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const lessonData = {
                     lessonIds: uniqueLessonIds
                   };
-
-                  console.log("Accessible Lesson Ids Array", uniqueLessonIds)
 
                 localStorage.setItem("Lessons."+itemStr, JSON.stringify(lessonData));
 				const combinedArray = [courseIds, uniqueLessonIds];
