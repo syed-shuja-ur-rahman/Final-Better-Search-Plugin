@@ -398,7 +398,7 @@ async function fetchResults(page) {
                             const lessonData = {
                                 lessonIds: uniqueLessonIds
                               };
-                       
+            
                             localStorage.setItem("Lessons."+itemStr, JSON.stringify(lessonData));
                             const combinedArray = [courseIds, uniqueLessonIds];
                         return combinedArray;
