@@ -453,6 +453,7 @@ async function fetchResults(page) {
             : `<div class="ai-thumbnail" style="background-image: url('${thumbnail_url}');"></div>`;
     }
 
+
     function renderFilters() {
         currentPage = 1;
         const formatSelectedValues = (filterType, defaultLabel) => {
@@ -461,61 +462,152 @@ async function fetchResults(page) {
             return `${defaultLabel}: ${values.join(", ")}`;
         };
     
-            // Check if any filters are applied
-            const hasFilters = selectedFilters.assetType.length > 0 || 
-            selectedFilters.date.length > 0 || 
-            selectedFilters.hrDomain.length > 0;
-
-
-
-            const filtersHTML = `
-            <span class="filter-by-text">Filter by:</span>
-                <div class="filters-container">
-                    <button class="fs-filter-button ${selectedFilters.assetType.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
-                        <span class="fs-filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
-                        <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-                    </button>
-                    <div class="filter-content">
-                        ${['Resource', 'Courses', 'Events', 'Feature', 'Help Center', 'Video lesson', 'YouTube video', 'Non-Video lesson'].map(item => `
-                            <label>
-                                <input type="checkbox" value="${item}" ${selectedFilters.assetType.includes(item) ? 'checked' : ''} onchange="handleFilterChange('assetType', '${item}', this.checked)"> 
-                                <span>${item}</span>
-                            </label>
-                        `).join('')}
+        const hasFilters = selectedFilters.assetType.length > 0 ||
+                           selectedFilters.date.length > 0 ||
+                           selectedFilters.hrDomain.length > 0;
+    
+        let filtersHTML = `<span class="filter-by-text">Filter by:</span>`;
+    
+        // Asset Type Filter
+        filtersHTML += `
+            <div class="filters-container">
+                <button class="fs-filter-button ${selectedFilters.assetType.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'assetType')">
+                    <span class="fs-filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
+                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+                </button>
+            </div>
+            <div class="filter-content" id="assetType-dropdown">
+                ${['Resource', 'Courses', 'Events', 'Feature', 'Help Center', 'Video lesson', 'YouTube video', 'Non-Video lesson'].map(item => `
+                    <label>
+                        <input type="checkbox" value="${item}" ${selectedFilters.assetType.includes(item) ? 'checked' : ''} onchange="handleFilterChange('assetType', '${item}', this.checked)">
+                        <span>${item}</span>
+                    </label>
+                `).join('')}
+            </div>
+        `;
+    
+        // Date Filter
+        filtersHTML += `
+            <div class="filters-container">
+                <button class="fs-filter-button ${selectedFilters.date.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'date')">
+                    <span class="fs-filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
+                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+                </button>
+            </div>
+            <div class="filter-content-date" id="date-dropdown">
+                ${['Last Week', 'Last Month', 'This Year', 'Last Year','All Time'].map(item => `
+                    <div class="date-option" onclick="handleDateFilterChange('${item}')">
+                        <span class="tick-icon" style="display: ${selectedFilters.date.includes(item) ? 'inline' : 'none'};"><i class="fa-regular fa-check"></i></span>
+                        <span class="date-ftext">${item}</span>
                     </div>
-                </div>
-                <div class="filters-container">
-                    <button class="fs-filter-button ${selectedFilters.date.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
-                        <span class="fs-filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
-                        <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-                    </button>
-                    <div class="filter-content-date">
-                        ${['Last Week', 'Last Month', 'This Year', 'Last Year','All Time'].map(item => `
-                            <div class="date-option" onclick="handleDateFilterChange('${item}')">
-                            <span class="tick-icon" style="display: ${selectedFilters.date.includes(item) ? 'inline' : 'none'};"><i class="fa-regular fa-check"></i></span>
-                                <span class="date-ftext">${item}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-                <div class="filters-container">
-                    <button class="fs-filter-button ${selectedFilters.hrDomain.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
-                        <span class="fs-filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
-                        <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-                    </button>
-                    <div class="filter-content-domain">
-                        ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Leadership', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management', 'Soft Skills'].map(item => `
-                            <label>
-                                <input type="checkbox" value="${item}" ${selectedFilters.hrDomain.includes(item) ? 'checked' : ''} onchange="handleFilterChange('hrDomain', '${item}', this.checked)"> 
-                                <span>${item}</span>
-                            </label>
-                        `).join('')}
-                    </div>
-                </div>
-                ${hasFilters ? '<button onclick="clearFilters()" class="fs-clear-filters-btn">Clear Filters</button>' : ''}
-            `;
-            filterContainer.innerHTML = filtersHTML;
+                `).join('')}
+            </div>
+        `;
+    
+        // HR Domain Filter
+        filtersHTML += `
+            <div class="filters-container">
+                <button class="fs-filter-button ${selectedFilters.hrDomain.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'hrDomain')">
+                    <span class="fs-filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
+                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+                </button>
+            </div>
+            <div class="filter-content-domain" id="hrDomain-dropdown">
+                ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Leadership', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management', 'Soft Skills'].map(item => `
+                    <label>
+                        <input type="checkbox" value="${item}" ${selectedFilters.hrDomain.includes(item) ? 'checked' : ''} onchange="handleFilterChange('hrDomain', '${item}', this.checked)">
+                        <span>${item}</span>
+                    </label>
+                `).join('')}
+            </div>
+        `;
+    
+        if (hasFilters) {
+            filtersHTML += '<button onclick="clearFilters()" class="fs-clear-filters-btn">Clear Filters</button>';
         }
+    
+        filterContainer.innerHTML = filtersHTML;
+    
+        // Move dropdowns to be direct children of #filter-container
+        const filterContainerElement = document.getElementById('filter-container');
+        const assetTypeDropdown = document.getElementById('assetType-dropdown');
+        const dateDropdown = document.getElementById('date-dropdown');
+        const hrDomainDropdown = document.getElementById('hrDomain-dropdown');
+    
+        if (filterContainerElement && assetTypeDropdown && dateDropdown && hrDomainDropdown) {
+            filterContainerElement.appendChild(assetTypeDropdown);
+            filterContainerElement.appendChild(dateDropdown);
+            filterContainerElement.appendChild(hrDomainDropdown);
+        }
+    }
+
+
+
+
+
+    // function renderFilters() {
+    //     currentPage = 1;
+    //     const formatSelectedValues = (filterType, defaultLabel) => {
+    //         const values = selectedFilters[filterType];
+    //         if (values.length === 0) return defaultLabel;
+    //         return `${defaultLabel}: ${values.join(", ")}`;
+    //     };
+    
+    //         // Check if any filters are applied
+    //         const hasFilters = selectedFilters.assetType.length > 0 || 
+    //         selectedFilters.date.length > 0 || 
+    //         selectedFilters.hrDomain.length > 0;
+
+
+
+    //         const filtersHTML = `
+    //         <span class="filter-by-text">Filter by:</span>
+    //             <div class="filters-container">
+    //                 <button class="fs-filter-button ${selectedFilters.assetType.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
+    //                     <span class="fs-filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
+    //                     <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+    //                 </button>
+    //                 <div class="filter-content">
+    //                     ${['Resource', 'Courses', 'Events', 'Feature', 'Help Center', 'Video lesson', 'YouTube video', 'Non-Video lesson'].map(item => `
+    //                         <label>
+    //                             <input type="checkbox" value="${item}" ${selectedFilters.assetType.includes(item) ? 'checked' : ''} onchange="handleFilterChange('assetType', '${item}', this.checked)"> 
+    //                             <span>${item}</span>
+    //                         </label>
+    //                     `).join('')}
+    //                 </div>
+    //             </div>
+    //             <div class="filters-container">
+    //                 <button class="fs-filter-button ${selectedFilters.date.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
+    //                     <span class="fs-filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
+    //                     <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+    //                 </button>
+    //                 <div class="filter-content-date">
+    //                     ${['Last Week', 'Last Month', 'This Year', 'Last Year','All Time'].map(item => `
+    //                         <div class="date-option" onclick="handleDateFilterChange('${item}')">
+    //                         <span class="tick-icon" style="display: ${selectedFilters.date.includes(item) ? 'inline' : 'none'};"><i class="fa-regular fa-check"></i></span>
+    //                             <span class="date-ftext">${item}</span>
+    //                         </div>
+    //                     `).join('')}
+    //                 </div>
+    //             </div>
+    //             <div class="filters-container">
+    //                 <button class="fs-filter-button ${selectedFilters.hrDomain.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
+    //                     <span class="fs-filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
+    //                     <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+    //                 </button>
+    //                 <div class="filter-content-domain">
+    //                     ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Leadership', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management', 'Soft Skills'].map(item => `
+    //                         <label>
+    //                             <input type="checkbox" value="${item}" ${selectedFilters.hrDomain.includes(item) ? 'checked' : ''} onchange="handleFilterChange('hrDomain', '${item}', this.checked)"> 
+    //                             <span>${item}</span>
+    //                         </label>
+    //                     `).join('')}
+    //                 </div>
+    //             </div>
+    //             ${hasFilters ? '<button onclick="clearFilters()" class="fs-clear-filters-btn">Clear Filters</button>' : ''}
+    //         `;
+    //         filterContainer.innerHTML = filtersHTML;
+    //     }
 
     // Function to handle checkbox filter changes
     function handleFilterChange(filterType, value, isChecked) {
@@ -547,42 +639,89 @@ async function fetchResults(page) {
     }
 
     // Function to toggle dropdown visibility
-    function toggleDropdown(button) {
-        const dropdownContent = button.nextElementSibling;
-        const isVisible = dropdownContent.style.display === "flex";
-        const arrowIcon = button.querySelector(".fs-dropdown-arrow");
 
-        
+
+    function toggleDropdown(buttonElement, filterType) {
+        const targetDropdownId = filterType + '-dropdown';
+        const targetDropdown = document.getElementById(targetDropdownId);
+        const arrowIcon = buttonElement.querySelector(".fs-dropdown-arrow");
+    
+        // Close all other dropdowns
         document.querySelectorAll(".filter-content, .filter-content-date, .filter-content-domain").forEach(content => {
-            content.style.display = "none";
-        });
-        document.querySelectorAll(".fs-dropdown-arrow").forEach(arrow => {
-            arrow.classList.remove("fa-chevron-up");
-            arrow.classList.add("fa-chevron-down");
+            if (content.id !== targetDropdownId) {
+                content.style.display = "none";
+                const relatedButton = content.previousElementSibling && content.previousElementSibling.querySelector('.fs-dropdown-arrow');
+                if (relatedButton) {
+                    relatedButton.classList.remove("fa-chevron-up");
+                    relatedButton.classList.add("fa-chevron-down");
+                }
+                if (content._popper) {
+                    content._popper.destroy();
+                    content._popper = null;
+                }
+            }
         });
     
-        // Toggle the clicked dropdown
-        if (!isVisible) {
-            dropdownContent.style.display = "flex";
-            arrowIcon.classList.remove("fa-chevron-down");
-            arrowIcon.classList.add("fa-chevron-up");
-        } else {
-            dropdownContent.style.display = "none";
-            arrowIcon.classList.remove("fa-chevron-up");
-            arrowIcon.classList.add("fa-chevron-down");
+        // Toggle the target dropdown
+        if (targetDropdown) {
+            const isVisible = targetDropdown.style.display === "flex";
+    
+            if (!isVisible) {
+                targetDropdown.style.display = "flex";
+                arrowIcon.classList.remove("fa-chevron-down");
+                arrowIcon.classList.add("fa-chevron-up");
+    
+                // Safely access createPopper from window.Popper
+                if (window.Popper && typeof window.Popper.createPopper === 'function') {
+                    targetDropdown._popper = window.Popper.createPopper(buttonElement, targetDropdown, {
+                        placement: 'bottom-start',
+                        modifiers: [
+                            {
+                                name: 'offset',
+                                options: { offset: [0, -2] },
+                            },
+                            {
+                                name: 'flip',
+                                options: { padding: 10 },
+                            },
+                            {
+                                name: 'preventOverflow',
+                                options: { padding: 10 },
+                            },
+                        ],
+                    });
+                } else {
+                    console.warn('Popper.js is not loaded or createPopper is unavailable.');
+                }
+            } else {
+                targetDropdown.style.display = "none";
+                arrowIcon.classList.remove("fa-chevron-up");
+                arrowIcon.classList.add("fa-chevron-down");
+                if (targetDropdown._popper) {
+                    targetDropdown._popper.destroy();
+                    targetDropdown._popper = null;
+                }
+            }
         }
-        
     }
-
+    
     // Close dropdowns when clicking outside
     document.addEventListener("click", (event) => {
         if (!event.target.closest(".filters-container")) {
-            document.querySelectorAll(".filter-content").forEach(content => {
+            document.querySelectorAll(".filter-content, .filter-content-date, .filter-content-domain").forEach(content => {
                 content.style.display = "none";
+                const relatedButton = content.previousElementSibling && content.previousElementSibling.querySelector('.fs-dropdown-arrow');
+                if (relatedButton) {
+                    relatedButton.classList.remove("fa-chevron-up");
+                    relatedButton.classList.add("fa-chevron-down");
+                }
+                if (content._popper) {
+                    content._popper.destroy();
+                    content._popper = null;
+                }
             });
         }
     });
-
 
     function updatePageHeader(decodedQuery ) {
         const pageHeader = document.getElementById("full-page-search-header");

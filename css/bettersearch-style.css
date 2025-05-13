@@ -8,6 +8,8 @@
 }
 
 
+
+
 .bs-search-box {
     display: flex;
     align-items: center; 
@@ -438,7 +440,7 @@ hr {
 }
 
 .fs-filter-button {
-    width: 150px; 
+    width: fit-content;
     height: 32px;
     white-space: nowrap;
     overflow: hidden;
@@ -450,6 +452,7 @@ hr {
     border-radius: 100px;
     cursor: pointer;
     outline: none !important;
+    max-width: 155px;
 }
 
 
@@ -463,10 +466,12 @@ hr {
 .fs-filter-text {
     color: #323856;
     display: inline-block;
-    max-width: 80%;
+    max-width: 95px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    width: fit-content;
+    padding-right: 8px;
 }
 
 .filter-content {
