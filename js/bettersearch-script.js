@@ -104,6 +104,12 @@ document.addEventListener('DOMContentLoaded', function () {
         
                 if (!tokenAsKey) {
 
+                            Object.keys(localStorage).forEach((key) => {
+                                if (key.startsWith("Journeys.") || key.startsWith("Lessons.")) {
+                                    localStorage.removeItem(key);
+                                }
+                            });
+
 							try {
 								const res = await fetch(`https://qa.burnwood.aihr.com/platform/api/License/accessible-journeys?api-version=2.0`, {
                                     method: 'GET',
@@ -127,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
 								}
 								const data = await res.json();
 								const journeyIds = data.result;
+                                
 								localStorage.setItem("Journeys."+itemStr, JSON.stringify(journeyIds));
 
 								accessibleCoursesList = journeyIds.journeys;
@@ -191,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const lessonData = {
                     lessonIds: uniqueLessonIds
                   };
-
+                  
                 localStorage.setItem("Lessons."+itemStr, JSON.stringify(lessonData));
 				const combinedArray = [courseIds, uniqueLessonIds];
 			return combinedArray;

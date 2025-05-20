@@ -154,13 +154,6 @@ function constructFilterString() {
         filterConditions.push(`hr_domain IN [${domainsArray}]`);
     }
 
-
-
-    // if (selectedFilters.hrDomain.length > 0) {
-    //     const hrDomainConditions = selectedFilters.hrDomain.map(domain => `hr_domain IN ['${domain}']`).join(" OR ");
-    //     filterConditions.push(`(${hrDomainConditions})`);
-    // }
-
     // Combine all conditions with AND
     return filterConditions.join(" AND ");
 }
@@ -211,11 +204,11 @@ async function fetchResults(page) {
 
         // Sort results to bring courses to the top
         const sortedResults = _.orderBy(data.data, item => item.asset_type === "Courses" ? 0 : 1);
-
+        
         const uniqueResults = _.uniqBy(sortedResults, (item) => 
             item.asset_type === "Video lesson" ? item.external_url : item.id
         );
-        
+
         // Display new results
         let html = '';
         if (!_.isEmpty(uniqueResults)) {
@@ -310,6 +303,12 @@ async function fetchResults(page) {
                             let accessibleCoursesList = [];
                     
                             if (!tokenAsKey) {
+
+                                Object.keys(localStorage).forEach((key) => {
+                                    if (key.startsWith("Journeys.") || key.startsWith("Lessons.")) {
+                                        localStorage.removeItem(key);
+                                    }
+                                });
             
                                         try {
                                             const res = await fetch(`https://qa.burnwood.aihr.com/platform/api/License/accessible-journeys?api-version=2.0`, {
@@ -541,73 +540,6 @@ async function fetchResults(page) {
         }
     }
 
-
-
-
-
-    // function renderFilters() {
-    //     currentPage = 1;
-    //     const formatSelectedValues = (filterType, defaultLabel) => {
-    //         const values = selectedFilters[filterType];
-    //         if (values.length === 0) return defaultLabel;
-    //         return `${defaultLabel}: ${values.join(", ")}`;
-    //     };
-    
-    //         // Check if any filters are applied
-    //         const hasFilters = selectedFilters.assetType.length > 0 || 
-    //         selectedFilters.date.length > 0 || 
-    //         selectedFilters.hrDomain.length > 0;
-
-
-
-    //         const filtersHTML = `
-    //         <span class="filter-by-text">Filter by:</span>
-    //             <div class="filters-container">
-    //                 <button class="fs-filter-button ${selectedFilters.assetType.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
-    //                     <span class="fs-filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
-    //                     <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-    //                 </button>
-    //                 <div class="filter-content">
-    //                     ${['Resource', 'Courses', 'Events', 'Feature', 'Help Center', 'Video lesson', 'YouTube video', 'Non-Video lesson'].map(item => `
-    //                         <label>
-    //                             <input type="checkbox" value="${item}" ${selectedFilters.assetType.includes(item) ? 'checked' : ''} onchange="handleFilterChange('assetType', '${item}', this.checked)"> 
-    //                             <span>${item}</span>
-    //                         </label>
-    //                     `).join('')}
-    //                 </div>
-    //             </div>
-    //             <div class="filters-container">
-    //                 <button class="fs-filter-button ${selectedFilters.date.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
-    //                     <span class="fs-filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
-    //                     <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-    //                 </button>
-    //                 <div class="filter-content-date">
-    //                     ${['Last Week', 'Last Month', 'This Year', 'Last Year','All Time'].map(item => `
-    //                         <div class="date-option" onclick="handleDateFilterChange('${item}')">
-    //                         <span class="tick-icon" style="display: ${selectedFilters.date.includes(item) ? 'inline' : 'none'};"><i class="fa-regular fa-check"></i></span>
-    //                             <span class="date-ftext">${item}</span>
-    //                         </div>
-    //                     `).join('')}
-    //                 </div>
-    //             </div>
-    //             <div class="filters-container">
-    //                 <button class="fs-filter-button ${selectedFilters.hrDomain.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this)">
-    //                     <span class="fs-filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
-    //                     <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-    //                 </button>
-    //                 <div class="filter-content-domain">
-    //                     ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Leadership', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management', 'Soft Skills'].map(item => `
-    //                         <label>
-    //                             <input type="checkbox" value="${item}" ${selectedFilters.hrDomain.includes(item) ? 'checked' : ''} onchange="handleFilterChange('hrDomain', '${item}', this.checked)"> 
-    //                             <span>${item}</span>
-    //                         </label>
-    //                     `).join('')}
-    //                 </div>
-    //             </div>
-    //             ${hasFilters ? '<button onclick="clearFilters()" class="fs-clear-filters-btn">Clear Filters</button>' : ''}
-    //         `;
-    //         filterContainer.innerHTML = filtersHTML;
-    //     }
 
     // Function to handle checkbox filter changes
     function handleFilterChange(filterType, value, isChecked) {
