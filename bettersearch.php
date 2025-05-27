@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 19.0
+Version: 20.0
 Author: AIHR
 */
 
@@ -76,7 +76,7 @@ function ai_search_enqueue_scripts()
 
 
    // Enqueue custom styles for the search bar
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=9.0');
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=10.0');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name
@@ -109,7 +109,7 @@ function ai_search_enqueue_scripts()
     // Enqueue script for handling AJAX search
     wp_enqueue_script(
         'ai-search-script',
-        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=9.0', // Adjust the path as needed
+        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=10.0', // Adjust the path as needed
         ['lodash', 'jquery', 'popper-js-cdn'], // Dependencies: jQuery and Lodash
         '1.0.0',
         true
@@ -122,7 +122,7 @@ function ai_search_enqueue_scripts()
 
     
     // Enqueue full-page search script
-    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '9.0.0', true);
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '10.0.0', true);
 
         
     // Localize script for AJAX URL
@@ -170,7 +170,7 @@ function ai_search_shortcode_function($atts)
         </span>
 
         <!-- Search Input -->
-        <input type="text" class="better-search-box" id="bettersearch-input gs-dropdown-searchbox" autocomplete="off">
+        <input type="text" class="better-search-box" id="gs-dropdown-searchbox" autocomplete="off">
 
         <!-- Spinner -->
         <span id="loading-spinner" class="spinner-container" style="display: none;">
@@ -184,7 +184,7 @@ function ai_search_shortcode_function($atts)
             <i class="fa fa-times" aria-hidden="true"></i>
         </span>
     </div>
-    <div id="ai-search-suggestions-bs gs-dropdown-results" class="ai-search-suggestions-box" style="display: none;"></div>
+    <div id="gs-dropdown-results" class="ai-search-suggestions-box" style="display: none;"></div>
 </div>
 
 <?php

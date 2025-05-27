@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('bettersearch-input');
-    const resultsContainer = document.getElementById('ai-search-suggestions-bs');
+    const searchInput = document.getElementById('gs-dropdown-searchbox');
+    const resultsContainer = document.getElementById('gs-dropdown-results');
     const nonce = aiSearch.nonce;
     const searchLimit = aiSearch.search_limit;
     const searchDelay = aiSearch.search_delay;
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#loading-spinner').hide();
         $('#ai-search-clear').hide();
     } else {
-        $("#bettersearch-input").keypress(function(event) {
+        $("#gs-dropdown-searchbox").keypress(function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
                 let query = encodeURIComponent($(this).val().trim());
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                         $('#loading-spinner').hide();
                                         $('#ai-search-clear').show();
                                     }); 
-                                    const errorBox = document.getElementById("ai-search-suggestions-bs");
+                                    const errorBox = document.getElementById("gs-dropdown-results");
                                         errorBox.innerHTML = `
                                             <div class="error-msg">Failed to verify token.</div>
                                         `;
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 								accessibleCoursesList = journeyIds.journeys;
 							} catch (err) {	
-                                const errorBox = document.getElementById("ai-search-suggestions-bs");
+                                const errorBox = document.getElementById("gs-dropdown-results");
                                         errorBox.innerHTML = `
                                             <div class="error-msg">Unable to Load Courses</div>
                                         `;
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
             } catch (e) {
                 console.error("Error getting course IDs or lessons:", e);
-                document.getElementById("ai-search-suggestions-bs").innerHTML = `
+                document.getElementById("gs-dropdown-results").innerHTML = `
                             <div class="error-msg">Unable to load courses.</div>
                         `;
                 return [];
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 $('#ai-search-clear').show();
 
                 if (suggestionsData.status !== 'success' || filteredLessonsData.status !== 'success') {
-                    $('#ai-search-suggestions-bs').html(`<div class="error">${suggestionsData.message || filteredLessonsData.message}</div>`).show();
+                    $('#gs-dropdown-results').html(`<div class="error">${suggestionsData.message || filteredLessonsData.message}</div>`).show();
                     return;
                 }
 
@@ -357,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         const category = lesson.asset_type === "Courses" ? lesson.category : lesson.asset_type;
         
                         html += `
-                        <a id= "gs-dropdown-result-item" href="${lesson.asset_type === 'Video lesson' ? 'javascript:void(0);' : lesson.url}" 
+                        <a id="gs-dropdown-result-item" href="${lesson.asset_type === 'Video lesson' ? 'javascript:void(0);' : lesson.url}" 
                                     ${lesson.asset_type === 'YouTube video' ? 'target="_blank"' : ''}
                                     ${lesson.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${lesson.title}','${lesson.url}','${lesson.specific_metadata.id}')"` : ''}>
                             <div> 
@@ -389,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                             ? `${aiSearch.plugin_url}assets/images/Default-Misc.png`
                                             : article.thumbnail_url;
                         html += `
-                        <a id= "gs-dropdown-result-item" href="${article.url}" ${article.asset_type === 'Article' ? 'target="_blank"' : ''}>
+                        <a id="gs-dropdown-result-item" href="${article.url}" ${article.asset_type === 'Article' ? 'target="_blank"' : ''}>
                         <div > 
                                 <div class="ai-search-suggestions">
                                     <div >
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>`;
                     _.take(categorizedResults.helpcenter, searchLimit).forEach((help_center) => {
                         html += `
-                        <a id= "gs-dropdown-result-item" href="${help_center.url}" target="_blank">
+                        <a id="gs-dropdown-result-item" href="${help_center.url}" target="_blank">
                             <div>
                                 <div class="ai-search-suggestions">
                                 <div>
@@ -440,8 +440,8 @@ document.addEventListener('DOMContentLoaded', function () {
                
                 const encodedQuery = encodeURIComponent(query);
                     const linkHTML = `  
-                    <div class="full-page-link">
-                        <a href="${fPageUrl}?q=${encodedQuery}" class="full-search-page" id= "gs-dropdown-open-fullpage">
+                    <div class="full-page-link" id="gs-dropdown-open-fullpage">
+                        <a href="${fPageUrl}?q=${encodedQuery}" class="full-search-page">
                         <i class="fa-light fa-arrow-up-right"></i> Open Search Page
                         </a>
                         </div>
@@ -474,8 +474,8 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Clear search box and suggestions
         $('#ai-search-clear').on('click', function () {
-            $('#bettersearch-input').val('');
-            $('#ai-search-suggestions-bs').empty().hide();
+            $('#gs-dropdown-searchbox').val('');
+            $('#gs-dropdown-results').empty().hide();
         });
 
         function getThumbnail(thumbnail_url) {

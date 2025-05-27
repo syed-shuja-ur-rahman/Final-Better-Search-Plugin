@@ -25,7 +25,7 @@ function showLoadingSpinner() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("bettersearch-input");
+    const searchInput = document.getElementById("gs-dropdown-searchbox");
    
     document.addEventListener("keydown", function (event) {
         if (event.key === "/" && document.activeElement !== searchInput) {
@@ -246,7 +246,7 @@ async function fetchResults(page) {
                 const category = searchResult.asset_type === "Courses" ? searchResult.category : searchResult.asset_type;
 
                 html += `
-                <a id= "gs-fullpage-result-item" href="${searchResult.asset_type === 'Video lesson' ? 'javascript:void(0);' : searchResult.url}" 
+                <a id="gs-fullpage-result-item" href="${searchResult.asset_type === 'Video lesson' ? 'javascript:void(0);' : searchResult.url}" 
                 ${(searchResult.asset_type === 'Article' || searchResult.asset_type === 'Help Center' || searchResult.asset_type === 'YouTube video') ? 'target="_blank"' : ''}
                 ${searchResult.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${searchResult.title}','${searchResult.url}','${searchResult.specific_metadata.id}')"` : ''}>
                 <div class="ai-search-suggestions">
@@ -345,7 +345,7 @@ async function getAccessibleCoursesJourney(query) {
                         $('#loading-spinner').hide();
                         $('#ai-search-clear').show();
                     });
-                    const errorBox = document.getElementById("ai-search-suggestions-bs");
+                    const errorBox = document.getElementById("gs-dropdown-results");
                     errorBox.innerHTML = `<div class="error-msg">Failed to verify token.</div>`;
                     errorBox.style.display = "block";
                     return;
@@ -362,7 +362,7 @@ async function getAccessibleCoursesJourney(query) {
 
                 accessibleCoursesList = journeyIds.journeys;
             } catch (err) {
-                const errorBox = document.getElementById("ai-search-suggestions-bs");
+                const errorBox = document.getElementById("gs-dropdown-results");
                 errorBox.innerHTML = `<div class="error-msg">Unable to Load Courses</div>`;
                 errorBox.style.display = "block";
                 jQuery(document).ready(function ($) {
@@ -433,7 +433,7 @@ async function getAccessibleCoursesJourney(query) {
 
     } catch (e) {
         console.error("Error getting course IDs or lessons:", e);
-        document.getElementById("ai-search-suggestions-bs").innerHTML = `
+        document.getElementById("gs-dropdown-results").innerHTML = `
             <div class="error-msg">Unable to load courses.</div>`;
         return [];
     }
