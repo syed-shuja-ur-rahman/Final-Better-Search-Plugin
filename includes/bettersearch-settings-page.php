@@ -73,7 +73,17 @@ function ai_search_register_settings()
         'ai_search_settings',
         'ai_search_main_section'
     );
-    
+
+    // Add a field for Accessible Journey URL
+    add_settings_field(
+        'accessible_journey_url',
+        __('Accessible Journey URL', 'aisearch'),
+        'ai_accessible_journey_url_field_callback',
+        'ai_search_settings',
+        'ai_search_main_section'
+    );
+
+   
     // Add a field for Search Results Limit
     add_settings_field(
         'search_limit_field',
@@ -133,8 +143,7 @@ function ai_search_api_url_field_callback()
 {
     $options = get_option('wp_aisearch_settings');
     $api_url = isset($options['api_url']) ? $options['api_url'] : '';
-    $disabled = empty($api_url) ? '' : 'disabled';
-    echo '<input type="url" id="api_url" name="wp_aisearch_settings[api_url]" value="' . esc_attr($api_url) . '" class="regular-text" ' . $disabled . '>';
+    echo '<input type="url" id="api_url" name="wp_aisearch_settings[api_url]" value="' . esc_attr($api_url) . '" class="regular-text" ' . '>';
 }
 
 // Field callback for API Key
@@ -142,8 +151,16 @@ function ai_search_api_key_field_callback()
 {
     $options = get_option('wp_aisearch_settings');
     $api_key = isset($options['api_key']) ? $options['api_key'] : '';
-    $disabled = empty($api_key) ? '' : 'disabled';
-    echo '<input type="text" id="api_key" name="wp_aisearch_settings[api_key]" value="' . esc_attr($api_key) . '" class="regular-text" ' . $disabled . '>';
+    echo '<input type="text" id="api_key" name="wp_aisearch_settings[api_key]" value="' . esc_attr($api_key) . '" class="regular-text" ' .  '>';
+}
+
+// Field callback for Accessible Journey URL
+function ai_accessible_journey_url_field_callback()
+{
+    $options = get_option('wp_aisearch_settings');
+    $accessible_journey_url = isset($options['accessible_journey_url']) ? $options['accessible_journey_url'] : '';
+    echo '<input type="url" id="accessible_journey_url" name="wp_aisearch_settings[accessible_journey_url]" value="' . esc_attr($accessible_journey_url) . '" class="regular-text">';
+    echo '<p class="description">' . __('Enter the URL for Accessible Journey.', 'aisearch') . '</p>';
 }
 
 // Field callback for Search Results Limit
@@ -215,6 +232,11 @@ function ai_search_sanitize_settings($input)
     // Preserve existing API Key if it's disabled
     if (isset($options['api_key']) && !isset($input['api_key'])) {
         $input['api_key'] = $options['api_key'];
+    }
+
+    // Ensure accessible_journey_url is a valid URL
+    if (isset($input['accessible_journey_url'])) {
+        $input['accessible_journey_url'] = esc_url_raw($input['accessible_journey_url']);
     }
 
     // Ensure search_limit is numeric and within range

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 18.0
+Version: 19.0
 Author: AIHR
 */
 
@@ -76,7 +76,7 @@ function ai_search_enqueue_scripts()
 
 
    // Enqueue custom styles for the search bar
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=7.6');
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=9.0');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name
@@ -87,6 +87,8 @@ function ai_search_enqueue_scripts()
     $search_type = isset($options['precision']) ? $options['precision'] : 0;
     $c_search_limit = isset($options['c_search_limit']) ? intval($options['c_search_limit']) : 2;
     $search_results_page_url = isset($options['search_results_page_url']) ? $options['search_results_page_url'] : '#';
+    $accessible_journey_url = isset($options['accessible_journey_url']) ? $options['accessible_journey_url'] : '';
+
 
     wp_enqueue_script(
         'popper-js-cdn',
@@ -107,14 +109,20 @@ function ai_search_enqueue_scripts()
     // Enqueue script for handling AJAX search
     wp_enqueue_script(
         'ai-search-script',
-        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=8.6', // Adjust the path as needed
+        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=9.0', // Adjust the path as needed
         ['lodash', 'jquery', 'popper-js-cdn'], // Dependencies: jQuery and Lodash
         '1.0.0',
         true
     );
 
+
+
+    
+
+
+    
     // Enqueue full-page search script
-    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '5.6.0', true);
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '9.0.0', true);
 
         
     // Localize script for AJAX URL
@@ -129,6 +137,7 @@ function ai_search_enqueue_scripts()
         'search_type' => $search_type,
         'c_search_limit' => $c_search_limit,
         'search_results_page_url' => $search_results_page_url,
+        'accessible_journey_url' => $accessible_journey_url,
     ));
 }
 add_action('wp_enqueue_scripts', 'ai_search_enqueue_scripts');
@@ -161,7 +170,7 @@ function ai_search_shortcode_function($atts)
         </span>
 
         <!-- Search Input -->
-        <input type="text" class="better-search-box" id="bettersearch-input" autocomplete="off">
+        <input type="text" class="better-search-box" id="bettersearch-input gs-dropdown-searchbox" autocomplete="off">
 
         <!-- Spinner -->
         <span id="loading-spinner" class="spinner-container" style="display: none;">
@@ -175,7 +184,7 @@ function ai_search_shortcode_function($atts)
             <i class="fa fa-times" aria-hidden="true"></i>
         </span>
     </div>
-    <div id="ai-search-suggestions-bs" class="ai-search-suggestions-box" style="display: none;"></div>
+    <div id="ai-search-suggestions-bs gs-dropdown-results" class="ai-search-suggestions-box" style="display: none;"></div>
 </div>
 
 <?php
@@ -187,7 +196,7 @@ function ai_search_results_function() {
     ob_start();
     ?>
     
-    <div class="fs-header-container">
+    <div class="fs-header-container" id= "gs-fullpage-results">
         <div class="full-page-search-header" id="full-page-search-header"></div>
         <div id="filter-container"></div>
     </div>

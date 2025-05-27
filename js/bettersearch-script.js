@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const search_type = aiSearch.search_type;
     const c_search_limit = aiSearch.c_search_limit;
     const fPageUrl = aiSearch.search_results_page_url;
+    const accessibleJourneyUrl = aiSearch.accessible_journey_url;
    
  
     const $ = jQuery;
@@ -111,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             });
 
 							try {
-								const res = await fetch(`https://qa.burnwood.aihr.com/platform/api/License/accessible-journeys?api-version=2.0`, {
+								const res = await fetch(accessibleJourneyUrl, {
                                     method: 'GET',
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -198,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const lessonData = {
                     lessonIds: uniqueLessonIds
                   };
-                  
+
                 localStorage.setItem("Lessons."+itemStr, JSON.stringify(lessonData));
 				const combinedArray = [courseIds, uniqueLessonIds];
 			return combinedArray;
@@ -356,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         const category = lesson.asset_type === "Courses" ? lesson.category : lesson.asset_type;
         
                         html += `
-                        <a href="${lesson.asset_type === 'Video lesson' ? 'javascript:void(0);' : lesson.url}" 
+                        <a id= "gs-dropdown-result-item" href="${lesson.asset_type === 'Video lesson' ? 'javascript:void(0);' : lesson.url}" 
                                     ${lesson.asset_type === 'YouTube video' ? 'target="_blank"' : ''}
                                     ${lesson.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${lesson.title}','${lesson.url}','${lesson.specific_metadata.id}')"` : ''}>
                             <div> 
@@ -388,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                             ? `${aiSearch.plugin_url}assets/images/Default-Misc.png`
                                             : article.thumbnail_url;
                         html += `
-                        <a href="${article.url}" ${article.asset_type === 'Article' ? 'target="_blank"' : ''}>
+                        <a id= "gs-dropdown-result-item" href="${article.url}" ${article.asset_type === 'Article' ? 'target="_blank"' : ''}>
                         <div > 
                                 <div class="ai-search-suggestions">
                                     <div >
@@ -417,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>`;
                     _.take(categorizedResults.helpcenter, searchLimit).forEach((help_center) => {
                         html += `
-                        <a href="${help_center.url}" target="_blank">
+                        <a id= "gs-dropdown-result-item" href="${help_center.url}" target="_blank">
                             <div>
                                 <div class="ai-search-suggestions">
                                 <div>
@@ -440,7 +441,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const encodedQuery = encodeURIComponent(query);
                     const linkHTML = `  
                     <div class="full-page-link">
-                        <a href="${fPageUrl}?q=${encodedQuery}" class="full-search-page">
+                        <a href="${fPageUrl}?q=${encodedQuery}" class="full-search-page" id= "gs-dropdown-open-fullpage">
                         <i class="fa-light fa-arrow-up-right"></i> Open Search Page
                         </a>
                         </div>

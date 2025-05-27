@@ -7,6 +7,7 @@ const apiKey = aiSearch.api_key;
 const search_type = aiSearch.search_type;
 const fPageUrl = aiSearch.search_results_page_url;
 const isFullPage = window.location.href.includes(fPageUrl);
+const accessibleJourneyUrl = aiSearch.accessible_journey_url;
 
 // Get search query from URL
 const queryString = new URLSearchParams(window.location.search);
@@ -91,6 +92,11 @@ document.addEventListener("DOMContentLoaded", function () {
             
             decodedQuery = searchInput.value.trim();
             if (decodedQuery) {
+
+                const baseUrl = window.location.origin + window.location.pathname;
+                const newUrl = `${baseUrl}?q=${encodeURIComponent(decodedQuery)}`;
+                window.history.pushState({}, '', newUrl);
+
                 showLoadingSpinner(); // Show spinner before API call
                 fetchResults(1); // API call
                 updatePageHeader(decodedQuery);
@@ -205,10 +211,13 @@ async function fetchResults(page) {
         // Sort results to bring courses to the top
         const sortedResults = _.orderBy(data.data, item => item.asset_type === "Courses" ? 0 : 1);
         
+        
         const uniqueResults = _.uniqBy(sortedResults, (item) => 
             item.asset_type === "Video lesson" ? item.external_url : item.id
         );
-
+        
+        
+        
         // Display new results
         let html = '';
         if (!_.isEmpty(uniqueResults)) {
@@ -237,7 +246,7 @@ async function fetchResults(page) {
                 const category = searchResult.asset_type === "Courses" ? searchResult.category : searchResult.asset_type;
 
                 html += `
-                <a href="${searchResult.asset_type === 'Video lesson' ? 'javascript:void(0);' : searchResult.url}" 
+                <a id= "gs-fullpage-result-item" href="${searchResult.asset_type === 'Video lesson' ? 'javascript:void(0);' : searchResult.url}" 
                 ${(searchResult.asset_type === 'Article' || searchResult.asset_type === 'Help Center' || searchResult.asset_type === 'YouTube video') ? 'target="_blank"' : ''}
                 ${searchResult.asset_type === 'Video lesson' ? `onClick="openLessonPreviewModal('${vimeoId}','${searchResult.title}','${searchResult.url}','${searchResult.specific_metadata.id}')"` : ''}>
                 <div class="ai-search-suggestions">
@@ -290,134 +299,145 @@ async function fetchResults(page) {
     }
 }
 
-                    // Simplified function to get course IDs and Lesson IDs
-                    async function getAccessibleCoursesJourney(query) {
 
+async function getAccessibleCoursesJourney(query) {
+    try {
+        const itemStr = localStorage.getItem('currentToken');
 
-                        try {
-                    
-                            const itemStr = localStorage.getItem('currentToken');
-                    
-                            const tokenAsKey = localStorage.getItem("Journeys."+itemStr);
-                    
-                            let accessibleCoursesList = [];
-                    
-                            if (!tokenAsKey) {
+        // --- Check TTL for Journeys & Lessons ---
+        const now = Date.now();
+        const journeyKey = "Journeys." + itemStr;
+        const lessonKey = "Lessons." + itemStr;
 
-                                Object.keys(localStorage).forEach((key) => {
-                                    if (key.startsWith("Journeys.") || key.startsWith("Lessons.")) {
-                                        localStorage.removeItem(key);
-                                    }
-                                });
-            
-                                        try {
-                                            const res = await fetch(`https://qa.burnwood.aihr.com/platform/api/License/accessible-journeys?api-version=2.0`, {
-                                                method: 'GET',
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                    'Authorization': `Bearer ${itemStr}`  
-                                                }
-                                            });
-                                            if (!res.ok) {
-                                                // throw new Error('Failed to fetch from proxy');
-                                                jQuery(document).ready(function($) {
-                                                    $('#loading-spinner').hide();
-                                                    $('#ai-search-clear').show();
-                                                }); 
-                                                const errorBox = document.getElementById("ai-search-suggestions-bs");
-                                                    errorBox.innerHTML = `
-                                                        <div class="error-msg">Failed to verify token.</div>
-                                                    `;
-                                                    errorBox.style.display = "block";
-                                                return;
-                                            }
-                                            const data = await res.json();
-                                            const journeyIds = data.result;
-                                            localStorage.setItem("Journeys."+itemStr, JSON.stringify(journeyIds));
-            
-                                            accessibleCoursesList = journeyIds.journeys;
-                                        } catch (err) {	
-                                            const errorBox = document.getElementById("ai-search-suggestions-bs");
-                                                    errorBox.innerHTML = `
-                                                        <div class="error-msg">Unable to Load Courses</div>
-                                                    `;
-                                                    errorBox.style.display = "block";
-                                                    jQuery(document).ready(function($) {
-                                                        $('#loading-spinner').hide();
-                                                        $('#ai-search-clear').show();
-                                                    });    
-                                                return;
-                                        }
-                                    } else {
-                                        const item = JSON.parse(tokenAsKey);
-                                        accessibleCoursesList = item.journeys;
-                                    }
-                            
-                            const lessonIdsStored = JSON.parse(localStorage.getItem("Lessons."+itemStr));
-                             const courseIds = accessibleCoursesList;
-                            
-                    if (!lessonIdsStored){
-                           
-                            const courseFilter = `(asset_type='Courses' AND license_type = 'Public') OR (asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
-                    
-                            const response = await fetch(apiUrl, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'x-api-key': apiKey,
-                                },
-                                body: JSON.stringify({
-                                    Query: query,
-                                    SearchType: search_type,
-                                    Filter: courseFilter,
-                                    Offset: 0,
-                                    nonce: nonce,
-                                }),
-                            });
-                    
-                            if (!response.ok) {
-                                throw new Error(`API response not OK: ${response.status}`);
-                            }
-                    
-                            const data = await response.json();
-                            
-                            const allLessonIds = [];
-                    
-                            data.data.forEach(item => {
-                                if (
-                                    item.specific_metadata &&
-                                    Array.isArray(item.specific_metadata.lesson_id)
-                                ) {
-                                    allLessonIds.push(...item.specific_metadata.lesson_id);
-                                }
-                            });
-            
-                            const uniqueLessonIds = _.uniq(allLessonIds);
-            
-                            const lessonData = {
-                                lessonIds: uniqueLessonIds
-                              };
-            
-                            localStorage.setItem("Lessons."+itemStr, JSON.stringify(lessonData));
-                            const combinedArray = [courseIds, uniqueLessonIds];
-                        return combinedArray;
-                        
-                    } else{
-                            const combinedArray = [courseIds, lessonIdsStored.lessonIds];
-                        return combinedArray;
-            
-                        }
-                    
-                            
-                    
-                        } catch (e) {
-                            console.error("Error getting course IDs or lessons:", e);
-                            document.getElementById("ai-search-suggestions-bs").innerHTML = `
-                                        <div class="error-msg">Unable to load courses.</div>
-                                    `;
-                            return [];
-                        }
+        const journeyWithTTL = JSON.parse(localStorage.getItem(journeyKey));
+        const lessonWithTTL = JSON.parse(localStorage.getItem(lessonKey));
+
+        // Remove expired keys
+        if (journeyWithTTL && now - journeyWithTTL.timestamp > 1200000) {
+            localStorage.removeItem(journeyKey);
+        }
+        if (lessonWithTTL && now - lessonWithTTL.timestamp > 1200000) {
+            localStorage.removeItem(lessonKey);
+        }
+
+        const tokenAsKey = localStorage.getItem(journeyKey);
+        let accessibleCoursesList = [];
+
+        if (!tokenAsKey) {
+            // Remove all previous Journeys and Lessons
+            Object.keys(localStorage).forEach((key) => {
+                if (key.startsWith("Journeys.") || key.startsWith("Lessons.")) {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            try {
+                const res = await fetch(accessibleJourneyUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${itemStr}`
                     }
+                });
+
+                if (!res.ok) {
+                    jQuery(document).ready(function ($) {
+                        $('#loading-spinner').hide();
+                        $('#ai-search-clear').show();
+                    });
+                    const errorBox = document.getElementById("ai-search-suggestions-bs");
+                    errorBox.innerHTML = `<div class="error-msg">Failed to verify token.</div>`;
+                    errorBox.style.display = "block";
+                    return;
+                }
+
+                const data = await res.json();
+                const journeyIds = data.result;
+
+                // Save with timestamp
+                localStorage.setItem(journeyKey, JSON.stringify({
+                    ...journeyIds,
+                    timestamp: now
+                }));
+
+                accessibleCoursesList = journeyIds.journeys;
+            } catch (err) {
+                const errorBox = document.getElementById("ai-search-suggestions-bs");
+                errorBox.innerHTML = `<div class="error-msg">Unable to Load Courses</div>`;
+                errorBox.style.display = "block";
+                jQuery(document).ready(function ($) {
+                    $('#loading-spinner').hide();
+                    $('#ai-search-clear').show();
+                });
+                return;
+            }
+        } else {
+            const item = JSON.parse(tokenAsKey);
+            accessibleCoursesList = item.journeys;
+        }
+
+        const lessonIdsStoredRaw = localStorage.getItem(lessonKey);
+        const lessonIdsStored = lessonIdsStoredRaw ? JSON.parse(lessonIdsStoredRaw) : null;
+        const courseIds = accessibleCoursesList;
+
+        if (!lessonIdsStored) {
+            const courseFilter = `(asset_type='Courses' AND license_type = 'Public') OR (asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                },
+                body: JSON.stringify({
+                    Query: query,
+                    SearchType: search_type,
+                    Filter: courseFilter,
+                    Offset: 0,
+                    nonce: nonce,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`API response not OK: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            const allLessonIds = [];
+
+            data.data.forEach(item => {
+                if (
+                    item.specific_metadata &&
+                    Array.isArray(item.specific_metadata.lesson_id)
+                ) {
+                    allLessonIds.push(...item.specific_metadata.lesson_id);
+                }
+            });
+
+            const uniqueLessonIds = _.uniq(allLessonIds);
+
+            const lessonData = {
+                lessonIds: uniqueLessonIds,
+                timestamp: now // Add TTL timestamp
+            };
+
+            localStorage.setItem(lessonKey, JSON.stringify(lessonData));
+            const combinedArray = [courseIds, uniqueLessonIds];
+            return combinedArray;
+
+        } else {
+            const combinedArray = [courseIds, lessonIdsStored.lessonIds];
+            return combinedArray;
+        }
+
+    } catch (e) {
+        console.error("Error getting course IDs or lessons:", e);
+        document.getElementById("ai-search-suggestions-bs").innerHTML = `
+            <div class="error-msg">Unable to load courses.</div>`;
+        return [];
+    }
+}
     // Function to update the pagination UI (with input box)
     function updatePaginationUI(page) {
         paginationContainer.innerHTML = `
@@ -654,6 +674,7 @@ async function fetchResults(page) {
             });
         }
     });
+
 
     function updatePageHeader(decodedQuery ) {
         const pageHeader = document.getElementById("full-page-search-header");
