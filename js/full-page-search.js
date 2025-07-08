@@ -169,7 +169,9 @@ async function fetchResults(page) {
     const offset = (page - 1) * limit; // Calculate offset based on the page number
 
     try {
-        const courseAndLessonIds = await getAccessibleCoursesJourney();        
+        const courseAndLessonIds = await getAccessibleCoursesJourney();     
+        const nonAccessibleLessonIds = await getNonAccessibleCoursesJourney();   
+        
 
         const courseFilter =  `((asset_type NOT IN ['Courses', 'Video lesson', 'Non-Video lesson']) OR (asset_type IN ['Video lesson', 'Non-Video lesson'] AND specific_metadata.id IN [${courseAndLessonIds[1]}]) OR (asset_type = 'Courses' AND specific_metadata.id IN [${courseAndLessonIds[0]}]) OR (asset_type='Courses' AND license_type = 'Public'))`;
 
@@ -199,6 +201,7 @@ async function fetchResults(page) {
         });
 
         const data = await response.json();
+        
 
         if (data.status !== 'success') {
             $('#better-search-results').html(`<div class="error">${data.message}</div>`).show();
@@ -216,12 +219,17 @@ async function fetchResults(page) {
             item.asset_type === "Video lesson" ? item.external_url : item.id
         );
         
-        
-        
         // Display new results
         let html = '';
         if (!_.isEmpty(uniqueResults)) {
             _.forEach(uniqueResults, (searchResult) => {
+
+                const isNonAccessible = nonAccessibleLessonIds.includes(searchResult.specific_metadata.id);
+
+                if (isNonAccessible) {
+                    return; 
+                }
+
                 const thumbnail = searchResult.asset_type === "Courses"
                     ? `<div class="ai-thumbnail-course" style="background-image: url('${searchResult.thumbnail_url}');"></div>`
                     : searchResult.asset_type === "Video lesson"
@@ -298,6 +306,71 @@ async function fetchResults(page) {
         resultContainer.style.display = 'block';
     }
 }
+
+
+async function getNonAccessibleCoursesJourney(query) {
+    const token = localStorage.getItem('currentToken');
+    const journeyKey = "Journeys." + token;
+
+    // Get actual data from localStorage using the generated key
+    const journeyDataStr = localStorage.getItem(journeyKey);
+    if (!journeyDataStr) {
+        console.error("No data found for key:", journeyKey);
+        return;
+    }
+
+    let journeyData;
+    try {
+        journeyData = JSON.parse(journeyDataStr);
+    } catch (e) {
+        console.error("Failed to parse JSON from localStorage", e);
+        return;
+    }
+
+    const accessibleCoursesList = journeyData.journeys;
+    const courseIds = accessibleCoursesList;
+
+
+    const courseFilterJourney = `(asset_type='Courses' AND license_type = 'Private' AND specific_metadata.id IN [${courseIds.join(',')}])`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                },
+                body: JSON.stringify({
+                    Query: query,
+                    SearchType: search_type,
+                    Filter: courseFilterJourney,
+                    Offset: 0,
+                    Limit: 200,
+                    nonce: nonce,
+                }),
+            });
+
+            
+
+            if (!response.ok) {
+                throw new Error(`API response not OK: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const getNonAccessibleNonVideoLessonIds = [];
+            
+            data.data.forEach(item => {
+                if (
+                    item.specific_metadata &&
+                    Array.isArray(item.specific_metadata.lesson_id)
+                    ) {
+                    getNonAccessibleNonVideoLessonIds.push(...item.specific_metadata.lesson_id);
+                }
+            });
+            return getNonAccessibleNonVideoLessonIds;
+}
+
+
+
 
 
 async function getAccessibleCoursesJourney(query) {

@@ -91,6 +91,70 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         };
 
+        async function getNonAccessibleCoursesJourney(query) {
+            const token = localStorage.getItem('currentToken');
+            const journeyKey = "Journeys." + token;
+        
+            // Get actual data from localStorage using the generated key
+            const journeyDataStr = localStorage.getItem(journeyKey);
+            if (!journeyDataStr) {
+                console.error("No data found for key:", journeyKey);
+                return;
+            }
+        
+            let journeyData;
+            try {
+                journeyData = JSON.parse(journeyDataStr);
+            } catch (e) {
+                console.error("Failed to parse JSON from localStorage", e);
+                return;
+            }
+        
+            const accessibleCoursesList = journeyData.journeys;
+            const courseIds = accessibleCoursesList;
+        
+        
+            const courseFilterJourney = `(asset_type='Courses' AND license_type = 'Private' AND specific_metadata.id IN [${courseIds.join(',')}])`;
+        
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': apiKey,
+                        },
+                        body: JSON.stringify({
+                            Query: query,
+                            SearchType: search_type,
+                            Filter: courseFilterJourney,
+                            Offset: 0,
+                            Limit: 200,
+                            nonce: nonce,
+                        }),
+                    });
+        
+                    
+        
+                    if (!response.ok) {
+                        throw new Error(`API response not OK: ${response.status}`);
+                    }
+        
+                    const data = await response.json();
+                    const getNonAccessibleNonVideoLessonIds = [];
+                    
+                    data.data.forEach(item => {
+                        if (
+                            item.specific_metadata &&
+                            Array.isArray(item.specific_metadata.lesson_id)
+                            ) {
+                            getNonAccessibleNonVideoLessonIds.push(...item.specific_metadata.lesson_id);
+                        }
+                    });
+                    return getNonAccessibleNonVideoLessonIds;
+        }
+
+
+
+
         // Simplified function to get course IDs and Lesson IDs
         async function getAccessibleCoursesJourney(query) {
 
@@ -224,6 +288,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Debounced search input handler
         const handleSearch = _.debounce(async function () {
             const courseAndLessonIds = await getAccessibleCoursesJourney();
+            const nonAccessibleLessonIds = await getNonAccessibleCoursesJourney();
 
             const query = searchInput.value.trim();
             $('#loading-spinner').show();
@@ -282,6 +347,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     articles: [],
                 };
 
+                
+
                 // Categorize remaining results based on asset type
                 suggestionsData.data.forEach((item) => {
                     if (item.asset_type === 'Video lesson' || item.asset_type === 'Non-Video lesson') {
@@ -298,6 +365,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 let html = '';
                 // Handle Features Section
                 if (!_.isEmpty(categorizedResults.features)) {
+                            
                     html += `<div>
                                     <div>
                                         <div class="category-title">Features </div>
@@ -324,6 +392,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Handle Course/Lessons Section
                 if (!_.isEmpty(categorizedResults.lessons)) {
+
+
+
+                  
+
                     html += `<div>
                                 <div>
                                     <div class="category-title">Course/Lessons</div>
@@ -338,12 +411,21 @@ document.addEventListener('DOMContentLoaded', function () {
                         return lesson.url; 
                     });
                     _.take(uniqueLessons, searchLimit).forEach((lesson) => {
+
+
                         const thumbnail = lesson.asset_type === "Courses"
                                             ? `<div class="ai-thumbnail-course" style="background-image: url('${lesson.thumbnail_url}');"></div>`
                                             : lesson.asset_type === "Video lesson"
                                             ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-play"></i></div>`
                                             : `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></i></div>`;
         
+                        
+                        const isNonAccessible = nonAccessibleLessonIds.includes(lesson.specific_metadata.id);
+                        
+                        if (isNonAccessible) {     
+                            return; 
+                        }
+                        
                         const isVideoLesson = lesson.asset_type === "Video lesson";
                         const videoUrl = isVideoLesson ? lesson.external_url : ""; 
                         const urlMatch = isVideoLesson ? videoUrl.match(/vimeo\.com\/(\d+)/) : null;
