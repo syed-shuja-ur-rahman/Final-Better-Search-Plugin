@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 22.0
+Version: 22.1
 Author: AIHR
 */
 
@@ -109,7 +109,7 @@ function ai_search_enqueue_scripts()
     // Enqueue script for handling AJAX search
     wp_enqueue_script(
         'ai-search-script',
-        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=10.0', // Adjust the path as needed
+        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=11.0', // Adjust the path as needed
         ['lodash', 'jquery', 'popper-js-cdn'], // Dependencies: jQuery and Lodash
         '1.0.0',
         true
@@ -122,7 +122,7 @@ function ai_search_enqueue_scripts()
 
     
     // Enqueue full-page search script
-    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '12.0.0', true);
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '12.1.0', true);
 
         
     // Localize script for AJAX URL

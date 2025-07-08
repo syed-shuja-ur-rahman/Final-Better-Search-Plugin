@@ -131,29 +131,32 @@ function constructFilterString() {
         const date = selectedFilters.date[0]; // Only one date can be selected
         let startDate, endDate;
 
-        switch (date) {
-            case "Last Week":
-                startDate = moment().subtract(7, 'days').startOf('day').unix();
-                endDate = moment().endOf('day').unix();
-                break;
-            case "Last Month":
-                startDate = moment().subtract(1, 'month').startOf('month').unix();
-                endDate = moment().subtract(1, 'month').endOf('month').unix();
-                break;
-            case "This Year":
-                startDate = moment().startOf('year').unix();
-                endDate = moment().endOf('year').unix();
-                break;
-            case "Last Year":
-                startDate = moment().subtract(1, 'year').startOf('year').unix();
-                endDate = moment().subtract(1, 'year').endOf('year').unix();
-                break;
-            default:
-                return ""; // No date filter applied
-        }
+        if (date !== "All Time") {
+            switch (date) {
+                case "Last Week":
+                    startDate = moment().subtract(7, 'days').startOf('day').unix();
+                    endDate = moment().endOf('day').unix();
+                    break;
+                case "Last Month":
+                    startDate = moment().subtract(1, 'month').startOf('month').unix();
+                    endDate = moment().subtract(1, 'month').endOf('month').unix();
+                    break;
+                case "This Year":
+                    startDate = moment().startOf('year').unix();
+                    endDate = moment().endOf('year').unix();
+                    break;
+                case "Last Year":
+                    startDate = moment().subtract(1, 'year').startOf('year').unix();
+                    endDate = moment().subtract(1, 'year').endOf('year').unix();
+                    break;
+            }
 
-        filterConditions.push(`(published_date>=${startDate} AND published_date<=${endDate})`);
+            if (startDate !== undefined && endDate !== undefined) {
+                filterConditions.push(`(published_date>=${startDate} AND published_date<=${endDate})`);
+            }
+        }
     }
+
     // Add HR domain filter
     if (selectedFilters.hrDomain.length > 0) {
         const domainsArray = selectedFilters.hrDomain.map(domain => `'${domain}'`).join(", ");
@@ -227,6 +230,8 @@ async function fetchResults(page) {
                 const isNonAccessible = nonAccessibleLessonIds.includes(searchResult.specific_metadata.id);
 
                 if (isNonAccessible) {
+                    // console.log ("<<<<<<<<<===Extracted Ids ===>>>>>>",searchResult.specific_metadata.id);
+                    // console.log ("<<<<<<<<<===Extracted Ids ===>>>>>>",searchResult.specific_metadata.assetType);
                     return; 
                 }
 
