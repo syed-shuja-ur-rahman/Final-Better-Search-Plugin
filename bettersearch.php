@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 22.1
+Version: 23.0
 Author: AIHR
 */
 
@@ -76,7 +76,7 @@ function ai_search_enqueue_scripts()
 
 
    // Enqueue custom styles for the search bar
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=10.0');
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=11.0');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name
