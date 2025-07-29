@@ -170,6 +170,7 @@ function constructFilterString() {
 // Function to fetch results for a specific page
 async function fetchResults(page) {
     const offset = (page - 1) * limit; // Calculate offset based on the page number
+    var pagecontent = "";
 
     try {
         const courseAndLessonIds = await getAccessibleCoursesJourney();     
@@ -278,6 +279,7 @@ async function fetchResults(page) {
             });
         } else {
             html = '<div class="ai-search-suggestions">No results found.</div>';
+            pagecontent = "No results found";
         }
 
         resultContainer.innerHTML = html;
@@ -286,7 +288,8 @@ async function fetchResults(page) {
         totalPages = (data.data.length < limit) ? page : page + 1;
 
         // Update pagination UI
-        updatePaginationUI(page);
+
+        updatePaginationUI(page,pagecontent);
 
     } catch (error) {
         let errorMessage = error.message || 'Unknown error';
@@ -517,13 +520,14 @@ async function getAccessibleCoursesJourney(query) {
     }
 }
     // Function to update the pagination UI (with input box)
-    function updatePaginationUI(page) {
+    function updatePaginationUI(page, pagecontent) {
+
         paginationContainer.innerHTML = `
             <button class="pagination-button" onclick="goToPage(currentPage - 1)" ${currentPage === 1 ? 'disabled' : ''}> <i class="fa-solid fa-arrow-left"></i>Previous</button>
             <div class="pagination-container">
-            <span class="pageInputText">Page</span><input type="number" id="pageInput" value="${page}" min="1" onkeypress="handlePageInput(event)" />
+            <span class="pageInputText">Page</span><input type="number" id="pageInput" value="${page}" min="1" onkeypress="handlePageInput(event)" ${pagecontent == 'No results found'  ? 'disabled' : ''} />
             </div>
-            <button class="pagination-button" onclick="goToPage(currentPage + 1)">Next<i class="fa-solid fa-arrow-right"></i></button>
+            <button class="pagination-button" onclick="goToPage(currentPage + 1)" ${pagecontent == 'No results found'  ? 'style="display:none;" disabled' : ''}>Next<i class="fa-solid fa-arrow-right"></i></button>
         `;
     }
 
@@ -540,6 +544,7 @@ async function getAccessibleCoursesJourney(query) {
     function goToPage(page) {
         if (page < 1) return; // Prevent invalid pages
         currentPage = page;
+        console.log(currentPage);
         fetchResults(currentPage);
     }
 
@@ -563,65 +568,78 @@ async function getAccessibleCoursesJourney(query) {
                            selectedFilters.date.length > 0 ||
                            selectedFilters.hrDomain.length > 0;
     
-        let filtersHTML = `<span class="filter-by-text">Filter by:</span>`;
-    
-        // Asset Type Filter
-        filtersHTML += `
-            <div class="filters-container">
-                <button class="fs-filter-button ${selectedFilters.assetType.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'assetType')">
-                    <span class="fs-filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
-                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-                </button>
+   let filtersHTML = `<span class="filter-by-text">Filter by:</span>`;
+
+// Row 1 starts here
+filtersHTML += `<div class="filter-row">`;
+
+// Asset Type Filter
+filtersHTML += `
+    <div class="filters-container">
+        <button class="fs-filter-button ${selectedFilters.assetType.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'assetType')">
+            <span class="fs-filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
+            <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+        </button>
+    </div>
+    <div class="filter-content" id="assetType-dropdown">
+        ${['Resource', 'Courses', 'Events', 'Feature', 'Help Center', 'Video lesson', 'YouTube video', 'Non-Video lesson'].map(item => `
+            <label>
+                <input type="checkbox" value="${item}" ${selectedFilters.assetType.includes(item) ? 'checked' : ''} onchange="handleFilterChange('assetType', '${item}', this.checked)">
+                <span>${item}</span>
+            </label>
+        `).join('')}
+    </div>
+`;
+
+// Date Filter
+filtersHTML += `
+    <div class="filters-container">
+        <button class="fs-filter-button ${selectedFilters.date.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'date')">
+            <span class="fs-filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
+            <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+        </button>
+    </div>
+    <div class="filter-content-date" id="date-dropdown">
+        ${['Last Week', 'Last Month', 'This Year', 'Last Year','All Time'].map(item => `
+            <div class="date-option" onclick="handleDateFilterChange('${item}')">
+                <span class="tick-icon" style="display: ${selectedFilters.date.includes(item) ? 'inline' : 'none'};"><i class="fa-regular fa-check"></i></span>
+                <span class="date-ftext">${item}</span>
             </div>
-            <div class="filter-content" id="assetType-dropdown">
-                ${['Resource', 'Courses', 'Events', 'Feature', 'Help Center', 'Video lesson', 'YouTube video', 'Non-Video lesson'].map(item => `
-                    <label>
-                        <input type="checkbox" value="${item}" ${selectedFilters.assetType.includes(item) ? 'checked' : ''} onchange="handleFilterChange('assetType', '${item}', this.checked)">
-                        <span>${item}</span>
-                    </label>
-                `).join('')}
-            </div>
-        `;
-    
-        // Date Filter
-        filtersHTML += `
-            <div class="filters-container">
-                <button class="fs-filter-button ${selectedFilters.date.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'date')">
-                    <span class="fs-filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
-                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-                </button>
-            </div>
-            <div class="filter-content-date" id="date-dropdown">
-                ${['Last Week', 'Last Month', 'This Year', 'Last Year','All Time'].map(item => `
-                    <div class="date-option" onclick="handleDateFilterChange('${item}')">
-                        <span class="tick-icon" style="display: ${selectedFilters.date.includes(item) ? 'inline' : 'none'};"><i class="fa-regular fa-check"></i></span>
-                        <span class="date-ftext">${item}</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    
-        // HR Domain Filter
-        filtersHTML += `
-            <div class="filters-container">
-                <button class="fs-filter-button ${selectedFilters.hrDomain.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'hrDomain')">
-                    <span class="fs-filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
-                    <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
-                </button>
-            </div>
-            <div class="filter-content-domain" id="hrDomain-dropdown">
-                ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Leadership', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management', 'Soft Skills'].map(item => `
-                    <label>
-                        <input type="checkbox" value="${item}" ${selectedFilters.hrDomain.includes(item) ? 'checked' : ''} onchange="handleFilterChange('hrDomain', '${item}', this.checked)">
-                        <span>${item}</span>
-                    </label>
-                `).join('')}
-            </div>
-        `;
-    
-        if (hasFilters) {
-            filtersHTML += '<button onclick="clearFilters()" class="fs-clear-filters-btn">Clear Filters</button>';
-        }
+        `).join('')}
+    </div>
+`;
+
+filtersHTML += `</div>`; // Close first row
+
+// Row 2 starts here
+filtersHTML += `<div class="filter-row">`;
+
+// HR Domain Filter
+filtersHTML += `
+    <div class="filters-container">
+        <button class="fs-filter-button ${selectedFilters.hrDomain.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'hrDomain')">
+            <span class="fs-filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
+            <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
+        </button>
+    </div>
+    <div class="filter-content-domain" id="hrDomain-dropdown">
+        ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Leadership', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management', 'Soft Skills'].map(item => `
+            <label>
+                <input type="checkbox" value="${item}" ${selectedFilters.hrDomain.includes(item) ? 'checked' : ''} onchange="handleFilterChange('hrDomain', '${item}', this.checked)">
+                <span>${item}</span>
+            </label>
+        `).join('')}
+    </div>
+`;
+
+// Clear Filters Button
+if (hasFilters) {
+    filtersHTML += '<button onclick="clearFilters()" class="fs-clear-filters-btn">Clear Filters</button>';
+}
+
+filtersHTML += `</div>`; // Close second row
+
+
     
         filterContainer.innerHTML = filtersHTML;
     

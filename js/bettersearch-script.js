@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#ai-search-clear').on('click', function() {
             resultsContainer.style.display = 'none';
             document.removeEventListener('click', handleClickOutside);
+
         });
 
         // Modified fetchFilteredLessons to use dynamic course IDs
@@ -567,3 +568,80 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 });
+
+
+  const searchBox = document.getElementById('bs-search-box');
+    const mobileSearchIcon = document.getElementById('mobile-search-icon');
+    const searchInput = document.getElementById('gs-dropdown-searchbox');
+    const clearIcon = document.getElementById('ai-search-clear');
+    const spinner = document.getElementById('loading-spinner');
+    const suggestionsBox = document.getElementById('gs-dropdown-results');
+
+    // Toggle search box and suggestions box on mobile
+    mobileSearchIcon.addEventListener('click', () => {
+      searchBox.classList.add('active');
+      mobileSearchIcon.classList.add('active');
+      /* CHANGE: Show suggestions box if input has content */
+      if (searchInput.value.length > 0) {
+        suggestionsBox.style.display = 'flex';
+      }
+      searchInput.focus();
+    });
+
+    // Clear input and hide search box and suggestions on mobile
+    clearIcon.addEventListener('click', () => {
+      searchInput.value = '';
+      clearIcon.style.display = 'none';
+      spinner.style.display = 'none';
+      suggestionsBox.style.display = 'none';
+      if (window.innerWidth <= 900) {
+        searchBox.classList.remove('active');
+        mobileSearchIcon.classList.remove('active');
+      }
+    });
+
+    // Show/hide clear icon, spinner, and suggestions based on input
+    searchInput.addEventListener('input', () => {
+      if (searchInput.value.length > 0) {
+        clearIcon.style.display = 'block';
+        // Simulate loading state (remove in production if not needed)
+
+      const fPageUrl = aiSearch.search_results_page_url;
+      const isFullPage = window.location.href.includes(fPageUrl);
+
+     
+
+    if (isFullPage && fPageUrl != ""){
+
+        
+
+    }else{
+
+
+        spinner.style.display = 'block';
+        
+    }
+        
+        /* CHANGE: Show suggestions box on input */
+        suggestionsBox.style.display = 'flex';
+      
+      } else {
+        clearIcon.style.display = 'none';
+        spinner.style.display = 'none';
+        /* CHANGE: Hide suggestions box when input is empty */
+        suggestionsBox.style.display = 'none';
+      }
+    });
+
+    // Handle window resize to ensure correct visibility
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900) {
+        searchBox.classList.remove('active');
+        mobileSearchIcon.classList.remove('active');
+        /* CHANGE: Maintain clear icon and suggestions box visibility on resize to desktop */
+        clearIcon.style.display = searchInput.value.length > 0 ? 'block' : 'none';
+        suggestionsBox.style.display = searchInput.value.length > 0 ? 'flex' : 'none';
+        spinner.style.display = 'none';
+      }
+    });
+

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 23.0
+Version: 23.4
 Author: AIHR
 */
 
@@ -76,7 +76,8 @@ function ai_search_enqueue_scripts()
 
 
    // Enqueue custom styles for the search bar
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=11.0');
+    //wp_enqueue_style('ai-search-style-commons', plugin_dir_url(__FILE__) . 'css/commons.css?v=16.15');
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=16.22');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name
@@ -109,20 +110,17 @@ function ai_search_enqueue_scripts()
     // Enqueue script for handling AJAX search
     wp_enqueue_script(
         'ai-search-script',
-        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=11.0', // Adjust the path as needed
+        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=13.26', // Adjust the path as needed
         ['lodash', 'jquery', 'popper-js-cdn'], // Dependencies: jQuery and Lodash
-        '1.0.0',
+        '1.0.1',
         true
     );
-
-
-
-    
+ 
 
 
     
     // Enqueue full-page search script
-    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '12.1.0', true);
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '12.1.7', true);
 
         
     // Localize script for AJAX URL
@@ -162,30 +160,32 @@ function ai_search_shortcode_function($atts)
 
     
 ?>
-    <div class="container">
-    <div class="bs-search-box">
-        <!-- Search Icon -->
-        <span class="search-icon">
-            <i class="fa fa-search form-control-feedback"></i>
-        </span>
 
-        <!-- Search Input -->
-        <input type="text" class="better-search-box" id="gs-dropdown-searchbox" autocomplete="off">
-
-        <!-- Spinner -->
-        <span id="loading-spinner" class="spinner-container" style="display: none;">
-            <div class="search-spinner" role="status">
-                <span class="sp-visually-hidden">Loading...</span>
-            </div>
-        </span>
-
-        <!-- Clear Icon -->
-        <span id="ai-search-clear" class="ai-search-clear" role="button">
-            <i class="fa fa-times" aria-hidden="true"></i>
-        </span>
+   <div class="container">
+    <div class="bs-search-box" id="bs-search-box">
+      <span class="search-icon">
+        <i class="fa fa-search"></i>
+      </span>
+      <input type="text" class="better-search-box" id="gs-dropdown-searchbox" autocomplete="off" placeholder="">
+      <span id="loading-spinner" class="spinner-container">
+        <div class="search-spinner" role="status">
+          <span class="sp-visually-hidden"></span>
+        </div>
+      </span>
+      <span id="ai-search-clear" class="ai-search-clear" role="button">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </span>
     </div>
-    <div id="gs-dropdown-results" class="ai-search-suggestions-box" style="display: none;"></div>
+    <span class="mobile-search-icon" id="mobile-search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+ 
+
+  <div id="gs-dropdown-results" class="ai-search-suggestions-box" style="display: none;"></div>
 </div>
+
+
+
 
 <?php
 
