@@ -292,8 +292,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const nonAccessibleLessonIds = await getNonAccessibleCoursesJourney();
 
             const query = searchInput.value.trim();
-            $('#loading-spinner').show();
             $('#ai-search-clear').hide();
+            $('#loading-spinner').show();
 
             if (query.length < 3) {
                 resultsContainer.innerHTML = '';
@@ -603,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Show/hide clear icon, spinner, and suggestions based on input
     searchInput.addEventListener('input', () => {
       if (searchInput.value.length > 0) {
-        clearIcon.style.display = 'block';
+        // clearIcon.style.display = 'block';
         // Simulate loading state (remove in production if not needed)
 
       const fPageUrl = aiSearch.search_results_page_url;
@@ -623,7 +623,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
         
         /* CHANGE: Show suggestions box on input */
-        suggestionsBox.style.display = 'flex';
+        //suggestionsBox.style.display = 'flex';
       
       } else {
         clearIcon.style.display = 'none';

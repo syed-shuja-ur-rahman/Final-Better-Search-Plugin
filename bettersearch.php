@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 23.4
+Version: 23.5
 Author: AIHR
 */
 
@@ -77,7 +77,7 @@ function ai_search_enqueue_scripts()
 
    // Enqueue custom styles for the search bar
     //wp_enqueue_style('ai-search-style-commons', plugin_dir_url(__FILE__) . 'css/commons.css?v=16.15');
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=16.22');
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=16.23');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name
@@ -110,7 +110,7 @@ function ai_search_enqueue_scripts()
     // Enqueue script for handling AJAX search
     wp_enqueue_script(
         'ai-search-script',
-        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=13.26', // Adjust the path as needed
+        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=13.27', // Adjust the path as needed
         ['lodash', 'jquery', 'popper-js-cdn'], // Dependencies: jQuery and Lodash
         '1.0.1',
         true
@@ -120,7 +120,7 @@ function ai_search_enqueue_scripts()
 
     
     // Enqueue full-page search script
-    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '12.1.7', true);
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '12.1.8', true);
 
         
     // Localize script for AJAX URL
