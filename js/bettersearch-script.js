@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function () {
 									// throw new Error('Failed to fetch from proxy');
                                     jQuery(document).ready(function($) {
                                         $('#loading-spinner').hide();
-                                        $('#ai-search-clear').show();
+                                        $('#ai-search-clear').hide();
                                     }); 
                                     const errorBox = document.getElementById("gs-dropdown-results");
                                         errorBox.innerHTML = `
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                         errorBox.style.display = "block";
                                         jQuery(document).ready(function($) {
                                             $('#loading-spinner').hide();
-                                            $('#ai-search-clear').show();
+                                            $('#ai-search-clear').hide();
                                         });    
                                     return;
 							}
@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 resultsContainer.innerHTML = '';
                 resultsContainer.style.display = 'none';
                 $('#loading-spinner').hide();
-                $('#ai-search-clear').show();
+                $('#ai-search-clear').hide();
                 return;
             }
             
@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 ]);
 
                 $('#loading-spinner').hide();
-                $('#ai-search-clear').show();
+                $('#ai-search-clear').hide();
 
                 if (suggestionsData.status !== 'success' || filteredLessonsData.status !== 'success') {
                     $('#gs-dropdown-results').html(`<div class="error">${suggestionsData.message || filteredLessonsData.message}</div>`).show();
@@ -639,7 +639,7 @@ document.addEventListener('DOMContentLoaded', function () {
         searchBox.classList.remove('active');
         mobileSearchIcon.classList.remove('active');
         /* CHANGE: Maintain clear icon and suggestions box visibility on resize to desktop */
-        clearIcon.style.display = searchInput.value.length > 0 ? 'block' : 'none';
+        clearIcon.style.display = searchInput.value.length > 0 ? 'none' : 'none';
         suggestionsBox.style.display = searchInput.value.length > 0 ? 'flex' : 'none';
         spinner.style.display = 'none';
       }
