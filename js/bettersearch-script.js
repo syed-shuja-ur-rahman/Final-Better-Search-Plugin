@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const c_search_limit = aiSearch.c_search_limit;
     const fPageUrl = aiSearch.search_results_page_url;
     const accessibleJourneyUrl = aiSearch.accessible_journey_url;
+    const searchContainer = document.querySelector('.search-container');
+    const searchOverlay = document.querySelector('.search-overlay');
    
  
     const $ = jQuery;
@@ -20,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
         resultsContainer.style.display = 'none';
         $('#loading-spinner').hide();
         $('#ai-search-clear').hide();
+        searchContainer.classList.remove('active');
     } else {
         $("#gs-dropdown-searchbox").keypress(function(event) {
             if (event.key === "Enter") {
@@ -35,6 +38,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 event.target !== searchInput && 
                 !searchInput.contains(event.target)) {
                 resultsContainer.style.display = 'none';
+                searchContainer.classList.remove('active');
+                document.removeEventListener('click', handleClickOutside);
             }
         }
 
@@ -43,12 +48,14 @@ document.addEventListener('DOMContentLoaded', function () {
             if (searchInput.value.trim().length >= 3) {
                 resultsContainer.style.display = 'block';
             }
+            searchContainer.classList.add('active');
             document.addEventListener('click', handleClickOutside);
         });
 
         // Hide results when clicking the clear button
         $('#ai-search-clear').on('click', function() {
             resultsContainer.style.display = 'none';
+            searchContainer.classList.remove('active');
             document.removeEventListener('click', handleClickOutside);
 
         });
@@ -581,6 +588,7 @@ document.addEventListener('DOMContentLoaded', function () {
     mobileSearchIcon.addEventListener('click', () => {
       searchBox.classList.add('active');
       mobileSearchIcon.classList.add('active');
+      clearIcon.style.display = 'block';
       /* CHANGE: Show suggestions box if input has content */
       if (searchInput.value.length > 0) {
         suggestionsBox.style.display = 'flex';
@@ -640,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function () {
         mobileSearchIcon.classList.remove('active');
         /* CHANGE: Maintain clear icon and suggestions box visibility on resize to desktop */
         clearIcon.style.display = searchInput.value.length > 0 ? 'none' : 'none';
-        suggestionsBox.style.display = searchInput.value.length > 0 ? 'flex' : 'none';
+        // suggestionsBox.style.display = searchInput.value.length > 0 ? 'flex' : 'none';
         spinner.style.display = 'none';
       }
     });

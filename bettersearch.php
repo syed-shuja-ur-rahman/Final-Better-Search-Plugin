@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 23.6
+Version: 23.8
 Author: AIHR
 */
 
@@ -77,7 +77,7 @@ function ai_search_enqueue_scripts()
 
    // Enqueue custom styles for the search bar
     //wp_enqueue_style('ai-search-style-commons', plugin_dir_url(__FILE__) . 'css/commons.css?v=16.15');
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=16.23');
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=16.24');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name
@@ -110,7 +110,7 @@ function ai_search_enqueue_scripts()
     // Enqueue script for handling AJAX search
     wp_enqueue_script(
         'ai-search-script',
-        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=13.27', // Adjust the path as needed
+        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=13.28', // Adjust the path as needed
         ['lodash', 'jquery', 'popper-js-cdn'], // Dependencies: jQuery and Lodash
         '1.0.1',
         true
@@ -120,7 +120,7 @@ function ai_search_enqueue_scripts()
 
     
     // Enqueue full-page search script
-    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '12.1.8', true);
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '12.1.9', true);
 
         
     // Localize script for AJAX URL
@@ -161,7 +161,7 @@ function ai_search_shortcode_function($atts)
     
 ?>
 
-   <div class="container">
+<div class="container search-container"> 
     <div class="bs-search-box" id="bs-search-box">
       <span class="search-icon">
         <i class="fa fa-search"></i>
@@ -179,9 +179,10 @@ function ai_search_shortcode_function($atts)
     <span class="mobile-search-icon" id="mobile-search-icon">
       <i class="fa fa-search"></i>
     </span>
- 
 
-  <div id="gs-dropdown-results" class="ai-search-suggestions-box" style="display: none;"></div>
+    <div id="gs-dropdown-results" class="ai-search-suggestions-box" style="display: none;"></div>
+    <div id="gs-fullpage-link-container" style="display: none;"></div>
+    <div class="search-overlay"></div> 
 </div>
 
 

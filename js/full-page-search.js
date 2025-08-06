@@ -163,6 +163,8 @@ function constructFilterString() {
         filterConditions.push(`hr_domain IN [${domainsArray}]`);
     }
 
+    
+
     // Combine all conditions with AND
     return filterConditions.join(" AND ");
 }
@@ -170,7 +172,7 @@ function constructFilterString() {
 // Function to fetch results for a specific page
 async function fetchResults(page) {
     const offset = (page - 1) * limit; // Calculate offset based on the page number
-    var pagecontent = "";
+    
 
     try {
         const courseAndLessonIds = await getAccessibleCoursesJourney();     
@@ -206,7 +208,7 @@ async function fetchResults(page) {
 
         const data = await response.json();
         
-
+        const responseLength = data.data.length;
         if (data.status !== 'success') {
             $('#better-search-results').html(`<div class="error">${data.message}</div>`).show();
             return;
@@ -226,13 +228,13 @@ async function fetchResults(page) {
         // Display new results
         let html = '';
         if (!_.isEmpty(uniqueResults)) {
+        
             _.forEach(uniqueResults, (searchResult) => {
 
                 const isNonAccessible = nonAccessibleLessonIds.includes(searchResult.specific_metadata.id);
 
                 if (isNonAccessible) {
-                    // console.log ("<<<<<<<<<===Extracted Ids ===>>>>>>",searchResult.specific_metadata.id);
-                    // console.log ("<<<<<<<<<===Extracted Ids ===>>>>>>",searchResult.specific_metadata.assetType);
+                    
                     return; 
                 }
 
@@ -279,7 +281,7 @@ async function fetchResults(page) {
             });
         } else {
             html = '<div class="ai-search-suggestions">No results found.</div>';
-            pagecontent = "No results found";
+           
         }
 
         resultContainer.innerHTML = html;
@@ -289,7 +291,7 @@ async function fetchResults(page) {
 
         // Update pagination UI
 
-        updatePaginationUI(page,pagecontent);
+        updatePaginationUI(page, responseLength);
 
     } catch (error) {
         let errorMessage = error.message || 'Unknown error';
@@ -520,15 +522,26 @@ async function getAccessibleCoursesJourney(query) {
     }
 }
     // Function to update the pagination UI (with input box)
-    function updatePaginationUI(page, pagecontent) {
-
+    function updatePaginationUI(page, responseLength) {
+        
+        const isNextDisabled = (responseLength < limit);
+    
         paginationContainer.innerHTML = `
-            <button class="pagination-button" onclick="goToPage(currentPage - 1)" ${currentPage === 1 ? 'disabled' : ''}> <i class="fa-solid fa-arrow-left"></i>Previous</button>
+            <button class="pagination-button" onclick="goToPage(currentPage - 1)" ${currentPage === 1 ? 'disabled' : ''}>
+                <i class="fa-solid fa-arrow-left"></i>Previous
+            </button>
             <div class="pagination-container">
-            <span class="pageInputText">Page</span><input type="number" id="pageInput" value="${page}" min="1" onkeypress="handlePageInput(event)" ${pagecontent == 'No results found'  ? 'disabled' : ''} />
+                <span class="pageInputText">Page</span>
+                <input type="number" id="pageInput" value="${page}" min="1"
+                    onkeypress="handlePageInput(event)" 
+                    ${isNextDisabled ? 'disabled' : ''} />
             </div>
-            <button class="pagination-button" onclick="goToPage(currentPage + 1)" ${pagecontent == 'No results found'  ? 'style="display:none;" disabled' : ''}>Next<i class="fa-solid fa-arrow-right"></i></button>
+            <button class="pagination-button" onclick="goToPage(currentPage + 1)" 
+                ${isNextDisabled ? 'style="display:none;" disabled' : ''}>
+                Next<i class="fa-solid fa-arrow-right"></i>
+            </button>
         `;
+    
     }
 
     // Function to handle input box enter key press
@@ -544,7 +557,6 @@ async function getAccessibleCoursesJourney(query) {
     function goToPage(page) {
         if (page < 1) return; // Prevent invalid pages
         currentPage = page;
-        console.log(currentPage);
         fetchResults(currentPage);
     }
 
@@ -570,13 +582,13 @@ async function getAccessibleCoursesJourney(query) {
     
    let filtersHTML = `<span class="filter-by-text">Filter by:</span>`;
 
-// Row 1 starts here
+// Filter Row starts here
 filtersHTML += `<div class="filter-row">`;
 
 // Asset Type Filter
 filtersHTML += `
     <div class="filters-container">
-        <button class="fs-filter-button ${selectedFilters.assetType.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'assetType')">
+        <button class="fs-filter-button-at ${selectedFilters.assetType.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'assetType')">
             <span class="fs-filter-text" title="${selectedFilters.assetType.join(", ")}">${formatSelectedValues('assetType', 'Asset Type')}</span>
             <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
         </button>
@@ -594,7 +606,7 @@ filtersHTML += `
 // Date Filter
 filtersHTML += `
     <div class="filters-container">
-        <button class="fs-filter-button ${selectedFilters.date.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'date')">
+        <button class="fs-filter-button-d ${selectedFilters.date.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'date')">
             <span class="fs-filter-text" title="${selectedFilters.date.join(", ")}">${formatSelectedValues('date', 'Date')}</span>
             <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
         </button>
@@ -609,21 +621,17 @@ filtersHTML += `
     </div>
 `;
 
-filtersHTML += `</div>`; // Close first row
-
-// Row 2 starts here
-filtersHTML += `<div class="filter-row">`;
 
 // HR Domain Filter
 filtersHTML += `
     <div class="filters-container">
-        <button class="fs-filter-button ${selectedFilters.hrDomain.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'hrDomain')">
+        <button class="fs-filter-button-hrd ${selectedFilters.hrDomain.length > 0 ? 'active-filter' : ''}" onclick="toggleDropdown(this, 'hrDomain')">
             <span class="fs-filter-text" title="${selectedFilters.hrDomain.join(", ")}">${formatSelectedValues('hrDomain', 'HR Domain')}</span>
             <i class="fas fa-chevron-down fs-dropdown-arrow"></i>
         </button>
     </div>
     <div class="filter-content-domain" id="hrDomain-dropdown">
-        ${['Business Partnering', 'Comp. & Ben', 'DEIB & EX', 'Digital HR', 'Employee Relations', 'Health & Safety', 'HR Leadership', 'HR Operations', 'L&D', 'Org. Development', 'People Analytics', 'Talent Acquisition', 'Talent Management', 'Soft Skills'].map(item => `
+        ${['Business Partnering','Comp. & Ben.','DEIB & EX','Digital HR','Employee Relations','Health & Safety','HR Leadership','HR Operations','L&D','Org. Development','People Analytics','Talent Acquisition','Talent Management','Communication','Conflict Resolution','Influencing','Time Management','Leadership','Other','All HR Domains'].map(item => `
             <label>
                 <input type="checkbox" value="${item}" ${selectedFilters.hrDomain.includes(item) ? 'checked' : ''} onchange="handleFilterChange('hrDomain', '${item}', this.checked)">
                 <span>${item}</span>
@@ -637,7 +645,7 @@ if (hasFilters) {
     filtersHTML += '<button onclick="clearFilters()" class="fs-clear-filters-btn">Clear Filters</button>';
 }
 
-filtersHTML += `</div>`; // Close second row
+filtersHTML += `</div>`; // Close Filter row
 
 
     
