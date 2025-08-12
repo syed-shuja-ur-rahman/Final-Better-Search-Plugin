@@ -11,9 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const fPageUrl = aiSearch.search_results_page_url;
     const accessibleJourneyUrl = aiSearch.accessible_journey_url;
     const searchContainer = document.querySelector('.search-container');
-    const searchOverlay = document.querySelector('.search-overlay');
    
- 
     const $ = jQuery;
 
     const isFullPage = window.location.href.includes(fPageUrl);
@@ -57,18 +55,34 @@ document.addEventListener('DOMContentLoaded', function () {
             resultsContainer.style.display = 'none';
             searchContainer.classList.remove('active');
             document.removeEventListener('click', handleClickOutside);
-
         });
+
+        // Function to check scroll and apply box shadow
+        function checkResultsContainerScroll() {
+            const fullPageLinkDiv = document.querySelector('#gs-dropdown-open-fullpage');
+            if (!resultsContainer || !fullPageLinkDiv) return;
+            
+            // Check if results container has scroll
+            const hasScroll = resultsContainer.scrollHeight > resultsContainer.clientHeight;
+
+            const isAtBottom = Math.abs(resultsContainer.scrollHeight - (resultsContainer.scrollTop + resultsContainer.clientHeight)) < 1;
+                
+            // Apply or remove box shadow based on scroll
+            if (hasScroll && isAtBottom !== true) {
+                fullPageLinkDiv.style.boxShadow = '0 -40px 40px #FFFFFF';
+            } else {
+                fullPageLinkDiv.style.boxShadow = 'none';
+            }
+            if (resultsContainer) {
+                resultsContainer.addEventListener('scroll', checkResultsContainerScroll);
+            }
+        }
 
         // Modified fetchFilteredLessons to use dynamic course IDs
         const fetchFilteredLessons = async (query, courseAndLessonIds) => {
-
-
             try {
-                
                 const courseFilter = `(asset_type='Courses' AND specific_metadata.id IN [${courseAndLessonIds[0].join(',')}]) OR (asset_type='Courses' AND license_type = 'Public')`;
                    
-                
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
@@ -121,9 +135,103 @@ document.addEventListener('DOMContentLoaded', function () {
             const accessibleCoursesList = journeyData.journeys;
             const courseIds = accessibleCoursesList;
         
-        
             const courseFilterJourney = `(asset_type='Courses' AND license_type = 'Private' AND specific_metadata.id IN [${courseIds.join(',')}])`;
         
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                },
+                body: JSON.stringify({
+                    Query: query,
+                    SearchType: search_type,
+                    Filter: courseFilterJourney,
+                    Offset: 0,
+                    Limit: 200,
+                    nonce: nonce,
+                }),
+            });
+        
+            if (!response.ok) {
+                throw new Error(`API response not OK: ${response.status}`);
+            }
+        
+            const data = await response.json();
+            const getNonAccessibleNonVideoLessonIds = [];
+            
+            data.data.forEach(item => {
+                if (
+                    item.specific_metadata &&
+                    Array.isArray(item.specific_metadata.lesson_id)
+                ) {
+                    getNonAccessibleNonVideoLessonIds.push(...item.specific_metadata.lesson_id);
+                }
+            });
+            return getNonAccessibleNonVideoLessonIds;
+        }
+
+        async function getAccessibleCoursesJourney(query) {
+            try {
+                const itemStr = localStorage.getItem('currentToken');
+                const tokenAsKey = localStorage.getItem("Journeys."+itemStr);
+                let accessibleCoursesList = [];
+        
+                if (!tokenAsKey) {
+                    Object.keys(localStorage).forEach((key) => {
+                        if (key.startsWith("Journeys.") || key.startsWith("Lessons.")) {
+                            localStorage.removeItem(key);
+                        }
+                    });
+
+                    try {
+                        const res = await fetch(accessibleJourneyUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${itemStr}`  
+                            }
+                        });
+                        if (!res.ok) {
+                            jQuery(document).ready(function($) {
+                                $('#loading-spinner').hide();
+                                $('#ai-search-clear').hide();
+                            }); 
+                            const errorBox = document.getElementById("gs-dropdown-results");
+                            errorBox.innerHTML = `
+                                <div class="error-msg">Failed to verify token.</div>
+                            `;
+                            errorBox.style.display = "block";
+                            return;
+                        }
+                        const data = await res.json();
+                        const journeyIds = data.result;
+                        
+                        localStorage.setItem("Journeys."+itemStr, JSON.stringify(journeyIds));
+                        accessibleCoursesList = journeyIds.journeys;
+                    } catch (err) {	
+                        const errorBox = document.getElementById("gs-dropdown-results");
+                        errorBox.innerHTML = `
+                            <div class="error-msg">Unable to Load Courses</div>
+                        `;
+                        errorBox.style.display = "block";
+                        jQuery(document).ready(function($) {
+                            $('#loading-spinner').hide();
+                            $('#ai-search-clear').hide();
+                        });    
+                        return;
+                    }
+                } else {
+                    const item = JSON.parse(tokenAsKey);
+                    accessibleCoursesList = item.journeys;
+                }
+                
+                const lessonIdsStored = JSON.parse(localStorage.getItem("Lessons."+itemStr));
+                const courseIds = accessibleCoursesList;
+                
+                if (!lessonIdsStored) {
+                    const courseFilter = `(asset_type='Courses' AND license_type = 'Public') OR (asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
+            
                     const response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: {
@@ -133,162 +241,49 @@ document.addEventListener('DOMContentLoaded', function () {
                         body: JSON.stringify({
                             Query: query,
                             SearchType: search_type,
-                            Filter: courseFilterJourney,
+                            Filter: courseFilter,
                             Offset: 0,
-                            Limit: 200,
                             nonce: nonce,
                         }),
                     });
-        
-                    
-        
+            
                     if (!response.ok) {
                         throw new Error(`API response not OK: ${response.status}`);
                     }
-        
+            
                     const data = await response.json();
-                    const getNonAccessibleNonVideoLessonIds = [];
                     
+                    const allLessonIds = [];
+            
                     data.data.forEach(item => {
                         if (
                             item.specific_metadata &&
                             Array.isArray(item.specific_metadata.lesson_id)
-                            ) {
-                            getNonAccessibleNonVideoLessonIds.push(...item.specific_metadata.lesson_id);
+                        ) {
+                            allLessonIds.push(...item.specific_metadata.lesson_id);
                         }
                     });
-                    return getNonAccessibleNonVideoLessonIds;
-        }
 
+                    const uniqueLessonIds = _.uniq(allLessonIds);
 
+                    const lessonData = {
+                        lessonIds: uniqueLessonIds
+                    };
 
-
-        // Simplified function to get course IDs and Lesson IDs
-        async function getAccessibleCoursesJourney(query) {
-
-
-            try {
-        
-                const itemStr = localStorage.getItem('currentToken');
-        
-                const tokenAsKey = localStorage.getItem("Journeys."+itemStr);
-        
-                let accessibleCoursesList = [];
-        
-                if (!tokenAsKey) {
-
-                            Object.keys(localStorage).forEach((key) => {
-                                if (key.startsWith("Journeys.") || key.startsWith("Lessons.")) {
-                                    localStorage.removeItem(key);
-                                }
-                            });
-
-							try {
-								const res = await fetch(accessibleJourneyUrl, {
-                                    method: 'GET',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${itemStr}`  
-                                    }
-                                });
-								if (!res.ok) {
-									// throw new Error('Failed to fetch from proxy');
-                                    jQuery(document).ready(function($) {
-                                        $('#loading-spinner').hide();
-                                        $('#ai-search-clear').hide();
-                                    }); 
-                                    const errorBox = document.getElementById("gs-dropdown-results");
-                                        errorBox.innerHTML = `
-                                            <div class="error-msg">Failed to verify token.</div>
-                                        `;
-                                        errorBox.style.display = "block";
-                                    return;
-								}
-								const data = await res.json();
-								const journeyIds = data.result;
-                                
-								localStorage.setItem("Journeys."+itemStr, JSON.stringify(journeyIds));
-
-								accessibleCoursesList = journeyIds.journeys;
-							} catch (err) {	
-                                const errorBox = document.getElementById("gs-dropdown-results");
-                                        errorBox.innerHTML = `
-                                            <div class="error-msg">Unable to Load Courses</div>
-                                        `;
-                                        errorBox.style.display = "block";
-                                        jQuery(document).ready(function($) {
-                                            $('#loading-spinner').hide();
-                                            $('#ai-search-clear').hide();
-                                        });    
-                                    return;
-							}
-						} else {
-							const item = JSON.parse(tokenAsKey);
-							accessibleCoursesList = item.journeys;
-						}
-				
-				const lessonIdsStored = JSON.parse(localStorage.getItem("Lessons."+itemStr));
-				 const courseIds = accessibleCoursesList;
-				
-        if (!lessonIdsStored){
-               
-                const courseFilter = `(asset_type='Courses' AND license_type = 'Public') OR (asset_type='Courses' AND specific_metadata.id IN [${courseIds.join(',')}])`;
-        
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                    },
-                    body: JSON.stringify({
-                        Query: query,
-                        SearchType: search_type,
-                        Filter: courseFilter,
-                        Offset: 0,
-                        nonce: nonce,
-                    }),
-                });
-        
-                if (!response.ok) {
-                    throw new Error(`API response not OK: ${response.status}`);
+                    localStorage.setItem("Lessons."+itemStr, JSON.stringify(lessonData));
+                    const combinedArray = [courseIds, uniqueLessonIds];
+                    return combinedArray;
+                    
+                } else {
+                    const combinedArray = [courseIds, lessonIdsStored.lessonIds];
+                    return combinedArray;
                 }
-        
-                const data = await response.json();
-				
-                const allLessonIds = [];
-        
-                data.data.forEach(item => {
-                    if (
-                        item.specific_metadata &&
-                        Array.isArray(item.specific_metadata.lesson_id)
-                    ) {
-                        allLessonIds.push(...item.specific_metadata.lesson_id);
-                    }
-                });
-
-                const uniqueLessonIds = _.uniq(allLessonIds);
-
-                const lessonData = {
-                    lessonIds: uniqueLessonIds
-                  };
-
-                localStorage.setItem("Lessons."+itemStr, JSON.stringify(lessonData));
-				const combinedArray = [courseIds, uniqueLessonIds];
-			return combinedArray;
-			
-		} else{
-                const combinedArray = [courseIds, lessonIdsStored.lessonIds];
-			return combinedArray;
-
-			}
-        
-                
         
             } catch (e) {
                 console.error("Error getting course IDs or lessons:", e);
                 document.getElementById("gs-dropdown-results").innerHTML = `
-                            <div class="error-msg">Unable to load courses.</div>
-                        `;
+                    <div class="error-msg">Unable to load courses.</div>
+                `;
                 return [];
             }
         }
@@ -310,9 +305,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             
-
             const lessonFilter = `(asset_type NOT IN ['Courses', 'Video lesson', 'Non-Video lesson']) OR (asset_type IN ['Video lesson', 'Non-Video lesson'] AND specific_metadata.id IN [${courseAndLessonIds[1]}])`;
-
 
             try {
                 // Fetch both suggestions and filtered lessons in parallel
@@ -355,8 +348,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     articles: [],
                 };
 
-                
-
                 // Categorize remaining results based on asset type
                 suggestionsData.data.forEach((item) => {
                     if (item.asset_type === 'Video lesson' || item.asset_type === 'Non-Video lesson') {
@@ -371,13 +362,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 
                 let html = '';
+                let hasResults = false;
+                
                 // Handle Features Section
                 if (!_.isEmpty(categorizedResults.features)) {
-                            
+                    hasResults = true;
                     html += `<div>
-                                    <div>
-                                        <div class="category-title">Features </div>
-                                    </div>
+                                <div>
+                                    <div class="category-title">Features </div>
+                                </div>
                             </div>`;
                     _.take(categorizedResults.features, searchLimit).forEach((feature) => {
                         const thumbnail = getThumbnail(feature.thumbnail_url);
@@ -400,11 +393,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Handle Course/Lessons Section
                 if (!_.isEmpty(categorizedResults.lessons)) {
-
-
-
-                  
-
+                    hasResults = true;
                     html += `<div>
                                 <div>
                                     <div class="category-title">Course/Lessons</div>
@@ -419,15 +408,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         return lesson.url; 
                     });
                     _.take(uniqueLessons, searchLimit).forEach((lesson) => {
-
-
                         const thumbnail = lesson.asset_type === "Courses"
                                             ? `<div class="ai-thumbnail-course" style="background-image: url('${lesson.thumbnail_url}');"></div>`
                                             : lesson.asset_type === "Video lesson"
                                             ? `<div class="bs-thumbnail-lesson"><i class="fa-light fa-play"></i></div>`
                                             : `<div class="bs-thumbnail-lesson"><i class="fa-light fa-book"></i></i></div>`;
         
-                        
                         const isNonAccessible = nonAccessibleLessonIds.includes(lesson.specific_metadata.id);
                         
                         if (isNonAccessible) {     
@@ -469,6 +455,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 
                 // Handle Content Section
                 if (!_.isEmpty(categorizedResults.articles)) {
+                    hasResults = true;
                     html += `<div >
                                 <div >
                                         <div class="category-title">Content</div>
@@ -501,6 +488,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 // Handle Help Center Section
                 if (!_.isEmpty(categorizedResults.helpcenter)) {
+                    hasResults = true;
                     html += `<div >
                                     <div >
                                         <div class="category-title">Knowledge Base </div>
@@ -528,29 +516,37 @@ document.addEventListener('DOMContentLoaded', function () {
                     html += `<hr>`;
                 }
                
-                const encodedQuery = encodeURIComponent(query);
+                if (hasResults) {
+                    const encodedQuery = encodeURIComponent(query);
                     const linkHTML = `  
-                    <div class="full-page-link" id="gs-dropdown-open-fullpage">
-                        <a href="${fPageUrl}?q=${encodedQuery}" class="full-search-page">
-                        <i class="fa-light fa-arrow-up-right"></i> Open Search Page
-                        </a>
+                        <div class="full-page-link" id="gs-dropdown-open-fullpage">
+                            <a href="${fPageUrl}?q=${encodedQuery}" class="full-search-page">
+                            <i class="fa-light fa-arrow-up-right"></i> Open Search Page
+                            </a>
                         </div>
                     `;
                     html += linkHTML;
-
-                if (_.isEmpty(html)) {
+                } else {
                     html = '<div class="ai-search-suggestions">No results found.</div>';
                 }
 
                 resultsContainer.innerHTML = html;
+                checkResultsContainerScroll();
 
             } catch (error) {
                 console.error('Search error:', error);
                 $('#loading-spinner').hide();
                 resultsContainer.innerHTML = `<div class="error">Error occurred: ${error.message || 'Unknown error'}</div>`;
                 resultsContainer.style.display = 'block';
+                checkResultsContainerScroll();
             }
         }, searchDelay);
+
+        // Add resize observer to handle container size changes
+        const resizeObserver = new ResizeObserver(checkResultsContainerScroll);
+        if (resultsContainer) {
+            resizeObserver.observe(resultsContainer);
+        }
 
         // Attach event listener to the input
         searchInput.addEventListener('input', handleSearch);
@@ -566,6 +562,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#ai-search-clear').on('click', function () {
             $('#gs-dropdown-searchbox').val('');
             $('#gs-dropdown-results').empty().hide();
+            checkResultsContainerScroll();
         });
 
         function getThumbnail(thumbnail_url) {
@@ -576,80 +573,63 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+const searchBox = document.getElementById('bs-search-box');
+const mobileSearchIcon = document.getElementById('mobile-search-icon');
+const searchInput = document.getElementById('gs-dropdown-searchbox');
+const clearIcon = document.getElementById('ai-search-clear');
+const spinner = document.getElementById('loading-spinner');
+const suggestionsBox = document.getElementById('gs-dropdown-results');
 
-  const searchBox = document.getElementById('bs-search-box');
-    const mobileSearchIcon = document.getElementById('mobile-search-icon');
-    const searchInput = document.getElementById('gs-dropdown-searchbox');
-    const clearIcon = document.getElementById('ai-search-clear');
-    const spinner = document.getElementById('loading-spinner');
-    const suggestionsBox = document.getElementById('gs-dropdown-results');
-
-    // Toggle search box and suggestions box on mobile
-    mobileSearchIcon.addEventListener('click', () => {
-      searchBox.classList.add('active');
-      mobileSearchIcon.classList.add('active');
-      clearIcon.style.display = 'block';
-      /* CHANGE: Show suggestions box if input has content */
-      if (searchInput.value.length > 0) {
+// Toggle search box and suggestions box on mobile
+mobileSearchIcon.addEventListener('click', () => {
+    searchBox.classList.add('active');
+    mobileSearchIcon.classList.add('active');
+    clearIcon.style.display = 'block';
+    /* CHANGE: Show suggestions box if input has content */
+    if (searchInput.value.length > 0) {
         suggestionsBox.style.display = 'flex';
-      }
-      searchInput.focus();
-    });
+    }
+    searchInput.focus();
+});
 
-    // Clear input and hide search box and suggestions on mobile
-    clearIcon.addEventListener('click', () => {
-      searchInput.value = '';
-      clearIcon.style.display = 'none';
-      spinner.style.display = 'none';
-      suggestionsBox.style.display = 'none';
-      if (window.innerWidth <= 900) {
+// Clear input and hide search box and suggestions on mobile
+clearIcon.addEventListener('click', () => {
+    searchInput.value = '';
+    clearIcon.style.display = 'none';
+    spinner.style.display = 'none';
+    suggestionsBox.style.display = 'none';
+    if (window.innerWidth <= 900) {
         searchBox.classList.remove('active');
         mobileSearchIcon.classList.remove('active');
-      }
-    });
-
-    // Show/hide clear icon, spinner, and suggestions based on input
-    searchInput.addEventListener('input', () => {
-      if (searchInput.value.length > 0) {
-        // clearIcon.style.display = 'block';
-        // Simulate loading state (remove in production if not needed)
-
-      const fPageUrl = aiSearch.search_results_page_url;
-      const isFullPage = window.location.href.includes(fPageUrl);
-
-     
-
-    if (isFullPage && fPageUrl != ""){
-
-        
-
-    }else{
-
-
-        spinner.style.display = 'block';
-        
     }
-        
-        /* CHANGE: Show suggestions box on input */
-        //suggestionsBox.style.display = 'flex';
-      
-      } else {
+});
+
+// Show/hide clear icon, spinner, and suggestions based on input
+searchInput.addEventListener('input', () => {
+    if (searchInput.value.length > 0) {
+        const fPageUrl = aiSearch.search_results_page_url;
+        const isFullPage = window.location.href.includes(fPageUrl);
+
+        if (isFullPage && fPageUrl != ""){
+            // Do nothing special for full page
+        } else {
+            spinner.style.display = 'block';
+        }
+    } else {
         clearIcon.style.display = 'none';
         spinner.style.display = 'none';
         /* CHANGE: Hide suggestions box when input is empty */
         suggestionsBox.style.display = 'none';
-      }
-    });
+    }
+});
 
-    // Handle window resize to ensure correct visibility
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 900) {
+// Handle window resize to ensure correct visibility
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 900) {
         searchBox.classList.remove('active');
         mobileSearchIcon.classList.remove('active');
         /* CHANGE: Maintain clear icon and suggestions box visibility on resize to desktop */
         clearIcon.style.display = searchInput.value.length > 0 ? 'none' : 'none';
-        // suggestionsBox.style.display = searchInput.value.length > 0 ? 'flex' : 'none';
         spinner.style.display = 'none';
-      }
-    });
-
+    }
+});

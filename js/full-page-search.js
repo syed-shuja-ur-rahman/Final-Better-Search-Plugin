@@ -527,7 +527,7 @@ async function getAccessibleCoursesJourney(query) {
         const isNextDisabled = (responseLength < limit);
     
         paginationContainer.innerHTML = `
-            <button class="pagination-button" onclick="goToPage(currentPage - 1)" ${currentPage === 1 ? 'disabled' : ''}>
+            <button class="pagination-button" onclick="goToPage(currentPage - 1)" ${currentPage === 1 ? 'style="display:none;" disabled' : ''}>
                 <i class="fa-solid fa-arrow-left"></i>Previous
             </button>
             <div class="pagination-container">

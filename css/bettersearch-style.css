@@ -1,7 +1,7 @@
-
-
-
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+
+
 
 .search-overlay {
     display: none; 
@@ -777,19 +777,35 @@ hr {
 @media (min-width: 1080px) {
 #gs-dropdown-results{
 
-  margin-left: 12px !important;
- margin-top: 4px !important;
+margin-left: 12px !important;
 
+margin-top: -2px !important;
 }}
 
 @media (max-width: 1070px) {
 #gs-dropdown-results{
 
-        margin-left: 12px !important;
-        top: 56px;
-        
+margin-left: 12px !important;
 
+top: 46px;
 }}
+
+@media screen and (min-width: 1071px) and (max-width: 1079px) {
+ 
+    
+    
+    #gs-dropdown-results{
+        
+        margin-left: 12px !important;
+        margin-top: -2px !important;
+        
+    }
+    
+}
+
+
+
+
 
 
 @media (max-width: 900px) {
@@ -816,21 +832,19 @@ hr {
       /* CHANGE: Full-width overlay for active search box */
       .bs-search-box.active {
        display: flex;
-
-        position: fixed;
-        top: 13px !important;
-        left: 0;
-        width: 97vw !important;
-        height: 46px;
-        z-index: 1000;
-        background: #fff;
-        border: none;
-        border-bottom: 1px solid #ccc;
-        padding: 5px 15px;
-        box-sizing: border-box;
-        margin: 0 !important;
-        left: 15px !important;
-       
+       position: fixed;
+       top: 13px !important;
+       left: 0;
+       width: 95vw !important;
+       height: 46px;
+       z-index: 1000;
+       background: #fff;
+       border: none;
+       border-bottom: 1px solid #ccc;
+       padding: 5px 15px;
+       box-sizing: border-box;
+       margin: 0 !important;
+       left: 15px !important;
       }
 
       /* CHANGE: Ensure input padding consistency in mobile overlay */
@@ -845,9 +859,9 @@ hr {
 
       /* CHANGE: Adjust suggestions box to full-width under search box */
       #gs-dropdown-results {
-        top: 64px;
-        left: 6px;
-        width: 96vw !important;
+        top: 58px;
+        left: 5px;
+        width: 95.1vw !important;
         position: fixed;
       }
     }
