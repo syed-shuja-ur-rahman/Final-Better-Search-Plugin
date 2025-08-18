@@ -714,6 +714,7 @@ hr {
     margin: 0px auto !important;
     width: 100% !important;
     padding-top: 10px;
+    padding-left: 20px;
 }
 
 .pagination-button{
@@ -755,6 +756,13 @@ hr {
         right: 0px;
     }
 } 
+
+
+@media screen and (min-width: 1070px) {
+    .better-search-holder {
+        width: 50%;
+    }
+}
 
 
 
