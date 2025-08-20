@@ -760,7 +760,7 @@ hr {
 
 @media screen and (max-width: 1070px) {
     .better-search-holder {
-        width: 50%;
+        width: 50% !important;
     }
 }
 
@@ -776,7 +776,7 @@ hr {
 
 
 .better-search-holder{
-  width: 60% !important;
+  width: 60% ;
 }
 
 

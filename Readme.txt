@@ -27,3 +27,17 @@
 
 
 Your Better Search Plugin is now set up and ready to use!
+
+
+
+Frontend Functionality
+
+The plugin uses two dedicated scripts to handle search interactions:
+
+bettersearch-script.js
+Handles the dropdown search results that appear dynamically while typing in the search bar.
+
+full-page-search.js
+Handles the full-page search results view, displaying paginated results and additional filtering when users open the full search page.
+
+These scripts ensure a smooth and optimized search experience across both compact (dropdown) and extended (full-page) views.
