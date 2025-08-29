@@ -129,6 +129,15 @@ add_settings_field(
     'ai_search_main_section'
 );
 
+// Add a field for Search Results Limit
+add_settings_field(
+    'exclude_below_score',
+    __('Exclude Search Results Below Ranking Score', 'aisearch'),
+    'ai_exclude_below_score_callback',
+    'ai_search_settings',
+    'ai_search_main_section'
+);
+
 
 }
 
@@ -215,8 +224,15 @@ function ai_search_results_page_url_field_callback()
     echo '<p class="description">' . __('Enter the URL where full search results should be displayed.', 'aisearch') . '</p>';
 }
 
-
-
+// Field callback for Search Results Limit
+function ai_exclude_below_score_callback()
+{
+    $options = get_option('wp_aisearch_settings');
+    $exclude_below_score = isset($options['exclude_below_score']) ? $options['exclude_below_score'] : 0.15; // Default to 0.15
+    
+    echo '<input type="number" id="exclude_below_score" name="wp_aisearch_settings[exclude_below_score]" value="' . esc_attr($exclude_below_score) . '" class="regular-text" min="0.00" max="1.0" step="0.01">';
+    echo '<p class="description">' . __('Exclude Search Results Below Ranking Score (0-1).', 'aisearch') . '</p>';
+}
 
 
 // Sanitize settings to preserve existing values for disabled fields
@@ -255,6 +271,11 @@ function ai_search_sanitize_settings($input)
     if (isset($input['search_results_page_url'])) {
         $input['search_results_page_url'] = esc_url_raw($input['search_results_page_url']);
     }
+    if (isset($input['exclude_below_score'])) {
+        $score = floatval($input['exclude_below_score']);
+        $input['exclude_below_score'] = max(0, min(1, $score));
+    }
+    
     return $input;
 }
 // Add reset button functionality

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Better Search
 Description: A plugin to manage Better Search configurations (API URL and API Key).
-Version: 26.0
+Version: 28.0
 Author: AIHR
 */
 
@@ -76,7 +76,7 @@ function ai_search_enqueue_scripts()
 
 
    // Enqueue custom styles for the search bar
-    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=16.27');
+    wp_enqueue_style('ai-search-style', plugin_dir_url(__FILE__) . 'css/bettersearch-style.css?v=16.28');
 
 
     $options = get_option('wp_aisearch_settings');  // Assuming 'wp_aisearch_settings' is the option name
@@ -88,6 +88,7 @@ function ai_search_enqueue_scripts()
     $c_search_limit = isset($options['c_search_limit']) ? intval($options['c_search_limit']) : 2;
     $search_results_page_url = isset($options['search_results_page_url']) ? $options['search_results_page_url'] : '#';
     $accessible_journey_url = isset($options['accessible_journey_url']) ? $options['accessible_journey_url'] : '';
+    $exclude_below_score = isset($options['exclude_below_score']) ? $options['exclude_below_score'] : '';
 
 
     wp_enqueue_script(
@@ -109,7 +110,7 @@ function ai_search_enqueue_scripts()
     // Enqueue script for handling AJAX search
     wp_enqueue_script(
         'ai-search-script',
-        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=13.30', // Adjust the path as needed
+        plugin_dir_url(__FILE__) . 'js/bettersearch-script.js?v=14.28', // Adjust the path as needed
         ['lodash', 'jquery', 'popper-js-cdn'], // Dependencies: jQuery and Lodash
         '1.0.1',
         true
@@ -119,7 +120,7 @@ function ai_search_enqueue_scripts()
 
     
     // Enqueue full-page search script
-    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '12.2.0', true);
+    wp_enqueue_script('ai-full-page-search', plugin_dir_url(__FILE__) . 'js/full-page-search.js', ['lodash', 'jquery', 'popper-js-cdn'], '12.28', true);
 
         
     // Localize script for AJAX URL
@@ -135,6 +136,7 @@ function ai_search_enqueue_scripts()
         'c_search_limit' => $c_search_limit,
         'search_results_page_url' => $search_results_page_url,
         'accessible_journey_url' => $accessible_journey_url,
+        'exclude_below_score' => $exclude_below_score,
     ));
 }
 add_action('wp_enqueue_scripts', 'ai_search_enqueue_scripts');

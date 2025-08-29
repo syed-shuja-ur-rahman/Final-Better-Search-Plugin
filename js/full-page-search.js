@@ -8,11 +8,26 @@ const search_type = aiSearch.search_type;
 const fPageUrl = aiSearch.search_results_page_url;
 const isFullPage = window.location.href.includes(fPageUrl);
 const accessibleJourneyUrl = aiSearch.accessible_journey_url;
+const excludeBelowScore = aiSearch.exclude_below_score;
 
 // Get search query from URL
 const queryString = new URLSearchParams(window.location.search);
 const query = queryString.get("s") || queryString.get("q"); // Get the raw query parameter
 let decodedQuery = decodeURIComponent(query || ''); // Handle different query params
+let globalResultArray = []
+
+
+function filterByRankingScore(results, excludeBelowScore) {
+    const threshold = Number(excludeBelowScore) || 0;
+    return results.filter(item => {
+
+        if (item._rankingScore !== undefined && item._rankingScore !== null) {
+            return Number(item._rankingScore) >= threshold; 
+        }
+        return true; 
+    });
+}
+
 
 // Function to show loading spinner
 function showLoadingSpinner() {
@@ -107,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 let currentPage = 1; // Track the current page
-const limit = 20; // Number of results per page
+const limit = 21; // Number of results per page
 let totalPages = 1; // Track the total number of pages (initially 1)
 let selectedFilters = {
     assetType: [], // Array to store selected asset types
@@ -214,23 +229,29 @@ async function fetchResults(page) {
             return;
         }
 
+        // Apply Ranking Score Filter
+        let filteredResults = filterByRankingScore(data.data, excludeBelowScore);
+
         // Clear previous results
         resultContainer.innerHTML = '';
 
         // Sort results to bring courses to the top
-        const sortedResults = _.orderBy(data.data, item => item.asset_type === "Courses" ? 0 : 1);
-        
+        const sortedResults = _.orderBy(filteredResults, item => item.asset_type === "Courses" ? 0 : 1);
         
         const uniqueResults = _.uniqBy(sortedResults, (item) => 
             item.asset_type === "Video lesson" ? item.external_url : item.id
         );
+
+        globalResultArray = uniqueResults;
         
         // Display new results
         let html = '';
         if (!_.isEmpty(uniqueResults)) {
-        
             _.forEach(uniqueResults, (searchResult) => {
 
+                if (limit === uniqueResults.length - 1) {
+                    return;
+                }
                 const isNonAccessible = nonAccessibleLessonIds.includes(searchResult.specific_metadata.id);
 
                 if (isNonAccessible) {
@@ -524,7 +545,7 @@ async function getAccessibleCoursesJourney(query) {
     // Function to update the pagination UI (with input box)
     function updatePaginationUI(page, responseLength) {
         
-        const isNextDisabled = (responseLength < limit);
+        const isNextDisabled = (responseLength > globalResultArray.length);
     
         paginationContainer.innerHTML = `
             <button class="pagination-button" onclick="goToPage(currentPage - 1)" ${currentPage === 1 ? 'style="display:none;" disabled' : ''}>

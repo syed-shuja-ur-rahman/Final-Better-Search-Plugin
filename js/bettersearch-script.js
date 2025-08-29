@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const resultsContainer = document.getElementById('gs-dropdown-results');
     const nonce = aiSearch.nonce;
     const searchLimit = aiSearch.search_limit;
+    const excludeBelowScore = aiSearch.exclude_below_score;
     const searchDelay = aiSearch.search_delay;
     const apiUrl = aiSearch.api_url;
     const apiKey = aiSearch.api_key;
@@ -11,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const fPageUrl = aiSearch.search_results_page_url;
     const accessibleJourneyUrl = aiSearch.accessible_journey_url;
     const searchContainer = document.querySelector('.search-container');
-   
+    
     const $ = jQuery;
 
     const isFullPage = window.location.href.includes(fPageUrl);
@@ -77,6 +78,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 resultsContainer.addEventListener('scroll', checkResultsContainerScroll);
             }
         }
+        
+        function filterByRankingScore(results, excludeBelowScore) {
+            const threshold = Number(excludeBelowScore) || 0;
+            return results.filter(item => {
+
+                if (item._rankingScore !== undefined && item._rankingScore !== null) {
+                    return Number(item._rankingScore) >= threshold; 
+                }
+                return true; 
+            });
+        }
 
         // Modified fetchFilteredLessons to use dynamic course IDs
         const fetchFilteredLessons = async (query, courseAndLessonIds) => {
@@ -102,7 +114,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                return response.json();
+                const json = await response.json();
+                // ✅ Apply filter before returning
+                json.data = filterByRankingScore(json.data || [], excludeBelowScore);
+                return json;
             } catch (error) {
                 console.error('Error fetching filtered lessons:', error);
                 return {
@@ -158,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         
             const data = await response.json();
+            data.data = filterByRankingScore(data.data || [], excludeBelowScore);
             const getNonAccessibleNonVideoLessonIds = [];
             
             data.data.forEach(item => {
@@ -252,6 +268,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
             
                     const data = await response.json();
+                    // ✅ Apply filter before using
+                    data.data = filterByRankingScore(data.data || [], excludeBelowScore);
                     
                     const allLessonIds = [];
             
@@ -339,6 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
+                const filteredSuggestions = filterByRankingScore(suggestionsData.data || [], excludeBelowScore);
                 // Process and display results
                 resultsContainer.style.display = 'block';
                 const categorizedResults = {
@@ -349,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 };
 
                 // Categorize remaining results based on asset type
-                suggestionsData.data.forEach((item) => {
+                filteredSuggestions.forEach((item) => {
                     if (item.asset_type === 'Video lesson' || item.asset_type === 'Non-Video lesson') {
                         categorizedResults.lessons.push(item);
                     } else if (item.asset_type === 'Feature') {

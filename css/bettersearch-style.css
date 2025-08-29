@@ -757,10 +757,20 @@ hr {
     }
 } 
 
+@media screen and (min-width: 1071px) and (max-width: 1640px) {
+    .better-search-holder {
+        position: fixed;
+        margin: 0 auto;
+        left: 0px;
+        right: 0px;
+    }
+}
+
 
 @media screen and (max-width: 1070px) {
     .better-search-holder {
         width: 50% !important;
+        margin: 0 auto;
     }
 }
 
@@ -822,9 +832,9 @@ top: 46px;
         margin-right: 20px !important;
       }
 
-      .better-search-holder .container {
+      /* .better-search-holder .container {
         width: 80% !important;
-      }
+      } */
 
       .bs-search-box {
         display: none;
